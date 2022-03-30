@@ -1,4 +1,6 @@
-# J1
+# J-group
+
+The J-group covers the design, architecture, and implementation of a language for verifiable private protocol design, including Juvix, Alucard, and VampIR.
 
 A verifiable protocol design language *should*:
 

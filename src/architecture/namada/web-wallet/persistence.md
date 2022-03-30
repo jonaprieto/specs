@@ -18,6 +18,8 @@ The `localStorage` state is stored in one of three places, depending on your env
 - `persist:anoma-wallet-dev` - Devnet
 - `persist:anoma-wallet-local` - Local ledger
 
+This allows us to keep our wallet state in sync with multiple ledgers while testing.
+
 ## Challenges
 
 As a secret is required to unlock the persisted store, this store must be instantiated dynamically once a password is entered and validated. In the current implementation of the wallet, any routes that will make use of the Redux store are loaded asynchronously. When they are loaded, the store is initialized with the user's password (which is passed in through the Context API in React, separate from the Redux state).

@@ -30,6 +30,7 @@ _TBD_
 - [BIP32 spec for hierarchical deterministric wallets](https://github.com/bitcoin/bips/blob/master/bip-0032.mediawiki)
 - [BIP39 spec for mnemonic seeds](https://github.com/bitcoin/bips/blob/master/bip-0039.mediawiki)
 - [BIP44 spec for hierarchical deterministic wallets](https://github.com/bitcoin/bips/blob/master/bip-0044.mediawiki)
+- [LedgerHQ - BIP44](https://github.com/LedgerHQ/ledger-live-common/blob/master/docs/derivation.md)
 - [SLIP-0044 Registered Coin Types](https://github.com/satoshilabs/slips/blob/master/slip-0044.md)
 - [Mnemonic Code Converter](https://iancoleman.io/bip39/) - Useful online utilities to verify derived addresses and keys from specified mnemonic
 - [Rust bip32](https://docs.rs/bip32/latest/bip32/)

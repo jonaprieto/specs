@@ -32,3 +32,6 @@ _TBD_
 - [BIP44 spec for hierarchical deterministic wallets](https://github.com/bitcoin/bips/blob/master/bip-0044.mediawiki)
 - [SLIP-0044 Registered Coin Types](https://github.com/satoshilabs/slips/blob/master/slip-0044.md)
 - [Mnemonic Code Converter](https://iancoleman.io/bip39/) - Useful online utilities to verify derived addresses and keys from specified mnemonic
+- [Rust bip32](https://docs.rs/bip32/latest/bip32/)
+- [Rust bip0039](https://github.com/koushiro/bip0039)
+- [Rust bitcoin](https://github.com/rust-bitcoin/rust-bitcoin)

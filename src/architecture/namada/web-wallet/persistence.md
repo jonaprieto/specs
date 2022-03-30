@@ -10,9 +10,17 @@ The mnemonic is stored separately from the accounts data. In `anoma-apps/package
 
 `redux-persist` gives us the ability to specify which sub-sections of the state should be persisted. Presently, this is only enabled for any derived account data. From the persisted store, we can establish a `persistor`, which can be passed into a `PersistGate` component that will only display its children once the state is retrieved and decrypted from storage.
 
+If we wanted to export the state of the user's accounts, this would be trivial, and simply a matter of exporting a JSON file containing the `JSON.stringify`ed version of their accounts state. Some work would need to be done in order to restore the data into Redux, however.
+
+The `localStorage` state is stored in one of three places, depending on your environment:
+
+- `persist:anoma-wallet` - Production
+- `persist:anoma-wallet-dev` - Devnet
+- `persist:anoma-wallet-local` - Local ledger
+
 ## Challenges
 
-As a secret is required to unlock the persisted store, this store must be instantiated dynamically once a password is entered and validated. In the current implementation of the wallet, any routes that will make use of the Redux store are loaded asynchronously. When they are loaded, the store is initialized with the user's password (which is passed in through the Context API in React, which is separate from the Redux state entirely).
+As a secret is required to unlock the persisted store, this store must be instantiated dynamically once a password is entered and validated. In the current implementation of the wallet, any routes that will make use of the Redux store are loaded asynchronously. When they are loaded, the store is initialized with the user's password (which is passed in through the Context API in React, separate from the Redux state).
 
 ## Resources
 

@@ -9,3 +9,4 @@ _TBD_
 ## Resources
 
 - https://docs.cosmos.network/master/ibc/overview.html
+- https://ibcprotocol.org/

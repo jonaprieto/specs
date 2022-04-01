@@ -24,6 +24,12 @@ This allows us to keep our wallet state in sync with multiple ledgers while test
 
 As a secret is required to unlock the persisted store, this store must be instantiated dynamically once a password is entered and validated. In the current implementation of the wallet, any routes that will make use of the Redux store are loaded asynchronously. When they are loaded, the store is initialized with the user's password (which is passed in through the Context API in React, separate from the Redux state).
 
+## Restoring the accounts state from file
+
+The user should have the ability to save the state of their accounts in their wallet to a JSON file. It is relatively trivial to take a snapshot of the accounts state once the user is authenticated.
+
+Technically, this will likely involve a process by which, following the upload of the file and successful parsing, the existing `persist:anoma-wallet` storage is cleared, and when the store is initialized, we pass the parsed accounts state in to `configureStore` by way of the `preloadedState` parameter. This will only happen once, and on subsequent calls to the makeStore function, it should hydrate from the encrypted value in local storage.
+
 ## Resources
 
 - [redux-persist](https://github.com/rt2zz/redux-persist) - Redux store persistence

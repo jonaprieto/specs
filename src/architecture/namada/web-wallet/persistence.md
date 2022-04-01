@@ -34,3 +34,5 @@ Technically, this will likely involve a process by which, following the upload o
 
 - [redux-persist](https://github.com/rt2zz/redux-persist) - Redux store persistence
 - [redux-persist-transform-encrypt](https://github.com/maxdeviant/redux-persist-transform-encrypt) - Transform to encrypt persisted state
+- [Notes on initial data in Redux](https://dev.to/lawrence_eagles/how-to-properly-set-initial-state-in-redux-78m)
+- [Notes on clearing persisted Redux state](https://bionicjulia.com/blog/clear-redux-toolkit-state-with-redux-persist-and-typescript)

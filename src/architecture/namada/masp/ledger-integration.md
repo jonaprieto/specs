@@ -122,6 +122,43 @@ of the pool. The client needs the capability to create notes,
 transactions, and proofs of transactions, but it has the advantage of
 simply being able to link against the MASP crates, unlike the VP.
 
+### Shielded Address/Key Generation
+#### Spending Key Generation
+The client should be able to generate a spending key. This key should
+be usable as the source of a transfer. Below is an example of how
+spending keys should be generated:
+```
+anomaw --masp gen-spending-key --alias my-sk
+```
+#### Viewing Key Derivation
+The client should be able to derive a viewing key for any given
+spending key. This key should be usable to determine the total
+unspent notes that the spending key is authorized to spend. It should
+not be possible to directly or indirectly use the viewing key to spend
+funds. Below is an example of how viewing keys should be generated:
+```
+anomaw -- masp derive-viewing-key --alias my-vk --spending-key my-sk
+```
+#### Payment Address Generation
+The client should be able to generate a payment address from a
+spending key or viewing key. This payment address should be usable
+to send notes to the originating spending key. It should not be
+directly or indirectly usable to either spend notes or view shielded
+balances. Below are examples of how payment addresses should be
+generated:
+```
+anomaw masp gen-payment-addr --alias my-pa1 --key my-sk
+anomaw masp gen-payment-addr --alias my-pa2 --key my-vk
+```
+#### Manual Key/Address Addition
+The client should be able to directly add raw spending keys, viewing
+keys, and payment addresses. Below are examples of how these objects
+should be added:
+```
+anomaw masp add --alias my-sk --value esktest1qqqqqqqqqqqqqqpajlxdag4fm9da07ygygdek8t3g3ut24fdcccj4fej7dv25hpqgc5vums4m608h6w7hfrg7fd7l22xw7v3l0f24pk6u2dfrmgvd7vq35qu6zympq464gvjc5xnnwtacpmtznk7jkpp9dapp0t7zqxhj3qwmfaev2aqaj5qar73sy095sjp05yz6yfsemp2dxx90f845xrk9yq8x7kdthjjhmh9q60wgxjtfj0pk3k6ngjmnjpphyu5hd3jnywh3sgk90jnd
+anomaw masp add --alias my-vk --value fvktest1w4dvt5evs6trmx8ym3crtxx4hsrr9e4tlte26j0mwyq77umn643yevw3c5xchw9a5unnt35wth23m372u52evgnq57qm63c9f48c09pd3thzyp24d92du54ry9rw7vtzp00fg55lswq687q66gaffar3hsqs0mcu
+anomaw masp add --alias my-pa --value patest10qy6fuwef9leccl6dfm7wwlyd336x4y32hz62cnrvlrl6r5yk0jnw80kus33x34a5peg2xc4csn
+```
 ### Making Shielded Transactions
 #### Shielding Transactions
 The client should be able to make shielding transactions by providing a
@@ -134,7 +171,7 @@ completed, the spending key that was used to generate the payment address
 will have the authority to spend the amount that was send. Below is an
 example of how a shielding transacion should be made:
 ```
-anomac transfer --source Bertha --amount 50 --token BTC --payment-address 9cb63488b1d6ef25f069b6eb5bba2eee3dcf22bc10b2063a1fbcb91964341d75837bdce3e2fe3ec9c1e005
+anomac transfer --source Bertha --amount 50 --token BTC --target my-pa
 ```
 #### Unshielding Transactions
 The client should be able to make unshielding transactions by providing
@@ -147,7 +184,7 @@ address). Once the transaction is complete, the spending key will no
 longer be able to spend the transferred amount. Below is an example of
 how an unshielding transaction should be made:
 ```
-anomac transfer --target Bertha --amount 45 --token BTC --spending-key AA
+anomac transfer --target Bertha --amount 45 --token BTC --source my-sk
 ```
 #### Shielded Transactions
 The client should be able to make shielded transactions by providing a
@@ -159,44 +196,24 @@ spend the transferred amount, but the spending key that was used to
 (directly or indirectly) generate the payment address will. Below is
 an example of how a shielded transaction should be made:
 ```
-anomac transfer --spending-key AA --amount 5 --token BTC --payment-address 9cb63488b1d6ef25f069b6eb5bba2eee3dcf22bc10b2063a1fbcb91964341d75837bdce3e2fe3ec9c1e005
+anomac transfer --source my-sk --amount 5 --token BTC --target your-pa
 ```
 ### Viewing Shielded Balances
-The client should be able to view the balance at a shielded address.
-This should be possible using only a viewing key, however supplying
-a spending key is permissible. The output should be a list of pairs,
-each denoting a token type and the unspent amount of that token
-present at the shielded address. Note that it should be possible to
-restrict the balance query to check only for a specific token type.
-Below is are examples of how balance queries should be made:
+The client should be able to view shielded balances. The most
+general output should be a list of pairs, each denoting a token
+type and the unspent amount of that token present at each shielded
+address whose viewing key is represented in the wallet. Note that
+it should be possible to restrict the balance query to check only
+a specific viewing key or for a specific token type. Below are
+examples of how balance queries should be made:
 ```
-anomac balance --spending-key AA
-anomac balance --viewing-key 628a9956322f3f7d20b19801d9b4a8f3cb4b8b756a26ef2477feb5264be7b808c920996f37a79433d08e27fefcda0b6736c296b1073734a4ee35d11368f2b52ef14d7c1749cc8119ecc8a894f696992453f2dd78ef1e9d74172b2a5ef7cc8c50
+anomac balance
+anomac balance --owner my-sk
+anomac balance --owner my-vk
+anomac balance --owner my-sk --token BTC
+anomac balance --owner my-vk --token BTC
 ```
 
-### Shielded Address/Key Generation
-#### Viewing Key Generation
-The client should be able to derive a viewing key for any given
-spending key. This key should be usable to determine the total
-unspent notes that the spending key is authorized to spend. It should
-also be able to generate payment addresses such that the originating
-spending key has the authority to spend notes sent to them. It should
-not be possible to directly or indirectly use the viewing key to spend
-funds. Below is an example of how viewing keys should be generated:
-```
-anomaw -- masp derive-view-key --spending-key AA
-```
-#### Payment Address Generation
-The client should be able to generate a payment address from a
-spending key or viewing key. This payment address should be usable
-to send notes to the originating spending key. It should not be
-directly or indirectly usable to either spend notes or view shielded
-balances. Below are examples of how payment addresses should be
-generated:
-```
-anomaw masp gen-payment-addr --spending-key AA
-anomaw masp gen-payment-addr --viewing-key 628a9956322f3f7d20b19801d9b4a8f3cb4b8b756a26ef2477feb5264be7b808c920996f37a79433d08e27fefcda0b6736c296b1073734a4ee35d11368f2b52ef14d7c1749cc8119ecc8a894f696992453f2dd78ef1e9d74172b2a5ef7cc8c50
-```
 ## Protocol
 
 ### Note Format

@@ -17,10 +17,10 @@ Each proposal will be stored in a sub-key under the internal proposal address. T
 ```
 /$GovernanceAddress/proposal/$id/content : Vec<u8>
 /$GovernanceAddress/proposal/$id/author : Address
-/$GovernanceAddress/proposal/$id/startEpoch: Epoch
-/$GovernanceAddress/proposal/$id/endEpoch: Epoch
-/$GovernanceAddress/proposal/$id/graceEpoch: Epoch
-/$GovernanceAddress/proposal/$id/proposalCode: Option<Vec<u8>>
+/$GovernanceAddress/proposal/$id/start_epoch: Epoch
+/$GovernanceAddress/proposal/$id/end_epoch: Epoch
+/$GovernanceAddress/proposal/$id/grace_epoch: Epoch
+/$GovernanceAddress/proposal/$id/proposal_code: Option<Vec<u8>>
 /$GovernanceAddress/proposal/$id/funds: u64
 ```
 
@@ -52,6 +52,8 @@ The `content` value should follow a standard format. We leverage something simil
 /$GovernanceAddress/min_proposal_period: u64
 /$GovernanceAddress/max_proposal_content_size: u64
 /$GovernanceAddress/min_proposal_grace_epochs: u64
+/$GovernanceAddress/pending/$proposal_id: u64
+
 ```
 
 `counter` is used to assign a unique, incremental ID to each proposal.\
@@ -60,6 +62,7 @@ The `content` value should follow a standard format. We leverage something simil
 `min_proposal_period` sets the minimum voting time window (in `Epoch`).\
 `max_proposal_content_size` tells the maximum number of characters allowed in the proposal content.\
 `min_proposal_grace_epochs` is the minimum required time window (in `Epoch`) between `end_epoch` and the epoch in which the proposal has to be executed.
+`/$GovernanceAddress/pending/$proposal_id` this storage key is written only before the execution of the the code defined in `/$GovernanceAddress/proposal/$id/proposal_code` and deleted afterwards. Since this storage key can be written only by the protocol itself (and by no other means), VPs can check for the presence of this storage key to be sure that a a proposal_code has been executed by the protocol and not by a transaction.
 
 The governance machinery also relies on a subkey stored under the `NAM` token address:
 
@@ -72,6 +75,13 @@ The governance subkey, `/$GovernanceAddress/proposal/$id/funds` will be used aft
 
 ### GovernanceAddress VP
 Just like Pos, also governance has his own storage space. The `GovernanceAddress` validity predicate task is to check the integrity and correctness of new proposals. A proposal, to be correct, must satisfy the followings:
+- Mandatory storage writes are:
+    - counter
+    - author
+    - funds
+    - voting_start epoch
+    - voting_end epoch
+    - grace_epoch
 - Lock some funds >= `MIN_PROPOSAL_FUND`
 - Contains a unique ID
 - Contains a start, end and grace Epoch
@@ -87,79 +97,14 @@ Just like Pos, also governance has his own storage space. The `GovernanceAddress
 Once a proposal has been created, nobody can modify any of its fields.
 If `proposalCode`  is `Emtpy` or `None` , the proposal upgrade will need to be done via hard fork.
 
-Here an example of such validity predicate.
-
-
-```rust=
-pub fn proposal_vp(tx_data: Vec<u8>, addr: Address, keys_changed: HashSet<Key>, verifiers: HashSet<Address>) {
-    for key in keys_changed {
-        if is_vote_key(key) {
-             return (is_delegator(verifiers) || (is_validator(verifiers) && current_epoch_is_2_3(addr, id))) && is_valid_signature(tx_data);
-        } else if is_content_key(key) {
-            let post_content = read_post(key)
-            return !has_pre(key) && post_content.len() < MAX_PROPOSAL_CONTENT_SIZE;
-        } else if is_author_key(key) {
-            return !has_pre(key)  
-        } else if is_proposa_code_key(key) {
-            let proposal_code_size = get_proposal_code_size();
-            return !has_pre(key) && proposal_code_size < MAX_PROPOSAL_CODE_SIZE;
-        } else if is_grace_epoch_key(key) {
-            let endEpoch = read_post_end_epoch(addr, id, END_EPOCH_KEY)
-            let graceEpoch = read_post_grace_epoch(addr, id, GRACE_EPOCH_KEY)
-            return !has_pre(key) && graceEpoch > endEpoch;
-        } else if is_balance_key(key) {
-            let pre_funds = read_funds_pre(key)
-            let post_funds = read_funds_post(key)
-            let minFunds = read_min_funds_parameter()
-            return post_funds - pre_funds >= MIN_PROPOSAL_FUND;          
-        } else if is_start_or_end_epoch_key(key) {
-            let id = get_id_from_epoch_key(key);
-            let currentEpoch = read_current_epoch();
-            let minPeriod = read_min_period_parameter();
-            let startEpoch = read_post_start_epoch(addr, id, START_EPOCH_KEY);
-            let endEpoch = read_post_end_epoch(addr, id, END_EPOCH_KEY)
-            return !has_pre(key) && startEpoch - currentEpoch >= MIN_PROPOSAL_PERIOD && (startEpoch - currentEpoch) % MIN_PROPOSAL_PERIOD == 0;
-        } else if is_param_key(key) {
-            let proposal_id = get_proposal_id();
-            return is_tally_positive(proposal_id);
-        }
-        } else {
-            return false;
-        }
-    }
-}
-
-fn is_delegator(verifiers: HashSet<Address>, tx_data: Vec<u8>) -> bool {
-    // check if tx_data has been signed by a delegator
-    return ...
-}
-
-fn is_validator(verifiers: HashSet<Address>, tx_data: Vec<u8>) -> bool {
-    // check if tx_data has been signed by a validator
-    return ...
-}
-
-fn current_epoch_is_2_3(addr: Address, id: u64) -> bool {
-    let currentEpoch = read_current_epoch()
-    let startEpoch = read_post_start_epoch(addr, id, START_EPOCH_KEY) 
-    let endEpoch = read_post_end_epoch(addr, id, END_EPOCH_KEY)
-    
-    return ((endEpoch - startEpoch) * 2) / 3 <= (currentEpoch - startEpoch);
-}
-
-fn is_tally_positive() -> bool {
-    // compute if 2/3 voting power voted yay
-    return ...
-}
-
-```
+It is possible to check the actual implementation [here](https://github.com/anoma/anoma/blob/fraccaman%2Bgrarco/governance-accepted-proposals-changes-vp/shared/src/ledger/governance/mod.rs#L69).
 
 Example of `proposalCode` could be:
 - storage writes to change some protocol parameter
 - storage writes to restore a slash
+- storage writes to change a non-native vp
 
 This means that corresponding VPs need to handle these cases.
-
 
 ### Proposal Transactions
 
@@ -200,56 +145,35 @@ Validators will be able to vote only for 2/3 of the total voting period, meanwhi
 If a delegator votes opposite to its validator this will *overri*de the corresponding vote of this validator (e.g. if a delegator has a voting power of 200 and votes opposite to the delegator holding these tokens, than 200 will be subtracted from the votig power of the involved validator).
 
 ### Tally
-At the beginning of each new epoch (and only then), in the `BeginBlock` event, talling will occur for all the proposals ending at this epoch (specified via the `endEpoch` field).
-The proposal has a positive outcome if 2/3 of the staked `NAM` total is voting `yay`.
-The tally can also be manually computed via CLI command. The tally method behavior will be the following:
+At the beginning of each new epoch (and only then), in the `FinalizeBlock` event, talling will occur for all the proposals ending at this epoch (specified via the `endEpoch` field).
+The proposal has a positive outcome if 2/3 of the staked `NAM` total is voting `yay`. Tallying is compute with the following rules
+- Sum all the voting power of validators that voted `yay`
+- For any validator that voted `yay`, subtract the voting power of any delegation that voted `nay`
+- Add voting power for any delegation that voted `yay` (whose corresponding validator didn't vote `yay`)
+- If the aformentioned sum divided by the total voting power is >= 0.66, the proposal outcome is positive otherwise negative.
 
-```rust=
-fn compute_tally(proposal_id: u64) {
-    let end_epoch = get_proposal_end_epoch(proposal_id);
-    let total_voting_power = get_total_voting_power();
-    let vote_addresses = get_proposal_vote_iter(proposal_id).map(|addr| addr);
-    let voting_validators = vote_addresses.filter(|addr| addr.is_validator());
-    let voting_delegators = vote_addresses.filter(|addr| addr.is_delagator());
+All the computation above must be made at the epoch specified in the  `start_epoch` field of the proposal.
 
-    let validators_power: HashMap<Address, VotingPower> = voting_validators.map(|addr| {
-        (addr, get_voting_power(addr, end_epoch))
-    });
-
-    let yay_validators = voting_validators.filter(|addr| {
-        return get_vote_for(addr) == "yay"
-    })
-
-    for delegator in voting_delegators {
-        let validator: Address = get_validator_for(delegaor);
-        let delagator_vote = get_vote_for(delagator);
-        if delagator_vote == "yay" && !yay_validators.contains(validator) {
-            validators_power[validator] -= get_delegator_voting_power(delegator);
-        }
-    }
-
-    return sum(validators_power.iter_values()) / total_voting_power >= 0.66;
-}
-```
+It is possible to check the actual implementation [here](https://github.com/anoma/anoma/blob/fraccaman%2Bgrarco/governance-accepted-proposals-changes-vp/shared/src/ledger/governance/utils.rs#L68).
 
 ### Refund and Proposal Execution mechanism
-Together with the talling, in the first block at the beginning of each epoch, in the `BeginBlock` event, the protocol will manage the execution of accepted proposals and refunding. For each ended proposal with positive outcome, it will refund the locked funds from `GovernanceAddress` to the proposal author address (specified in the proposal `author` field). For each proposal that has been rejected, instead, the locked funds will be moved to the `TreasuryAddress`. Moreover, if the proposal had a positive outcome and `proposalCode` was defined, these changes will be executed. Changes are executed in the first block of the `GraceEpoch` defined in the proposal.
+Together with the talling, in the first block at the beginning of each epoch, in the `FinalizeBlock` event, the protocol will manage the execution of accepted proposals and refunding. For each ended proposal with a positive outcome, will refund the locked funds from `GovernanceAddress` to the proposal author address (specified in the proposal `author` field). For each proposal that has been rejected, instead, the locked funds will be moved to the `TreasuryAddress`. Moreover, if the proposal had a positive outcome and `proposalCode` is defined, these changes will be executed right away.
 
-If the proposal outcome is positive and current epoch is equal to the proposal `graceEpoch`, in the `BeginBlock` event:
+If the proposal outcome is positive and current epoch is equal to the proposal `grace_epoch`, in the `FinalizeBlock` event:
 - transfer the locked funds to the proposal author
 - execute any changes to storage specified by `proposalCode`
 
-In case the proposal was rejected, in the `BeginBlock` event:
+In case the proposal was rejected or if any error, in the `FinalizeBlock` event:
 - transfer the locked funds to `TreasuryAddress`
 
 **NOTE**: we need a way to signal the fulfillment of an accepted proposal inside the block in which it is applied to the state. We could do that by using `Events` https://github.com/tendermint/tendermint/blob/ab0835463f1f89dcadf83f9492e98d85583b0e71/docs/spec/abci/abci.md#events (see https://github.com/anoma/anoma/issues/930).
 
 ## TreasuryAddress
-Funds locked in `TreasuryAddress` address should be spendable only if a 2/3+ voting power accept a proposal which modifies its balance.
+Funds locked in `TreasuryAddress` address should be spendable only by proposals.
 
 ### TreasuryAddress storage
 ```
-/$TreasuryAddress/max_spendable_sum: u64
+/$TreasuryAddress/max_transferable_fund: u64
 /$TreasuryAddress/?: Vec<u8>
 ```
 
@@ -259,30 +183,17 @@ The funds will be stored under:
 ```
 
 ### TreasuryAddress VP
-```rust=
-pub fn governance_fund_pool_vp(tx_data: Vec<u8>, addr: Address, keys_changed: HashSet<Key>, verifiers: HashSet<Address>) {
-    for key in keys_changed {
-        if is_parameter_key(key) {
-            let proposal_id = get_proposal_id();
-            let current_epoch = get_current_epoch();
-            let proposal_grace_epoch = get_proposal_grace_epoch(proposal_id);
-            return is_tally_positive(proposal_id) && current_epoch == proposal_grace_epoch;
-        } else {
-            return false;
-        }
-    }
-}
+The treasury validity predicate will approve a trasfer only if:
+- the transfer has been made by the protocol (by checking the existence of `/$GovernanceAddress/pending/$proposal_id` storage key)
+- the transfered amount is <= `MAX_SPENDABLE_SUM`
 
-fn is_tally_positive(proposal_id: u64) -> bool {
-    // compute if 2/3 voting power voted yay
-    return ...
-}
-```
+`MAX_SPENDABLE_SUM` is a parameter of the treasury native vp.
 
-`MAX_SPENDABLE_SUM` is a parameter in of the anoma protocol.
+It is possible to check the actual implementation [here](https://github.com/anoma/anoma/blob/fraccaman%2Bgrarco/governance-accepted-proposals-changes-vp/shared/src/ledger/treasury/mod.rs#L55).
+
 
 ## ParameterAddress
-Protocol parameter are described under the $ParameterAddress internal address. Proposals can modify them if 2/3+ voting power agree.
+Protocol parameter are described under the `$ParameterAddress` internal address. 
 
 ### ParameterAddress storage
 ```
@@ -290,26 +201,18 @@ Protocol parameter are described under the $ParameterAddress internal address. P
 /$ParamaterAddress/?: Vec<u8>
 ```
 
-### ParameterAddress VP
-```rust=
-pub fn parameter_vp(tx_data: Vec<u8>, addr: Address, keys_changed: HashSet<Key>, verifiers: HashSet<Address>) {
-    for key in keys_changed {
-        if is_param_key(key) {
-            let proposal_id = get_proposal_id();
-            let current_epoch = get_current_epoch();
-            let proposal_grace_epoch = get_proposal_grace_epoch();
-            return is_tally_positive(proposal_id) && current_epoch == proposal_grace_epoch;
-        } else {
-            return false;   
-        }
-    }
-}
+At the moment there are 5 parameters:
+- `max_expected_time_per_block`
+- `vp_whitelist`
+- `tx_whitelist`
+- `epoch_duration`
 
-fn is_tally_positive(proposal_id: u64) -> bool {
-    // compute if 2/3 voting power voted yay
-    return ...
-}
-```
+### ParameterAddress VP
+The parameter validity predicate will approve changes to the protocol parameter only if:
+- the changes have been made by the protocol (by checking the existence of `/$GovernanceAddress/pending/$proposal_id` storage key)
+
+It is possible to check the actual implementation [here](https://github.com/anoma/anoma/blob/fraccaman%2Bgrarco/governance-accepted-proposals-changes-vp/shared/src/ledger/parameters/mod.rs#L53.
+
 
 ## Off-chain protocol
 

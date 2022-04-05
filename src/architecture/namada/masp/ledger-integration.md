@@ -213,6 +213,16 @@ anomac balance --owner my-vk
 anomac balance --owner my-sk --token BTC
 anomac balance --owner my-vk --token BTC
 ```
+### Listing Shielded Keys/Addresses
+They wallet should be able to list all the spending keys, viewing keys,
+and payment addresses that it stores. Below are examples of how the
+wallet's storage should be queried:
+```
+anomaw masp list-spending-keys
+anomaw masp list-spending-keys --unsafe-show-secret
+anomaw masp list-viewing-keys
+anomaw masp list-payment-addrs
+```
 
 ## Protocol
 

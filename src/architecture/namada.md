@@ -1,31 +1,42 @@
 # Namada Overview
 
+## What is Namada?
+
+Namada is the first release protocol version and the first fractal instance of the Anoma protocol.
 Namada is a sovereign proof-of-stake blockchain, using Tendermint BFT consensus,
 that enables multi-asset private transfers for any native or non-native asset
 using a multi-asset shielded pool derived from the Sapling circuit. Namada features
-full IBC protocol support, a natively integrated Ethereum bridge, and simple governance.
-A multi-asset shielded transfer wallet is provided in order to facilitate
+full IBC protocol support, a natively integrated Ethereum bridge, a modern proof-of-stake
+system with automatic reward compounding and cubic slashing, and a stake-weighted governance
+signalling mechanism. Users of shielded transfers are rewarded for their contributions
+to the privacy set in the form of native protocol tokens. A multi-asset shielded transfer wallet is provided in order to facilitate
 safe and private user interaction with the protocol.
 
-Over time the set of supported features may be extended to include
-features such as fully programmable validity predicates, distributed
-key generation & threshold decryption for Ferveo, and more advanced
-ZKP circuits. See [M2](./m2.md).
+## How does Namada relate to Anoma?
+
+Namada is _two things_:
+- The first major release _version_ of the Anoma protocol.
+- The first _fractal instance_ launched as part of the Anoma network.
+
+The Anoma protocol is designed to facilitate the operation of networked fractal instances,
+which intercommunicate but can utilise varied state machines and security models. Different
+fractal instances may specialise in different tasks and serve different communities. The Namada
+instance will be the first such fractal instance, and it will be focused exclusively on the use-case of private asset transfers.
 
 ## Raison d'être
 
-Safe and user-friendly multi-asset privacy doesn't yet exist in the blockchain ecosystem. Up until now you
-had the choice to build a sovereign chain that reissues assets (e.g. Zcash) or to
+Safe and user-friendly multi-asset privacy doesn't yet exist in the blockchain ecosystem.
+Up until now you had the choice to build a sovereign chain that reissues assets (e.g. Zcash) or to
 build a privacy preserving solution on existing chains (e.g. Tornado Cash on
 Ethereum). Both have large trade-offs: in the former case users don't have
 assets that they actually want to use and in the latter case the restrictions
 of existing platforms mean that users leak a ton of metadata
 and the protocols are expensive and clunky to use.
 
-Namada can support any asset on an IBC-compatible blockchain,
-and assets sent over a custom Ethereum bridge that will
-reduce transfer costs and streamline UX as much as possible.
-Once assets are on Namada, shielded transfers will be cheap
+Namada can support any asset on an IBC-compatible blockchain
+and assets (such as ERC20 tokens) sent over a custom Ethereum bridge that
+reduces transfer costs and streamlines UX as much as possible.
+Once assets are on Namada, shielded transfers are cheap
 and all assets contribute to the same anonymity set.
 
 Namada is also a helpful stepping stone to finalise, test,

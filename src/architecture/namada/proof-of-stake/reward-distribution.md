@@ -8,64 +8,66 @@ The validator and the delegator must have agreed on a commission rate between th
 
 ## Basic algorithm
 
-Take as a basis the following proof-of-stake system:
+Consider a system with
 
-- A canonical singular staking unit of account.
-- A set of validators `V_i`.
-- A set of delegations `D_i`, each to a particular validator and in a particular (initial) amount.
-- Epoched proof-of-stake, where changes to delegations, slashes, etc. are applied and inflation/rewards are paid out at the end of each epoch.
-- Each epoch `e`, `R_e_i` is paid out to validator `V_i`.
+- a canonical singular staking unit of account.
+- a set of validators $V_i$.
+- a set of delegations $D_{i, j}$, each to a particular validator and in a particular (initial) amount.
+- epoched proof-of-stake, where changes are applied as follows:
+	- bonding after the pipeline length
+	- unbonding after the unbonding length
+	- rewards are paid out at the end of each epoch, to wit, in each epoch $e$, $R_{e,i}$ is paid out to validator $V_i$
+	- slashing is applied as described in [slashing](/cubic-slashing.md).
 
 We wish to approximate as exactly as possible the following ideal delegator reward distribution system:
 
-- Each epoch, for each validator `V_i`, iterate over all of the delegations to that validator. For each delegation `D_j`, increase the delegation amount by `R_e_i * D_j.stake / V_i.stake` (or, equivalently, multiply it by `(V_i.stake + R_e_i) / V_i.stake`)
-- Similarly, multiply the validator's voting power by `(V_i.stake + R_e_i) / V_i.stake`, which should now equal the sum of their revised-amount delegations.
+- At each epoch, for a validator $V$, iterate over all of the delegations to that validator. Update each delegation $D$, as follows.
+$$
+D \rightarrow D( 1 + r_V(e)/s_V(e))
+$$
+where $r_V(e)$ and $s_V(e)$ respectively denote the reward and stake of validator $V$ at epoch $e$.
+- Similarly, multiply the validator's voting power by the same factor $( 1 + r_V(e)/s_V(e))$, which should now equal the sum of their revised-amount delegations.
 
 In this system, rewards are automatically rebonded to delegations, increasing the delegation amounts and validator voting powers accordingly.
 
-However, we wish to implement this without actually needing to iterate over all delegations each block, since this is too computationally expensive. We can exploit this constant multiplicative factor `V_i.stake + R_e_i / V_i.stake` which does not vary per delegation to perform this calculation lazily, storing only a constant amount of data per validator per epoch, and calculate revised amounts for each individual delegation only when a delegation changes.
+However, we wish to implement this without actually needing to iterate over all delegations each block, since this is too computationally expensive. We can exploit this constant multiplicative factor $(1  + r_V(e) / s_V(e))$ which does not vary per delegation to perform this calculation lazily, storing only a constant amount of data per validator per epoch, and calculate revised amounts for each individual delegation only when a delegation changes. 
 
-Consider the accumulated changes to the stake amount of a particular delegation at epoch `m`, epoch `n`, and then from epoch `m` to `n`
+We will demonstrate this for a delegation $D$ to a validator $V$.Let $s_D(e)$ denote the stake of $D$ at epoch $e$.
 
-$$
-D_j.stake_m = D_j.stake_0 * \prod_{e = 0}^{m} \frac{V_i.stake_e + R_{i,e}}{V_i.stake_e}
-$$
 
-$$
-D_j.stake_n = D_j.stake_0 * \prod_{e = 0}^{n} \frac{V_i.stake_e + R_{i,e}}{V_i.stake_e}
-$$
+
+
+For two epochs $m$ and $n$ with $m<n$, define the function $p$ as  
 
 $$
-D_j.stake_n = D_j.stake_m * \prod_{e = m}^{n} \frac{V_i.stake_e + R_{i,e}}{V_i.stake_e}
+p(n, m) = \prod_{e = m}^{n} \Big(1 + \frac{r_V(e)} {s_V(e)}\Big).
 $$
 
-$$
-D_j.stake_n = D_j.stake_0 * \prod_{e = 0}^{m} \frac{V_i.stake_e + R_{i,e}}{V_i.stake_e} * \prod_{e = m}^{n} \frac{V_i.stake_e + R_{i,e}}{V_i.stake_e}
-$$
-
-In order to calculate rewards for a delegation starting at an epoch `m` (after 0) at epoch `n`, we can simply divide out this difference:
+Denote $p(n, 0)$ as $p_n$. The function $p$ has a useful property. 
 
 $$
-D_j.stake_n = D_j.stake_m * \prod_{e = m}^{n} \frac{V_i.stake_e + R_{i,e}}{V_i.stake_e}
+p(n,m) = \frac{p_n}{p_m}\tag{1}
 $$
 
-$$
-D_j.stake_n = D_j.stake_m * \frac{\prod_{e = 0}^{n} \frac{V_i.stake_e + R_{i,e}}{V_i.stake_e}}{\prod_{e = 0}^{m} \frac{V_i.stake_e + R_{i,e}}{V_i.stake_e}}
-$$
-
-Let $entry_{v,l}$ be the entry for validator $v$ and epoch $l$, defined as:
+One may calculate the accumulated changes upto epoch $n$ as
 
 $$
-entry_l = \prod_{e = 0}^{l} \frac{V_i.stake_e + R_{i,e}}{V_i.stake_e}
+s_D(n) = s_D(0) * p_n.
 $$
 
-Then:
+If we know the delegation upto the earlier epoch $m$, the delegation at epoch $n$ is obtained by the following formula.
+$$
+s_D(n) =  s_D(m) * p(n,m).
+$$
+
+Using property $(1)$,
 
 $$
-D_j.stake_n = D_j.stake_m * \frac{entry_{v,n}}{entry_{v,m}}
+s_D(n) =  s_D(m) * \frac{p_n}{p_m}
 $$
 
-Thus, for each epoch and each validator, we need only store this accumulated product, with which updated amounts for all delegations can be calculated.
+
+Clearly, the quantity $p_n/p_m$ does not depend on the delegation $D$. Thus, for a given validator, we need only store this product $p_e$ at each epoch $e$, with which updated amounts for all delegations can be calculated.
 
 ## Commission
 

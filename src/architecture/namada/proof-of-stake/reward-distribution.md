@@ -17,7 +17,7 @@ Consider a system with
 	- bonding after the pipeline length
 	- unbonding after the unbonding length
 	- rewards are paid out at the end of each epoch, to wit, in each epoch $e$, $R_{e,i}$ is paid out to validator $V_i$
-	- slashing is applied as described in [slashing](/cubic-slashing.md).
+	- slashing is applied as described in [slashing](/cubic-slashing.html).
 
 We wish to approximate as exactly as possible the following ideal delegator reward distribution system:
 
@@ -55,7 +55,7 @@ $$
 s_D(n) = s_D(0) * p_n.
 $$
 
-If we know the delegation upto the earlier epoch $m$, the delegation at epoch $n$ is obtained by the following formula.
+If we know the delegation upto epoch $m$, the delegation at epoch $n$ is obtained by the following formula,
 $$
 s_D(n) =  s_D(m) * p(n,m).
 $$
@@ -63,7 +63,7 @@ $$
 Using property $(1)$,
 
 $$
-s_D(n) =  s_D(m) * \frac{p_n}{p_m}
+s_D(n) =  s_D(m) * \frac{p_n}{p_m}.
 $$
 
 
@@ -71,7 +71,7 @@ Clearly, the quantity $p_n/p_m$ does not depend on the delegation $D$. Thus, for
 
 ## Commission
 
-Commission is implemented as a change to $R_{i,e}$. Validators can charge any commission they wish (in $[0, 1]$). The commission is paid directly to the account indicated by the validator.
+Commission is implemented as a change to $R_{e, i}$. Validators can charge any commission they wish (in $[0, 1]$). The commission is paid directly to the account indicated by the validator.
 
 ## Slashes
 
@@ -83,4 +83,4 @@ Instant redelegation is not supported. Redelegations must wait the unbonding per
 
 ## State management
 
-Each $entry_{v,i}$ can be reference-counted by the number of delegations created during that epoch which might need to reference it. As soon as the number of delegations drops to zero, the entry can be deleted. 
+Each $entry_{v,i}$ can be reference-counted by the number of delegations created during that epoch which might need to reference it. As soon as the number of delegations drops to zero, the entry can be deleted.

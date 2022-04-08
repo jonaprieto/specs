@@ -97,7 +97,7 @@ Just like Pos, also governance has his own storage space. The `GovernanceAddress
 Once a proposal has been created, nobody can modify any of its fields.
 If `proposalCode`  is `Emtpy` or `None` , the proposal upgrade will need to be done via hard fork.
 
-It is possible to check the actual implementation [here](https://github.com/anoma/anoma/blob/fraccaman%2Bgrarco/governance-accepted-proposals-changes-vp/shared/src/ledger/governance/mod.rs#L69).
+It is possible to check the actual implementation [here](https://github.com/anoma/anoma/blob/master/shared/src/ledger/governance/mod.rs#L69).
 
 Example of `proposalCode` could be:
 - storage writes to change some protocol parameter
@@ -154,7 +154,7 @@ The proposal has a positive outcome if 2/3 of the staked `NAM` total is voting `
 
 All the computation above must be made at the epoch specified in the  `start_epoch` field of the proposal.
 
-It is possible to check the actual implementation [here](https://github.com/anoma/anoma/blob/fraccaman%2Bgrarco/governance-accepted-proposals-changes-vp/shared/src/ledger/governance/utils.rs#L68).
+It is possible to check the actual implementation [here](https://github.com/anoma/anoma/blob/master/shared/src/ledger/governance/utils.rs#L68).
 
 ### Refund and Proposal Execution mechanism
 Together with the talling, in the first block at the beginning of each epoch, in the `FinalizeBlock` event, the protocol will manage the execution of accepted proposals and refunding. For each ended proposal with a positive outcome, will refund the locked funds from `GovernanceAddress` to the proposal author address (specified in the proposal `author` field). For each proposal that has been rejected, instead, the locked funds will be moved to the `TreasuryAddress`. Moreover, if the proposal had a positive outcome and `proposalCode` is defined, these changes will be executed right away.
@@ -189,7 +189,7 @@ The treasury validity predicate will approve a trasfer only if:
 
 `MAX_SPENDABLE_SUM` is a parameter of the treasury native vp.
 
-It is possible to check the actual implementation [here](https://github.com/anoma/anoma/blob/fraccaman%2Bgrarco/governance-accepted-proposals-changes-vp/shared/src/ledger/treasury/mod.rs#L55).
+It is possible to check the actual implementation [here](https://github.com/anoma/anoma/blob/master/shared/src/ledger/treasury/mod.rs#L55).
 
 
 ## ParameterAddress
@@ -211,7 +211,7 @@ At the moment there are 5 parameters:
 The parameter validity predicate will approve changes to the protocol parameter only if:
 - the changes have been made by the protocol (by checking the existence of `/$GovernanceAddress/pending/$proposal_id` storage key)
 
-It is possible to check the actual implementation [here](https://github.com/anoma/anoma/blob/fraccaman%2Bgrarco/governance-accepted-proposals-changes-vp/shared/src/ledger/parameters/mod.rs#L53.
+It is possible to check the actual implementation [here](https://github.com/anoma/anoma/blob/master/shared/src/ledger/parameters/mod.rs#L53.
 
 
 ## Off-chain protocol

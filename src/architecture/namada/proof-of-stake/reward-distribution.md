@@ -17,7 +17,7 @@ Consider a system with
 	- bonding after the pipeline length
 	- unbonding after the unbonding length
 	- rewards are paid out at the end of each epoch, to wit, in each epoch $e$, $R_{e,i}$ is paid out to validator $V_i$
-	- slashing is applied as described in [slashing](/cubic-slashing.html).
+	- slashing is applied as described in [slashing](cubic-slashing.md).
 
 We wish to approximate as exactly as possible the following ideal delegator reward distribution system:
 

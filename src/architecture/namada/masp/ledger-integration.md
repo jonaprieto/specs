@@ -412,6 +412,12 @@ The [Multi-Asset Shielded Pool Specication](https://raw.githubusercontent.com/an
   * The note plaintext tuple must include asset type
   * The Sapling note plaintext encoding must use 32 bytes inbetween `d` and `v` to encode asset type
   * Hence the total size of a note plaintext encoding should be 596 bytes
+* [5.6 Encodings of Addresses and Keys](https://zips.z.cash/protocol/protocol.pdf#addressandkeyencoding)
+  * [BIP-0350](https://github.com/bitcoin/bips/blob/master/bip-0350.mediawiki) is used instead of [ZIP-173](https://zips.z.cash/zip-0173) to further encode the raw encodings
+* [5.6.3.1 Sapling Payment Addresses](https://zips.z.cash/protocol/protocol.pdf#saplingpaymentaddrencoding)
+  * For payment addresses on the Testnet, the Human-Readable Part is "patest"
+* [5.6.3.3 Sapling Full Viewing Keys](https://zips.z.cash/protocol/protocol.pdf#saplingfullviewingkeyencoding)
+  * For full viewing keys on Testnet, the Human-Readable Part is "fvktest"
 * [7.1 Transaction Encoding and Consensus](https://zips.z.cash/protocol/protocol.pdf#txnencoding)
   * `valueBalanceSapling` is no longer scalar. Hence it should be replaced by two components:
     * `nValueBalanceSapling`: a `compactSize` indicating number of asset types spanned by balance

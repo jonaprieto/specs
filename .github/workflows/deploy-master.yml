@@ -25,7 +25,7 @@ jobs:
           ~/.cargo/registry/index/
           ~/.cargo/registry/cache/
           ~/.cargo/git/db/
-        key: ${{ runner.os }}-cargo
+        key: ${{ runner.os }}-cargo-v1
     - name: Install cargo deps
       run: |
         which mdbook || cargo install mdbook &&

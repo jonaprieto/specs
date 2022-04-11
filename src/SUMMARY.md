@@ -11,6 +11,7 @@
       - [Trusted setup](./architecture/namada/masp/trusted-setup.md)
       - [Ledger integration](./architecture/namada/masp/ledger-integration.md)
       - [Shielded pool incentives](./architecture/namada/masp/shielded-pool-incentives.md)
+      - [Burn and mint](./architecture/namada/masp/burn-and-mint.md)
     - [Governance](./architecture/namada/governance.md)
     - [Proof of stake](./architecture/namada/proof-of-stake.md)
       - [Bonding mechanism](./architecture/namada/proof-of-stake/bonding-mechanism.md)

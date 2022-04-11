@@ -426,3 +426,10 @@ The [Multi-Asset Shielded Pool Specication](https://raw.githubusercontent.com/an
       * the last 8 bytes are an `int64` encoding asset value
 * [7.4 Output Description Encoding and Consensus](https://zips.z.cash/protocol/protocol.pdf#outputencodingandconsensus)
   * The `encCiphertext` field must be 612 bytes in order to make 32 bytes room to encode the asset type
+
+## Required Changes to ZIP 32: Shielded Hierarchical Deterministic Wallets
+Below, the changes from [ZIP 32: Shielded Hierarchical Deterministic Wallets](https://zips.z.cash/zip-0032) assumed to have been integrated into the Multi-Asset Shielded Pool Specification are listed:
+* [Specification: Key Encodings](https://zips.z.cash/zip-0032#specification-key-encodings)
+  * [BIP-0350](https://github.com/bitcoin/bips/blob/master/bip-0350.mediawiki) is used instead of [BIP-173](https://github.com/bitcoin/bips/blob/master/bip-0173.mediawiki) to further encode the raw encodings
+* [Sapling extended spending keys](https://zips.z.cash/zip-0032#sapling-extended-spending-keys)
+  * For extended spending keys on the Testnet, the Human-Readable Part is "esktest"

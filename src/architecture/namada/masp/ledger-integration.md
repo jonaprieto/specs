@@ -413,7 +413,7 @@ The [Multi-Asset Shielded Pool Specication](https://raw.githubusercontent.com/an
   * The Sapling note plaintext encoding must use 32 bytes inbetween `d` and `v` to encode asset type
   * Hence the total size of a note plaintext encoding should be 596 bytes
 * [5.6 Encodings of Addresses and Keys](https://zips.z.cash/protocol/protocol.pdf#addressandkeyencoding)
-  * [BIP-0350](https://github.com/bitcoin/bips/blob/master/bip-0350.mediawiki) is used instead of [ZIP-173](https://zips.z.cash/zip-0173) to further encode the raw encodings
+  * Bech32m \[[BIP-0350](https://github.com/bitcoin/bips/blob/master/bip-0350.mediawiki)\] is used instead of Bech32 \[[ZIP-173](https://zips.z.cash/zip-0173)\] to further encode the raw encodings
 * [5.6.3.1 Sapling Payment Addresses](https://zips.z.cash/protocol/protocol.pdf#saplingpaymentaddrencoding)
   * For payment addresses on the Testnet, the Human-Readable Part is "patest"
 * [5.6.3.3 Sapling Full Viewing Keys](https://zips.z.cash/protocol/protocol.pdf#saplingfullviewingkeyencoding)
@@ -430,6 +430,6 @@ The [Multi-Asset Shielded Pool Specication](https://raw.githubusercontent.com/an
 ## Required Changes to ZIP 32: Shielded Hierarchical Deterministic Wallets
 Below, the changes from [ZIP 32: Shielded Hierarchical Deterministic Wallets](https://zips.z.cash/zip-0032) assumed to have been integrated into the Multi-Asset Shielded Pool Specification are listed:
 * [Specification: Key Encodings](https://zips.z.cash/zip-0032#specification-key-encodings)
-  * [BIP-0350](https://github.com/bitcoin/bips/blob/master/bip-0350.mediawiki) is used instead of [BIP-173](https://github.com/bitcoin/bips/blob/master/bip-0173.mediawiki) to further encode the raw encodings
+  * Bech32m \[[BIP-0350](https://github.com/bitcoin/bips/blob/master/bip-0350.mediawiki)\] is used instead of Bech32 \[[BIP-173](https://github.com/bitcoin/bips/blob/master/bip-0173.mediawiki)\] to further encode the raw encodings
 * [Sapling extended spending keys](https://zips.z.cash/zip-0032#sapling-extended-spending-keys)
   * For extended spending keys on the Testnet, the Human-Readable Part is "esktest"

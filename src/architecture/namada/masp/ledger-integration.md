@@ -124,20 +124,15 @@ simply being able to link against the MASP crates, unlike the VP.
 
 ### Shielded Address/Key Generation
 #### Spending Key Generation
-The client should be able to generate a spending key. This key should
-be usable as the source of a transfer. Below is an example of how
-spending keys should be generated:
+The client should be able to generate a spending key and automatically
+derive a viewing key for it. The spending key should be usable as the
+source of a transfer. The viewing key should be usable to determine the
+total unspent notes that the spending key is authorized to spend. It
+should not be possible to directly or indirectly use the viewing key to
+spend funds. Below is an example of how spending keys should be
+generated:
 ```
-anomaw --masp gen-spending-key --alias my-sk
-```
-#### Viewing Key Derivation
-The client should be able to derive a viewing key for any given
-spending key. This key should be usable to determine the total
-unspent notes that the spending key is authorized to spend. It should
-not be possible to directly or indirectly use the viewing key to spend
-funds. Below is an example of how viewing keys should be generated:
-```
-anomaw -- masp derive-viewing-key --alias my-vk --spending-key my-sk
+anomaw --masp gen-key --alias my-sk
 ```
 #### Payment Address Generation
 The client should be able to generate a payment address from a
@@ -147,8 +142,8 @@ directly or indirectly usable to either spend notes or view shielded
 balances. Below are examples of how payment addresses should be
 generated:
 ```
-anomaw masp gen-payment-addr --alias my-pa1 --key my-sk
-anomaw masp gen-payment-addr --alias my-pa2 --key my-vk
+anomaw masp gen-addr --alias my-pa1 --key my-sk
+anomaw masp gen-addr --alias my-pa2 --key my-vk
 ```
 #### Manual Key/Address Addition
 The client should be able to directly add raw spending keys, viewing
@@ -214,14 +209,22 @@ anomac balance --owner my-sk --token BTC
 anomac balance --owner my-vk --token BTC
 ```
 ### Listing Shielded Keys/Addresses
-They wallet should be able to list all the spending keys, viewing keys,
+The wallet should be able to list all the spending keys, viewing keys,
 and payment addresses that it stores. Below are examples of how the
 wallet's storage should be queried:
 ```
-anomaw masp list-spending-keys
-anomaw masp list-spending-keys --unsafe-show-secret
-anomaw masp list-viewing-keys
-anomaw masp list-payment-addrs
+anomaw masp list-keys
+anomaw masp list-keys --unsafe-show-secret
+anomaw masp list-keys --unsafe-show-secret --decrypt
+anomaw masp list-addrs
+```
+### Finding Shielded Keys/Addresses
+The wallet should be able to find any spending key, viewing key or
+payment address when given its alias. Below are examples of how the
+wallet's storage should be queried:
+```
+anomaw masp find --alias my-alias
+anomaw masp find --alias my-alias --unsafe-show-secret
 ```
 
 ## Protocol

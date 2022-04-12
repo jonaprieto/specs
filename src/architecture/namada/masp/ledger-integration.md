@@ -150,8 +150,8 @@ The client should be able to directly add raw spending keys, viewing
 keys, and payment addresses. Below are examples of how these objects
 should be added:
 ```
-anomaw masp add --alias my-sk --value esktest1qqqqqqqqqqqqqqpajlxdag4fm9da07ygygdek8t3g3ut24fdcccj4fej7dv25hpqgc5vums4m608h6w7hfrg7fd7l22xw7v3l0f24pk6u2dfrmgvd7vq35qu6zympq464gvjc5xnnwtacpmtznk7jkpp9dapp0t7zqxhj3qwmfaev2aqaj5qar73sy095sjp05yz6yfsemp2dxx90f845xrk9yq8x7kdthjjhmh9q60wgxjtfj0pk3k6ngjmnjpphyu5hd3jnywh3sgk90jnd
-anomaw masp add --alias my-vk --value fvktest1w4dvt5evs6trmx8ym3crtxx4hsrr9e4tlte26j0mwyq77umn643yevw3c5xchw9a5unnt35wth23m372u52evgnq57qm63c9f48c09pd3thzyp24d92du54ry9rw7vtzp00fg55lswq687q66gaffar3hsqs0mcu
+anomaw masp add --alias my-sk --value xsktest1qqqqqqqqqqqqqq9v0sls5r5de7njx8ehu49pqgmqr9ygelg87l5x8y4s9r0pjlvu69au6gn3su5ewneas486hdccyayx32hxvt64p3d0hfuprpgcgv2q9gdx3jvxrn02f0nnp3jtdd6f5vwscfuyum083cvfv4jun75ak5sdgrm2pthzj3sflxc0jx0edrakx3vdcngrfjmru8ywkguru8mxss2uuqxdlglaz6undx5h8w7g70t2es850g48xzdkqay5qs0yw06rtxcvedhsv
+anomaw masp add --alias my-vk --value xfvktest1qqqqqqqqqqqqqqpagte43rsza46v55dlz8cffahv0fnr6eqacvnrkyuf9lmndgal7erg38awgq60r259csg3lxeeyy5355f5nj3ywpeqgd2guqd73uxz46645d0ayt9em88wflka0vsrq29u47x55psw93ly80lvftzdr5ccrzuuedtf6fala4r4nnazm9y9hq5yu6pq24arjskmpv4mdgfn3spffxxv8ugvym36kmnj45jcvvmm227vqjm5fq8882yhjsq97p7xrwqt7n63v
 anomaw masp add --alias my-pa --value patest10qy6fuwef9leccl6dfm7wwlyd336x4y32hz62cnrvlrl6r5yk0jnw80kus33x34a5peg2xc4csn
 ```
 ### Making Shielded Transactions
@@ -203,10 +203,9 @@ a specific viewing key or for a specific token type. Below are
 examples of how balance queries should be made:
 ```
 anomac balance
-anomac balance --owner my-sk
-anomac balance --owner my-vk
-anomac balance --owner my-sk --token BTC
-anomac balance --owner my-vk --token BTC
+anomac balance --owner my-key
+anomac balance --owner my-key --token BTC
+anomac balance --token BTC
 ```
 ### Listing Shielded Keys/Addresses
 The wallet should be able to list all the spending keys, viewing keys,
@@ -416,8 +415,6 @@ The [Multi-Asset Shielded Pool Specication](https://raw.githubusercontent.com/an
   * Bech32m \[[BIP-0350](https://github.com/bitcoin/bips/blob/master/bip-0350.mediawiki)\] is used instead of Bech32 \[[ZIP-173](https://zips.z.cash/zip-0173)\] to further encode the raw encodings
 * [5.6.3.1 Sapling Payment Addresses](https://zips.z.cash/protocol/protocol.pdf#saplingpaymentaddrencoding)
   * For payment addresses on the Testnet, the Human-Readable Part is "patest"
-* [5.6.3.3 Sapling Full Viewing Keys](https://zips.z.cash/protocol/protocol.pdf#saplingfullviewingkeyencoding)
-  * For full viewing keys on Testnet, the Human-Readable Part is "fvktest"
 * [7.1 Transaction Encoding and Consensus](https://zips.z.cash/protocol/protocol.pdf#txnencoding)
   * `valueBalanceSapling` is no longer scalar. Hence it should be replaced by two components:
     * `nValueBalanceSapling`: a `compactSize` indicating number of asset types spanned by balance
@@ -432,4 +429,6 @@ Below, the changes from [ZIP 32: Shielded Hierarchical Deterministic Wallets](ht
 * [Specification: Key Encodings](https://zips.z.cash/zip-0032#specification-key-encodings)
   * Bech32m \[[BIP-0350](https://github.com/bitcoin/bips/blob/master/bip-0350.mediawiki)\] is used instead of Bech32 \[[BIP-173](https://github.com/bitcoin/bips/blob/master/bip-0173.mediawiki)\] to further encode the raw encodings
 * [Sapling extended spending keys](https://zips.z.cash/zip-0032#sapling-extended-spending-keys)
-  * For extended spending keys on the Testnet, the Human-Readable Part is "esktest"
+  * For extended spending keys on the Testnet, the Human-Readable Part is "xsktest"
+* [Sapling extended full viewing keys](https://zips.z.cash/zip-0032#sapling-extended-full-viewing-keys)
+  * For extended full viewing keys on the Testnet, the Human-Readable Part is "xfvktest"

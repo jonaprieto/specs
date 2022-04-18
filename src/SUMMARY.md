@@ -2,6 +2,10 @@
 
 - [Index](./index.md)
 - [Motivation](./motivation.md)
+- [Releases](./releases.md)
+  - [V1 (Namada)](./releases/v1.md)
+  - [V2](./releases/v2.md)
+  - [V3 (Manoa)](./releases/v3.md)
 - [Architecture](./architecture.md)
   - [Namada](./architecture/namada.md)
     - [Consensus](./architecture/namada/consensus.md)

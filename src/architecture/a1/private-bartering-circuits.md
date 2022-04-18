@@ -1,1 +1,0 @@
-# Private bartering circuits

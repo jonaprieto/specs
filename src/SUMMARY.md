@@ -2,6 +2,7 @@
 
 - [Index](./index.md)
 - [Motivation](./motivation.md)
+- [Product](./product.md)
 - [Releases](./releases.md)
   - [V1 (Namada)](./releases/v1.md)
   - [V2](./releases/v2.md)

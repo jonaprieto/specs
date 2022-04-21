@@ -113,6 +113,8 @@ The commission rate $c_V(e)$ is the same for all delegations to a validator $V$ 
 
 While rewards are given out at the end of every epoch, voting power is only updated after the pipeline offset for implementational reasons.
 
+The validator can change the commission rate at any point, subject to a maximum rate of change per epoch, which is a constant specified when the validator is created and is not subject to change once validator creation has been accepted.
+
 The quantity $c_V(e)$ is not the same for all delegations, primarily because it would be redundant to charge a commission for self-bonds. This also allows the validator flexibility, for example to relax the commission rates in case of large delegations etc.
 
 The validator can change the commission rate at any point, subject to a maximum rate of change per epoch, which is a constant specified when the validator is created and is not subject to change once the validator creation has been accepted.

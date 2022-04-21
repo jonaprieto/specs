@@ -26,7 +26,7 @@ $$
 D \rightarrow D( 1 + r_V(e)/s_V(e))
 $$
 where $r_V(e)$ and $s_V(e)$ respectively denote the reward and stake of validator $V$ at epoch $e$.
-- Similarly, multiply the validator's voting power by the same factor $( 1 + r_V(e)/s_V(e))$, which should now equal the sum of their revised-amount delegations.
+- Similarly, multiply the validator's voting power by the same factor $(1 + r_V(e)/s_V(e))$, which should now equal the sum of their revised-amount delegations.
 
 In this system, rewards are automatically rebonded to delegations, increasing the delegation amounts and validator voting powers accordingly.
 
@@ -34,10 +34,7 @@ However, we wish to implement this without actually needing to iterate over all 
 
 We will demonstrate this for a delegation $D$ to a validator $V$.Let $s_D(e)$ denote the stake of $D$ at epoch $e$.
 
-
-
-
-For two epochs $m$ and $n$ with $m<n$, define the function $p$ as  
+For two epochs $m$ and $n$ with $m<n$, define the function $p$ as
 
 $$
 p(n, m) = \prod_{e = m}^{n} \Big(1 + \frac{r_V(e)} {s_V(e)}\Big).
@@ -69,9 +66,50 @@ $$
 
 Clearly, the quantity $p_n/p_m$ does not depend on the delegation $D$. Thus, for a given validator, we need only store this product $p_e$ at each epoch $e$, with which updated amounts for all delegations can be calculated.
 
+The product $p_e$ at the end of each epoch $e$ is updated as follows.
+
+```rust=
+	pub fn update_products (validator_products: HashMap<Address, HashMap <Epoch, Product>>, active_set: HashSet<Address>, current_epoch: Epoch ) ->  HashMap<Epoch, HashMap<BondId, Token::amount>> {
+	    for validator in active_set {
+		let stake = pos::read_validator_total_deltas(validator, current_epoch);
+		let reward = pos::reward(stake, current_epoch);
+		let last_product = validator_products.entry(validator).entry(Epoch {current_epoch.0 - 1});
+		validator_products.entry(validator)
+		    .or_default()
+		    .and_modify(|rsratio| rsratio.insert(current_epoch, product(last_product, RewardStakeRatio{ reward, stake})));
+	    }//TODO: figure out lossless division to calculate the product
+	    bonds
+	}
+	pub fn product (product: Product, rsratio: RewardStakeRatio) -> Product {
+	    product*(1+ rsratio.reward/rsratio.stake)
+	}
+```
+In case a delegator wishes to withdraw delegation(s), then the proportionate rewards are appropriated using the aforementioned scheme, which is implemented by the following function.
+
+```rust=
+  pub fn withdrawal_amount (validator_products: HashMap<Address, HashMap <Epoch, Product>>,  bond_id: BondId, unbonds: Iterator<(Epoch, Delegation)>)-> Token::amount {
+	let mut withdrawn = 0;
+	for (end_epoch, unbond) in unbonds {
+	    let pstart = validator_products.get_product(unbond.start_epoch, bond_id.validator);
+	    let pend = validator_products.get_product(end_epoch, bond_id.validator);
+	    let stake = unbond.delegation;
+	    withdrawn += stake * pend/pstart;
+	}
+	withdrawn
+    }
+```
+
 ## Commission
 
-Commission is implemented as a change to $R_{e, i}$. Validators can charge any commission they wish (in $[0, 1]$). The commission is paid directly to the account indicated by the validator.
+Commission is charged by a validator on the rewards coming from delegations. These are set as percentages by the validator, who may charge any commission they wish (in $[0, 1]$). 
+
+Let $c_V(e)$ be the commission rate for a delegation $D$ to a validator $V$ at epoch $e$. The expression for the product $p_e$ we have introduced earlier can be modified as
+
+$$ p_e = 1 + (1-c_V(e))\frac{r_V(e)}{s_V(e)} $$
+
+in order to calculate the new rewards given out to delegators during withdrawal. Thus the commission charged per epoch remains untouched upon withdrawal by the delegator. 
+
+The validator can change the commission rate at any point, subject to a maximum rate as well as a maximum rate of change per epoch, both of which are constants specified when the validator is created, and cannot be modified after the validator creation transaction has been accepted.
 
 ## Slashes
 

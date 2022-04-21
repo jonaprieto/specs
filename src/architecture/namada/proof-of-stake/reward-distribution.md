@@ -103,9 +103,9 @@ In case a delegator wishes to withdraw delegation(s), then the proportionate rew
 
 Commission is charged by a validator on the rewards coming from delegations. These are set as percentages by the validator, who may charge any commission they wish (in $[0, 1]$). 
 
-Let $c_V(e)$ be the commission rate for a delegation $D$ to a validator $V$ at epoch $e$. The expression for the product $p_e$ we have introduced earlier can be modified as
+Let $c_V(e)$ be the commission rate for a delegation $D$ to a validator $V$ at epoch $e$. The expression for the product $p_n$ we have introduced earlier can be modified as
 
-$$ p_e = 1 + (1-c_V(e))\frac{r_V(e)}{s_V(e)} $$
+$$ p_n = \prod_{e = 0}^{n} \Big(1 + (1-c_V(e))\frac{r_V(e)} {s_V(e)} \Big). $$
 
 in order to calculate the new rewards given out to delegators during withdrawal. Thus the commission charged per epoch remains untouched upon withdrawal by the delegator. 
 

@@ -124,7 +124,6 @@ def eq (priv x) -> (const y) {
   poly_gate[0 1 0 0 y] x x x
 }
 ```
-[More examples](./tests/arithmetic_aliases.pir).
 
 ### Examples
 #### No-output Gate

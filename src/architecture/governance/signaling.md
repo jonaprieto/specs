@@ -211,7 +211,7 @@ At the moment there are 5 parameters:
 The parameter validity predicate will approve changes to the protocol parameter only if:
 - the changes have been made by the protocol (by checking the existence of `/$GovernanceAddress/pending/$proposal_id` storage key)
 
-It is possible to check the actual implementation [here](https://github.com/anoma/anoma/blob/master/shared/src/ledger/parameters/mod.rs#L53.
+It is possible to check the actual implementation [here](https://github.com/anoma/anoma/blob/master/shared/src/ledger/parameters/mod.rs#L53).
 
 
 ## Off-chain protocol

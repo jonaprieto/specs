@@ -19,4 +19,4 @@ A verifiable protocol design language *should*:
 Right now, we have three layers:
 - [Juvix](https://github.com/anoma/juvix).
 - [Alucard](https://github.com/heliaxdev/alu).
-- [Vampir](./j1/vampir/vampir.md).
+- [Vampir](./j-group/vampir/vampir.md).

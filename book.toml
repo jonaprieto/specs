@@ -20,9 +20,9 @@ level = 1
 [output.html.search]
 expand = true
 
-# [output.linkcheck]
-
 [output.katex]
+
+[output.linkcheck]
 
 [preprocessor]
 

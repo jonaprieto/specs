@@ -1,7 +1,6 @@
 # Example: TestCircuit in IR
 
-We describe how the full workflow working with the test circuit given in
-[circuit.rs:465](../plonk-core/src/circuit.rs#L465).
+We describe how the full workflow working with the test circuit given in [circuit.rs:465](https://github.com/ZK-Garage/plonk/blob/master/plonk-core/src/circuit.rs#L465).
 
 First, the IR file is as follows.
 ```

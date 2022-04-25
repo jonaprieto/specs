@@ -1,7 +1,7 @@
 # State architecture
 
 ## Validity Predicates
-All state on [A1](../a1.md) is indexed by Validity Predicates (VPs).
+All state on Anoma is indexed by Validity Predicates (VPs).
 State can be understood as a map from VP to per-VP state. 
 
 ### Keys

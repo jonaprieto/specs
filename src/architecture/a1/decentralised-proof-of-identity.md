@@ -1,1 +1,0 @@
-# Decentralised proof-of-identity

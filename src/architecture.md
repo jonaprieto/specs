@@ -1,5 +1,15 @@
 # Architecture
 
-The Anoma protocol suite is being designed and architected in progressive stages, each building upon the previous.
+Architectural subcomponents:
 
-The first and most complete stage is [Namada](./architecture/namada.md). Design work is already progressing on [M2](./architecture/m2.md), [A1](./architecture/a1.md), and [J1](./architecture/j1.md) in parallel.
+- [Clients](./architecture/clients.md)
+- [Consensus](./architecture/consensus.md)
+- [Economics](./architecture/economics.md)
+- [Gossip](./architecture/gossip.md)
+- [Governance](./architecture/governance.md)
+- [Identity](./architecture/identity.md)
+- [Interoperability](./architecture/interoperability.md)
+- [Language](./architecture/language.md)
+- [Ledger](./architecture/ledger.md)
+- [Matchmaking](./architecture/matchmaking.md)
+- [State](./architecture/state.md)

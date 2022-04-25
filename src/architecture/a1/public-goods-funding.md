@@ -1,1 +1,0 @@
-# Public goods funding

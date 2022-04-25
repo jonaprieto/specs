@@ -109,9 +109,7 @@ $$ p_n = \prod_{e = 0}^{n} \Big(1 + (1-c_V(e))\frac{r_V(e)} {s_V(e)} \Big). $$
 
 in order to calculate the new rewards given out to delegators during withdrawal. Thus the commission charged per epoch is retained by the validator and remains untouched upon withdrawal by the delegator. 
 
-The quantity $c_V(e)$ is not the same for all delegations, primarily because it would be redundant to charge a commission for self-bonds. This also allows the validator flexibility, for example to relax the commission rates in case of large delegations etc.
-
-The validator can change the commission rate at any point, subject to a maximum rate of change per epoch, which is a constant specified when the validator is created and is not subject to change once validator creation has been accepted.
+The commission rate $c_V(e)$ is the same for all delegations to a validator $V$ in a given epoch $e$, including for self-bonds. The validator can change the commission rate at any point, subject to a maximum rate of change per epoch, which is a constant specified when the validator is created and immutable once validator creation has been accepted.
 
 
 

@@ -48,5 +48,6 @@
       		- [Ledger integration](./architecture/ledger/shielded-execution/masp/ledger-integration.md)
       		- [Shielded pool incentives](./architecture/ledger/shielded-execution/masp/shielded-pool-incentives.md)
       		- [Burn and mint](./architecture/ledger/shielded-execution/masp/burn-and-mint.md)
+      		- [Convert circuit](./architecture/ledger/shielded-execution/masp/convert-circuit.md)
   - [Matchmaking](./architecture/matchmaking.md)
   - [State](./architecture/state.md)

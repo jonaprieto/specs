@@ -111,9 +111,8 @@ in order to calculate the new rewards given out to delegators during withdrawal.
 
 The commission rate $c_V(e)$ is the same for all delegations to a validator $V$ in a given epoch $e$, including for self-bonds. The validator can change the commission rate at any point, subject to a maximum rate of change per epoch, which is a constant specified when the validator is created and immutable once validator creation has been accepted.
 
-The validator can change the commission rate at any point, subject to a maximum rate of change per epoch, which is a constant specified when the validator is created and is not subject to change once validator creation has been accepted.
-
 While rewards are given out at the end of every epoch, voting power is only updated after the pipeline offset for implementational reasons.
+
 ## Slashes
 
 Slashes should lead to punishment for delegators who were contributing voting power to the validator at the height of the infraction, _as if_ the delegations were iterated over and slashed individually.

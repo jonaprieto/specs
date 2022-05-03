@@ -438,3 +438,6 @@ Below, the changes from [ZIP 32: Shielded Hierarchical Deterministic Wallets](ht
   * For extended spending keys on the Testnet, the Human-Readable Part is "xsktest"
 * [Sapling extended full viewing keys](https://zips.z.cash/zip-0032#sapling-extended-full-viewing-keys)
   * For extended full viewing keys on the Testnet, the Human-Readable Part is "xfvktest"
+
+## One-time Payment Addresses
+One-time payment addresses are designed to facilitate instant recognition of shielded payments. They are marked with the special bech32m prefix `otpatest` which indicates that payers should additionally place the newly created note at a storage key computed from the hash of the payment address. This same storage key is what the payee should query for unspent notes fulfilling the given payment request.

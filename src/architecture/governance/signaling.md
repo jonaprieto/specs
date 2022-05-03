@@ -146,7 +146,10 @@ Validators will be able to vote only for 2/3 of the total voting period, while d
 
 If a delegator votes opposite to its validator, this will *override* the corresponding vote of this validator (e.g. if a delegator has a voting power of 200 and votes opposite to the delegator holding these tokens, than 200 will be subtracted from the votig power of the involved validator).
 
-If a delegator votes accordingly to its validator, unless the transaction is being forced, the vote will not actually be submitted to the chain, as a small form of space optimization.
+As a small form of space optimization, if a delegator votes accordingly to its validator, the vote will not actually be submitted to the chain. This logic is applied only if the following conditions are satisfied:
+
+- The transaction is not being forced
+- The vote is submitted in the last third of the voting period (the one exclusive to delegators). This second condition is necessary to prevent a validator from changing its vote after a delegator vote has been submitted, effectively stealing the delegator's vote.   
 
 ### Tally
 At the beginning of each new epoch (and only then), in the `FinalizeBlock` event, tallying will occur for all the proposals ending at this epoch (specified via the `endEpoch` field).

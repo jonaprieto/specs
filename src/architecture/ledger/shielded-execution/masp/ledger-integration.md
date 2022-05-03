@@ -110,8 +110,12 @@ One-time payment addresses are designed to facilitate instant recognition of shi
 ### Cons
 * All transaction's prior to the one-time payment's still have to be scanned before it can be spent
   * Why? The unspent note's Merkle path can only be constructed with knowledge of all prior note commitments
+* All transactions subsequent to the one-time payment's still have to be scanned before it can be safely spent
+  * Why? The received note may have been subsequently nullified by this or another client
 * For payments known to have been received recently, this method is most likely only marginally faster than backwards scanning
   * Relevance: Empirical evidence from Zcash shows that unspent notes are most likely to be recently broadcasted ones
+* Decryptions still eventually have to be attempted on all other shielded transactions in the blockchain
+  * Why? To ensure that user still has access to all their other unspent notes
 
 ## Client capabilities
 The client should be able to:

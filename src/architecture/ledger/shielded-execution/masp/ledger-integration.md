@@ -361,7 +361,11 @@ Below, the conditions necessary to maintain consistency between the MASP validit
     * its value must equal that of the containing transfer - this prevents replay attacks altering transfer amounts
     * its asset type must be derived from the token address raw bytes - this prevents replay attacks altering transfer asset types
       * the derivation must be done as specified in `0.3 Derivation of Asset Generator from Asset Identifer`
-* If the source address is the MASP validity predicate, then no transparent inputs are permitted in the shielded transaction
+* If the source address is the MASP validity predicate, then:
+  * no transparent inputs are permitted in the shielded transaction
+  * the transparent transaction value pool's amount must equal the containing wrapper transaction's fee amount
+  * the transparent transaction value pool's asset type must be derived from the containing wrapper transaction's fee token
+    * the derivation must be done as specified in `0.3 Derivation of Asset Generator from Asset Identifer`
 * If the source address is not the MASP validity predicate, then:
   * there must be exactly one transparent input in the shielded transaction and:
     * its value must equal that of amount in the containing transfer - this prevents stealing/losing funds from/to the pool

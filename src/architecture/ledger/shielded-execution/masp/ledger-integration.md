@@ -376,6 +376,8 @@ Below, the conditions necessary to maintain consistency between the MASP validit
 Below are miscellaneous remarks on the capabilities and limitations of the current MASP implementation:
 * The gas fees for shielded transactions are charged to the signer just like it is done for transparent transactions
   * As a consequence, an amount exceeding the gas fees must be available in a transparent account in order to execute an unshielding transaction - this prevents denial of service attacks
+* Using the MASP sentinel transaction key for transaction signing indicates that gas be drawn from the transaction's transparent value pool
+  * In this case, the gas will be taken from the MASP transparent address if the shielded transaction is proven to be valid
 
 ## Multi-Asset Shielded Pool Specification Differences from Zcash Protocol Specification
 The [Multi-Asset Shielded Pool Specication](https://raw.githubusercontent.com/anoma/masp/main/docs/multi-asset-shielded-pool.pdf) referenced above is in turn an extension to the [Zcash Protocol Specification](https://zips.z.cash/protocol/protocol.pdf). Below, the changes from the Zcash Protocol Specification assumed to have been integrated into the Multi-Asset Shielded Pool Specification are listed:

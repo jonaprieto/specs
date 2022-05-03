@@ -106,6 +106,7 @@ One-time payment addresses are designed to facilitate instant recognition of shi
 ### Pros
 * Instant determination of whether funds have or have not been received
 * Address encoding is almost exactly the same as for normal shielded payment addresses
+* Faster account discovery for hierarchical deterministic wallets
 
 ### Cons
 * All transaction's prior to the one-time payment's still have to be scanned before it can be spent

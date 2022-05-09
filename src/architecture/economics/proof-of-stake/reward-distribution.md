@@ -17,7 +17,7 @@ Consider a system with
 	- bonding after the pipeline length
 	- unbonding after the unbonding length
 	- rewards are paid out at the end of each epoch, to wit, in each epoch $e$, $R_{e,i}$ is paid out to validator $V_i$
-	- slashing is applied as described in [slashing](/cubic-slashing.md).
+	- slashing is applied as described in [slashing](cubic-slashing.md).
 
 We wish to approximate as exactly as possible the following ideal delegator reward distribution system:
 
@@ -32,7 +32,7 @@ In this system, rewards are automatically rebonded to delegations, increasing th
 
 However, we wish to implement this without actually needing to iterate over all delegations each block, since this is too computationally expensive. We can exploit this constant multiplicative factor $(1  + r_V(e) / s_V(e))$ which does not vary per delegation to perform this calculation lazily, storing only a constant amount of data per validator per epoch, and calculate revised amounts for each individual delegation only when a delegation changes. 
 
-We will demonstrate this for a delegation $D$ to a validator $V$.Let $s_D(e)$ denote the stake of $D$ at epoch $e$.
+We will demonstrate this for a delegation $D$ to a validator $V$. Let $s_D(e)$ denote the stake of $D$ at epoch $e$.
 
 For two epochs $m$ and $n$ with $m<n$, define the function $p$ as
 
@@ -67,9 +67,27 @@ $$
 Clearly, the quantity $p_n/p_m$ does not depend on the delegation $D$. Thus, for a given validator, we need only store this product $p_e$ at each epoch $e$, with which updated amounts for all delegations can be calculated.
 
 The product $p_e$ at the end of each epoch $e$ is updated as follows.
+```haskell=
 
+updateProducts 
+:: HashMap<Address, HashMap<Epoch, Float>> 
+-> HashSet<Address> 
+-> Epoch 
+-> HashMap<BondId, Token::amount>>
+
+updateProducts validatorProducts activeSet currentEpoch = 
+	let stake = PoS.readValidatorTotalDeltas validator currentEpoch
+        reward = PoS.reward stake currentEpoch
+		entries = lookup validatorProducts validator
+	    lastProduct = lookup entries (Epoch (currentEpoch - 1))
+	in insert currentEpoch (product*(1+rsratio)) entries
+	
+```
+
+
+<!--
 ```rust=
-	pub fn update_products (validator_products: HashMap<Address, HashMap <Epoch, Product>>, active_set: HashSet<Address>, current_epoch: Epoch ) ->  HashMap<Epoch, HashMap<BondId, Token::amount>> {
+	pub update_products (validator_products: HashMap<Address, HashMap <Epoch, Product>>, active_set: HashSet<Address>, current_epoch: Epoch ) ->  HashMap<Epoch, HashMap<BondId, Token::amount>> {
 	    for validator in active_set {
 		let stake = pos::read_validator_total_deltas(validator, current_epoch);
 		let reward = pos::reward(stake, current_epoch);
@@ -77,17 +95,36 @@ The product $p_e$ at the end of each epoch $e$ is updated as follows.
 		validator_products.entry(validator)
 		    .or_default()
 		    .and_modify(|rsratio| rsratio.insert(current_epoch, product(last_product, RewardStakeRatio{ reward, stake})));
-	    }//TODO: figure out lossless division to calculate the product
+	    }
 	    bonds
 	}
 	pub fn product (product: Product, rsratio: RewardStakeRatio) -> Product {
 	    product*(1+ rsratio.reward/rsratio.stake)
 	}
 ```
+-->
+
 In case a delegator wishes to withdraw delegation(s), then the proportionate rewards are appropriated using the aforementioned scheme, which is implemented by the following function.
 
-```rust=
-  pub fn withdrawal_amount (validator_products: HashMap<Address, HashMap <Epoch, Product>>,  bond_id: BondId, unbonds: Iterator<(Epoch, Delegation)>)-> Token::amount {
+```haskell=
+withdrawalAmount 
+:: HashMap<Address, HashMap <Epoch, Product>> 
+-> BondId 
+->  [(Epoch, Delegation)] 
+-> Token::amount
+
+withdrawalAmount validatorProducts bondId unbonds = 
+	sum [stake * endp/startp | (endEpoch, unbond) <- unbonds, 
+	                           let epochProducts = lookup (validator bondId)
+								                   validatorProducts, 
+	                           let startp = lookup (startEpoch unbond) 
+							                epochProducts, 
+	                           let endp = lookup endEpoch epochProducts, 
+	                           let stake =  delegation unbond]
+	
+```
+<!-- ```rust=
+  pub fn withdrawal_amount (validator_products: HashMap<Address, HashMap <Epoch, Product>>,  bond_id: BondId, unbonds: Iterator<(Epoch, Delegation)>) -> Token::amount {
 	let mut withdrawn = 0;
 	for (end_epoch, unbond) in unbonds {
 	    let pstart = validator_products.get_product(unbond.start_epoch, bond_id.validator);
@@ -98,6 +135,7 @@ In case a delegator wishes to withdraw delegation(s), then the proportionate rew
 	withdrawn
     }
 ```
+-->
 
 ## Commission
 
@@ -111,7 +149,8 @@ in order to calculate the new rewards given out to delegators during withdrawal.
 
 The commission rate $c_V(e)$ is the same for all delegations to a validator $V$ in a given epoch $e$, including for self-bonds. The validator can change the commission rate at any point, subject to a maximum rate of change per epoch, which is a constant specified when the validator is created and immutable once validator creation has been accepted.
 
-While rewards are given out at the end of every epoch, voting power is only updated after the pipeline offset for implementational reasons.
+While rewards are given out at the end of every epoch, voting power is only updated after the pipeline offset. According to the [proof-of-stake system](bonding-mechanism.md#epoched-data),  at the current epoch `e`, the validator sets an only be updated for epoch `e + pipeline_offset`, and it should remain unchanged from epoch `e` to `e + pipeline_offset - 1`. Updating voting power in the current epoch would violate this rule.
+
 
 ## Slashes
 

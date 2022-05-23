@@ -160,8 +160,8 @@ This can be implemented as a negative inflation rate for a particular block.
 
 Instant redelegation is not supported. Redelegations must wait the unbonding period.
 
-## State management
+<!--## State management
 
-Each $entry_{v,i}$ can be reference-counted by the number of delegations created during that epoch which might need to reference it. As soon as the number of delegations drops to zero, the entry can be deleted.
+Each $entry_{v,i}$ can be reference-counted by the number of delegations created during that epoch which might need to reference it. As soon as the number of delegations drops to zero, the entry can be deleted.-->
 
 

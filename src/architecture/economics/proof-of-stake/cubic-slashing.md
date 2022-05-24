@@ -17,7 +17,7 @@ calculateSlashRate :: [Slash] -> Float
 
 calculateSlashRate slashes = 
     let votingPowerFraction = sum [ votingPowerFraction (validator slash) | slash <- slashes]
-	in max(0.01, min(1, votingPowerFraction**2 * 9))
+	in max 0.01 (min 1 (votingPowerFraction**2)*9)
   -- minimum slash rate is 1%
   -- then exponential between 0 & 1/3 voting power
   -- we can make this a more complex function later

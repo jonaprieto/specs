@@ -135,7 +135,7 @@ impl TransferFromEthereum {
 2. Add new `TransferFromEthereum` messages from the seen Ethereum block into the queue
 3. At the end of each `FinalizeBlock` call, validators should check this queue. For 
 each message that is confirmed, they should do the transfer for the address 
-in the `receiver` field and also remove the transfer from the `/incoming` queue.
+in the `receiver` field and also remove the transfer from the `/queue`.
 
 ```rust
 impl TransferFromEthereum {
@@ -250,7 +250,7 @@ struct MintWrappedNam {
     receiver: EthereumAddress,
     /// The address of the token to be wrapped 
     token: NamadaAddress,
-    /// The number of wrapped Namada tokens to mint of Ethereum
+    /// The number of wrapped Namada tokens to mint on Ethereum
     amount: Amount,
 }
 ```

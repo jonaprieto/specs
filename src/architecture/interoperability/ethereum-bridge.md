@@ -250,7 +250,7 @@ struct MintWrappedNam {
     receiver: EthereumAddress,
     /// The address of the token to be wrapped 
     token: NamadaAddress,
-    /// The number of tokens to transfer
+    /// The number of wrapped Namada tokens to mint of Ethereum
     amount: Amount,
 }
 ```

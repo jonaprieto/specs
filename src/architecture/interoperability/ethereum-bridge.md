@@ -266,7 +266,7 @@ struct MintWrappedNam {
 ```
 
 If a user wishes to mint a wrapped Namada token on Ethereum, they must submit a transaction on Namada that:
-- stores `MintWrappedNam` on chain somewhere?
+- stores `MintWrappedNam` on chain somewhere - TBD
 - sends the correct amount of Namada token to `#EthBridgeEscrow`
 
 Just as in redeeming ETH/ERC20 above, it is incumbent on the end user to
@@ -329,6 +329,7 @@ If all the above verifications succeed, the contract may affect the
 appropriate state change, emit logs, etc.
 
 ## Starting the bridge
+
 Before the bridge can start running, some storage will need to be initialized in Namada. For example, the `#EthBridge/queue` storage key should be initialized to an empty `Vec<TransferFromEthereum>`. TBD.
 
 ## Resources which may be helpful:

@@ -59,7 +59,7 @@ are:
 /eth_block/$block_hash/merkle_proofs : Vec<Vec<u8>>
 ```
 
-For every Namada block proposal, the vote of a validator should include
+For every Namada block proposal, the vote extension of a validator should include
 the headers, hash, & smart contract messages (possibly with Merkle proofs)
 of the Ethereum blocks they have seen via their full node such that:
 
@@ -68,11 +68,18 @@ of the Ethereum blocks they have seen via their full node such that:
    address.
 3. Is a descendant of a block they have seen (even if it is not marked `seen`)
 
-After a Namada block is committed, the next block proposer receives the
-aggregate of the vote extensions. From that, they should craft the proposed
-state change of the above form. They subsequently include a tx to that end
-in their block proposal. This aggregated state change needs to be validated
-by at least 2/3 of the staking validators as usual.
+After a Namada block is finalized, every validator should apply an internal
+transaction making the proposed state change of the above form. The block proposer
+for the next block subsequently includes a transaction to that end in their block 
+proposal. This aggregated state change needs to be validated by at least 2/3 of
+the staking validators as usual.
+
+Changes to `/eth_block` are only ever made by internal transactions crafted by 
+validators deterministically from the aggregate of vote extensions for the last Tendermint
+round. That is, changes to `/eth_block` are calculated and applied during the `FinalizeBlock` stage 
+of ABCI++ for block `n`, and then included (and validated) in a transaction in block `n+1`.
+It should not be possible for `/eth_block` storage to be modified by transactions submitted
+from outside the ledger.
 
 ## Namada Validity Predicates
 
@@ -113,12 +120,13 @@ confirmations in Ethereum block depth that must be reached before the assets wil
 minted on Namada. This is the purpose of the `/queue` for this validity
 predicate.
 
-The protocol transaction that sets an `/eth_block/$block_hash/seen = true` must also update `/queue` with new transfers from that block. `/eth_block/$block_hash/seen = true` implies that that Ethereum block has been processed by the Ethereum bridge. Every time an `/eth_block/$block_hash/seen` becomes `true`, the following must happen:
+The internal transaction that includes new Ethereum state into `/eth_block` must 
+also update `#EthBridge/queue` based on any newly seen blocks. `/eth_block/$block_hash/seen = true` 
+implies that that Ethereum block has been processed by the Ethereum bridge.
 
-1. For each existing `TransferFromEthereum` in the `/queue`, update its number of confirmations. This
-   can be done by finding Ethereum block headers marked as `seen` in the new
-   storage data (the input from finalizing the block, it isn't necessary to
-   access Namada storage) that are descendants of the `latest_descendant` field.
+Processing of the queue looks as follows:
+1. For each existing `TransferFromEthereum` in the `/queue`, update its number of 
+   confirmations.
 ```rust
 impl TransferFromEthereum {
     /// Update the hash and height of the block `B` marked as `seen` in Namada
@@ -132,10 +140,12 @@ impl TransferFromEthereum {
     }
 }
 ```
-2. Add new `TransferFromEthereum` messages from the seen Ethereum block into the queue
-3. At the end of each `FinalizeBlock` call, validators should check this queue. For 
-each message that is confirmed, they should do the transfer for the address 
-in the `receiver` field and also remove the transfer from the `/queue`.
+2. Add new `TransferFromEthereum` messages from the seen Ethereum block into the queue.
+3. For each `TransferFromEthereum` that is confirmed, make the transfer for the address 
+in the `receiver` field and also remove the `TransferFromEthereum` from the `/queue`.
+
+Step 3 may happen in a separate transaction to steps 1 and 2, as it looks only at `#EthBridge/queue`
+and doesn't depend on any state changes to `/eth_block.
 
 ```rust
 impl TransferFromEthereum {

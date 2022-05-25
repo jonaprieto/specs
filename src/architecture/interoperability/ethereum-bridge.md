@@ -91,7 +91,7 @@ enum AssetFromEthereum {
     WrappedNamadaToken(NamadaAddress),
 }
 
-struct TransferFromEthereum<Token: MintingAddress> {
+struct TransferFromEthereum {
     /// Asset to be minted (or released from escrow)
     asset: AssetFromEthereum,
     /// the address on Namada receiving the tokens

@@ -318,6 +318,9 @@ a proof from Namada:
 If all the above verifications succeed, the contract may affect the
 appropriate state change, emit logs, etc.
 
+## Starting the bridge
+Before the bridge can start running, some storage will need to be initialized in Namada. For example, the `#EthBridge/queue` storage key should be initialized to an empty `Vec<TransferFromEthereum>`. TBD.
+
 ## Resources which may be helpful:
 - [Gravity Bridge Solidity contracts](https://github.com/Gravity-Bridge/Gravity-Bridge/tree/main/solidity)
 - [ICS20](https://github.com/cosmos/ibc/tree/master/spec/app/ics-020-fungible-token-transfer)

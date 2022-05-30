@@ -27,3 +27,8 @@ jobs:
       run: make dev-deps
     - name: Generate website
       run: make build
+    - name: Archive rendered site
+      uses: actions/upload-artifact@v3
+      with:
+        name: rendered-site
+        path: book/html/

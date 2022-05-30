@@ -73,9 +73,9 @@ where $R_{target}$ is the target staking ratio and $L_{target}$ is the target lo
   
 We assume further assume $I_{target}$ is our target total inflation that we want to achieve on the long term, where we split it up into $I_{PoS,target}$ and $I_{L,target}$ for staking and locking respectivly. 
 
-We define $I_{PoS}$ as a PI controller follows. 
+We define $I_{PoS}$ as a PD controller follows. 
 
-$$A(t)=K_1(R(t)-R_{target})+K_2(\frac{dR}{dt})+K_3\int_{0}^{t}(R(\tau)-R_{target})d\tau$$
+$$A(t)=K_1(R(t)-R_{target})+K_2(\frac{dR}{dt})$$
 
 If $I_{PoS}^{min}< I_{PoS}< I_{PoS}^{max}$ then $\frac{dI_{PoS}}{dt}=A(t)$.
 
@@ -88,9 +88,9 @@ For $I_{PoS}^{min}=0.05$, $I_{PoS}^{max}=0.15$, $I_{PoS,target}=0.10$, and $R_{t
 
 ---
 
-We define $I_{L}$ as a PI controller follows. 
+We define $I_{L}$ as a PD controller follows. 
 
-$$A(t)=K_1(L(t)-L_{target})+K_2(\frac{dL}{dt})+K_3\int_{0}^{t}(L(\tau)-L_{target})d\tau$$
+$$A(t)=K_1(L(t)-L_{target})+K_2(\frac{dL}{dt})$$
 
 If $I_{L}^{min}< I_{L}< I_{L}^{max}$ then $\frac{dI_{L}}{dt}=A(t)$.
 

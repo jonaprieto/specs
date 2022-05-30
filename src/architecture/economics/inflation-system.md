@@ -75,15 +75,13 @@ We assume further assume $I_{target}$ is our target total inflation that we want
 
 We define $I_{PoS}$ as a PI controller follows. 
 
-$$\frac{dI_{staking}}{dt}=K_1(R(t)-R_{target})+K_2(\frac{dR}{dt})$$
+$$A(t)=K_1(R(t)-R_{target})+K_2(\frac{dR}{dt})+K_3\int_{0}^{t}(R(\tau)-R_{target})d\tau$$
 
-, where $$I_{PoSmin}<I_{staking}<I_{PoSmax}$$. 
+If $I_{PoSmin}< I_{staking}< I_{PoSmax}$ then $\frac{dI_{staking}}{dt}=A(t)$.
 
-$$A(t)=K_1(R(t)-R_{target})+K_2(\frac{dR}{dt})$$
+If $I_{PoSmin}< I_{staking}$ then $\frac{dI_{staking}}{dt}=max(A(t),0$.
 
-If $I_{PoSmin}<I_{staking}<I_{PoSmax}$ then $\frac{dI_{staking}}{dt}=A(t)$.
-If $I_{PoSmin}<I_{staking}$ then $\frac{dI_{staking}}{dt}=max(A(t),0$.
-If $I_{staking}<I_{PoSmax}$ then $\frac{dI_{staking}}{dt}=min(A(t),0)$.
+If $I_{staking}< I_{PoSmax}$ then $\frac{dI_{staking}}{dt}=min(A(t),0)$.
 
 
 We define $I_{L}$ as follows. 

@@ -77,27 +77,40 @@ We define $I_{PoS}$ as a PI controller follows.
 
 $$A(t)=K_1(R(t)-R_{target})+K_2(\frac{dR}{dt})+K_3\int_{0}^{t}(R(\tau)-R_{target})d\tau$$
 
-If $I_{PoSmin}< I_{staking}< I_{PoSmax}$ then $\frac{dI_{staking}}{dt}=A(t)$.
+If $I_{PoS}^{min}< I_{PoS}< I_{PoS}^{max}$ then $\frac{dI_{PoS}}{dt}=A(t)$.
 
-If $I_{PoSmin}< I_{staking}$ then $\frac{dI_{staking}}{dt}=max(A(t),0$.
+If $I_{PoS}{min}< I_{PoS}$ then $\frac{dI_{PoS}}{dt}=max(A(t),0$.
 
-If $I_{staking}< I_{PoSmax}$ then $\frac{dI_{staking}}{dt}=min(A(t),0)$.
+If $I_{PoS}< I_{PoS}^{max}$ then $\frac{dI_{PoS}}{dt}=min(A(t),0)$.
+
+For $I_{PoS}^{min}=0.05$, $I_{PoS}^{max}=0.15$, and $R_{target}=0.50$ we set $K_1=-0.01$ and $K_2=-0.2$. This gives us: 
 
 
-We define $I_{L}$ as follows. 
 
-TODO
+
+We define $I_{L}$ as a PI controller follows. 
+
+$$A(t)=K_1(L(t)-L_{target})+K_2(\frac{dL}{dt})+K_3\int_{0}^{t}(L(\tau)-L_{target})d\tau$$
+
+If $I_{L}^{min}< I_{L}< I_{L}^{max}$ then $\frac{dI_{L}}{dt}=A(t)$.
+
+If $I_{L}^{min}< I_{L}$ then $\frac{dI_{L}}{dt}=max(A(t),0$.
+
+If $I_{L}< I_{L}^{max}$ then $\frac{dI_{L}}{dt}=min(A(t),0)$.
+
+For $I_{L}^{min}=0.03$, $I_{L}^{max}=0.7$, and $L_{target}=0.30$ we set $K_1=-0.42$ and $K_2=-0.1$. This gives us: 
+
 
 The ratio between staking and locking in the shielded pool is a trade off between security and privacy. A higher staking ratio means more security, a higher locking ratio means more privacy. It would be easier to consider these separately, for example, setting the target staking ratio to 50 % and the target locking ratio to 25 %. 
 
 The funds going to the treasury is a constant %, for example 1 %. Same goes for $D_T$. 
 
-We need to define $max(I_{PoS})$, $max(I_L)$, and $I_T$ to bound total inflation. 
+We need to define $I_{PoS}^{max}$, $I_{L}^{max}$, and $I_T$ to bound total inflation. 
 
-$$max(I_{PoS})+max(I_L)+I_T=< max(I)$$
+$$I_{PoS}^{max})+I_{L}^{max}+I_T=< I^{max}$$
 
 The sum of $I_L$ and other $I_L1,...,I_Ln$ will also be limited. If their sum would exceed the limit, then we need to scale them down to stay within the limit. 
 
-These bounds on $I_{PoS}$ and $I_L$ give us a min and max bound on the total inflation, where the total inflation depends on $L_t$ and $R_t$ independently. 
+These bounds on $I_{PoS}$ and $I_L$ give us a min and max bound on the total inflation, where the total inflation depends on $L_{target}$ and $R_{target}$ independently. 
 
 

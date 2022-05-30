@@ -67,11 +67,11 @@ where $I_T$ is our inflation that goes to treasury, $I_{PoS}$ is inflation that 
 
 These components are each varying depending on independent factors as follows. The $I_{PoS}$ depends on the staking ratio $R(t)$. The locking inflation $I_L$ depends on the locking ratio $L(t)$. Ideally we want the total token supply to consist of tokens locked for staking and shielded pool and the rest are liquid tokens $Y$. 
 
-$$T=T*R_{target}+T*L_t+Y$$
+$$T=T*R_{target}+T*L_{target}+Y$$
 
 where $R_{target}$ is the target staking ratio and $L_{target}$ is the target locking of assets in the shielded pool.
   
-We assume further assume $I_{target}$ is our target total inflation that we want to achieve on the long term. 
+We assume further assume $I_{target}$ is our target total inflation that we want to achieve on the long term, where we split it up into $I_{PoS,target}$ and $I_{L,target}$ for staking and locking respectivly. 
 
 We define $I_{PoS}$ as a PI controller follows. 
 
@@ -83,10 +83,10 @@ If $I_{PoS}{min}< I_{PoS}$ then $\frac{dI_{PoS}}{dt}=max(A(t),0$.
 
 If $I_{PoS}< I_{PoS}^{max}$ then $\frac{dI_{PoS}}{dt}=min(A(t),0)$.
 
-For $I_{PoS}^{min}=0.05$, $I_{PoS}^{max}=0.15$, and $R_{target}=0.50$ we set $K_1=-0.01$ and $K_2=-0.2$. This gives us: 
+For $I_{PoS}^{min}=0.05$, $I_{PoS}^{max}=0.15$, $I_{PoS,target}=0.10$, and $R_{target}=0.50$ we set $K_1=-0.01$ and $K_2=-0.2$. This gives us: TODO
 
 
-
+---
 
 We define $I_{L}$ as a PI controller follows. 
 
@@ -98,14 +98,15 @@ If $I_{L}^{min}< I_{L}$ then $\frac{dI_{L}}{dt}=max(A(t),0$.
 
 If $I_{L}< I_{L}^{max}$ then $\frac{dI_{L}}{dt}=min(A(t),0)$.
 
-For $I_{L}^{min}=0.03$, $I_{L}^{max}=0.7$, and $L_{target}=0.30$ we set $K_1=-0.42$ and $K_2=-0.1$. This gives us: 
+For $I_{L}^{min}=0.03$, $I_{L}^{max}=0.7$, $I_{L,target}=0.05$, and $L_{target}=0.30$ we set $K_1=-0.42$ and $K_2=-0.1$. This gives us: TODO
 
+---
 
-The ratio between staking and locking in the shielded pool is a trade off between security and privacy. A higher staking ratio means more security, a higher locking ratio means more privacy. It would be easier to consider these separately, for example, setting the target staking ratio to 50 % and the target locking ratio to 25 %. 
+The ratio between staking and locking in the shielded pool is a trade off between security, privacy, and liveness. A higher staking ratio means more security, a higher locking ratio means more privacy, and if both are too high there wont be enough liquidity for transactions. It would be easier to consider these separately, for example, setting the target staking ratio to 50 % and the target locking ratio to 30 %. 
 
-The funds going to the treasury is a constant %, for example 1 %. Same goes for $D_T$. 
+The funds minted for the treasury is a constant %, for example 1 %. Same goes for $D_T$. 
 
-We need to define $I_{PoS}^{max}$, $I_{L}^{max}$, and $I_T$ to bound total inflation. 
+We need to define $I_{PoS}^{max}$, $I_{L}^{max}$, and $I_{T}$ to bound total inflation. 
 
 $$I_{PoS}^{max})+I_{L}^{max}+I_T=< I^{max}$$
 

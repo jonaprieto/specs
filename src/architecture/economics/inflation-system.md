@@ -61,55 +61,41 @@ $$I=\frac{T_\textrm{end of year}-T_\textrm{beginning of year}}{T_\textrm{beginni
 
 The total inflation consists of several components as follows. 
 
-$I=I_{PoS}+I_L+I_T-D_T$
+$$I=I_{PoS}+I_L+I_T-D_T$$
 
 where $I_T$ is our inflation that goes to treasury, $I_{PoS}$ is inflation that is paid as PoS rewards, and $I_L$ is the inflation for locking that is paid to accounts in shielded pool. We can extend the $I_L$ be extended to be for many other types of $I_L1,...,I_Ln$. For simplicity we only assume to have one $I_L$. $D_T$ is the constant deflation of the treasury. This is applied to incentivize governance voters to spend treasury funds. 
 
-These components are each varying depending on independent factors as follows. The $I_{PoS}$ depends on the staking ratio $R_t$. The locking inflation $I_L$ depends on the locking ratio $L_t$. Ideally we want the total token supply to consist of tokens locked for staking and shielded pool and the rest are liquid tokens $Y$. 
+These components are each varying depending on independent factors as follows. The $I_{PoS}$ depends on the staking ratio $R(t)$. The locking inflation $I_L$ depends on the locking ratio $L(t)$. Ideally we want the total token supply to consist of tokens locked for staking and shielded pool and the rest are liquid tokens $Y$. 
 
-$T=T*R_t+T*L_t+Y$
+$$T=T*R_{target}+T*L_t+Y$$
 
-where $R_t$ is the target staking ratio and $L_t$ is the target locking of assets in the shielded pool.
+where $R_{target}$ is the target staking ratio and $L_{target}$ is the target locking of assets in the shielded pool.
   
 We assume further assume $I_{target}$ is our target total inflation that we want to achieve on the long term. 
 
-We define $I_{PoS}$ as follows. 
+We define $I_{PoS}$ as a PI controller follows. 
 
-$$ I_{PoS} =
-  \begin{cases}
-   (max(I_{PoS})/2) (1 + \frac{R}{R_{target} })      & \quad R< R_{target}\\
-   \\
-   max(I_{PoS})  * 2 ^{-\frac{R-R_{target}}{1-R_{target}}} & \quad R>=R_{target}
-  \end{cases}
-$$
+$$\frac{dI_{staking}}{dt}=K_1(R(t)-R_{target})+K_2(\frac{dR}{dt})$$
 
-As an example, we plot the inflation of locked assets $I_L$ with respect to the locking ratio $R_t$ where we assume $R_{target} = 0.5$ and $max(I_{PoS}) = 12%$. 
-<p align="center">
-<img src="https://hackmd.io/_uploads/Hk49PAvZc.png" height="300" />
-</p>
+, where I_{PoSmin}<I_{staking}<I_{PoSmax}. 
+
+$$A(t)=K_1(R(t)-R_{target})+K_2(\frac{dR}{dt})$$
+If $I_{PoSmin}<I_{staking}<I_{PoSmax}$ then $\frac{dI_{staking}}{dt}=A(t)$.
+If $I_{PoSmin}<I_{staking}$ then $\frac{dI_{staking}}{dt}=max(A(t),0$.
+If $I_{staking}<I_{PoSmax}$ then $\frac{dI_{staking}}{dt}=min(A(t),0)$.
+
 
 We define $I_{L}$ as follows. 
 
+TODO
 
-$$ I_{L} =
-  \begin{cases}
-   max(I_L)(\frac{L_{target}-L_t}{L_{target}})      & \quad L< L_{target}\\
-   \\
-   0 & \quad L>=L_{target}
-  \end{cases}
-$$
-
-As an example, we plot the inflation of locked assets $I_L$ with respect to the locking ratio $L_t$ with the assumed $L_{target} = 0.5$.
-<p align="center">
-<img src="https://hackmd.io/_uploads/SJDN_0wbq.png" height="300" />
-</p>
 The ratio between staking and locking in the shielded pool is a trade off between security and privacy. A higher staking ratio means more security, a higher locking ratio means more privacy. It would be easier to consider these separately, for example, setting the target staking ratio to 50 % and the target locking ratio to 25 %. 
 
 The funds going to the treasury is a constant %, for example 1 %. Same goes for $D_T$. 
 
 We need to define $max(I_{PoS})$, $max(I_L)$, and $I_T$ to bound total inflation. 
 
-$max(I_{PoS})+max(I_L)+I_T=< max(I)$ 
+$$max(I_{PoS})+max(I_L)+I_T=< max(I)$$
 
 The sum of $I_L$ and other $I_L1,...,I_Ln$ will also be limited. If their sum would exceed the limit, then we need to scale them down to stay within the limit. 
 

@@ -1,4 +1,4 @@
-name: Build and Deploy
+name: Build PR
 
 on:
   pull_request:
@@ -6,7 +6,7 @@ on:
       - master
 
 jobs:
-  build-deploy:
+  build:
     runs-on: ubuntu-20.04
 
     steps:

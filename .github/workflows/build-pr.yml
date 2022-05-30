@@ -1,4 +1,4 @@
-name: Build and Deploy
+name: Build PR
 
 on:
   pull_request:
@@ -6,7 +6,7 @@ on:
       - master
 
 jobs:
-  build-deploy:
+  build:
     runs-on: ubuntu-20.04
 
     steps:
@@ -21,16 +21,14 @@ jobs:
       uses: actions/cache@v2
       with:
         path: |
-          ~/.cargo/bin/
-          ~/.cargo/registry/index/
-          ~/.cargo/registry/cache/
-          ~/.cargo/git/db/
-        key: ${{ runner.os }}-cargo-v1
+          ~/.cargo
+        key: ${{ hashFiles('Makefile') }}
     - name: Install cargo deps
-      run: |
-        which mdbook || cargo install mdbook &&
-        which mdbook-mermaid || cargo install mdbook-mermaid &&
-        which mdbook-linkcheck || cargo install mdbook-linkcheck &&
-        which mdbook-katex || cargo install --git https://github.com/heliaxdev/mdbook-katex.git --rev 2b37a542808a0b3cc8e799851514e145990f1e3a
+      run: make dev-deps
     - name: Generate website
       run: make build
+    - name: Archive rendered site
+      uses: actions/upload-artifact@v3
+      with:
+        name: rendered-site
+        path: book/html/

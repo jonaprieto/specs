@@ -5,7 +5,7 @@ which naturally can be redeemed on Ethereum at a later time. Furthermore, it all
 minting of wrapped tokens on Ethereum backed by escrowed assets on Namada.
 
 The Namada Ethereum bridge system consists of:
-* Ethereum state inclusion onto Namada.
+* An Ethereum full node for including relevant Ethereum events into Namada.
 * A set of validity predicates on Namada which roughly implements [ICS20](https://docs.cosmos.network/v0.42/modules/ibc/) fungible token transfers.
 * A set of Ethereum smart contracts.
 * A Namada bridge process
@@ -25,69 +25,89 @@ more cumbersome we will also add a limit on how fast wrapped ETH can be
 redeemed. This will not add more security, but rather make the attack more
 inconvenient.
 
-## Ethereum State Inclusion
-We want to store data identifying which Ethereum blocks have been seen
-and validated by at least 2/3 of the staking validators in the blockchain storage.
-The data stored from each Ethereum block will be:
-* The block header
-* The block hash
-* Messages from the Ethereum smart contracts relevant
-  to the bridge.
-  We may also we to include Merkle proofs of inclusion of
-  these messages in the relevant blocks. We might also implement policies to
-  prune old/irrelevant data or do checkpointing.
+## Ethereum Events Attestation
+We want to store events from the smart contracts of our bridge onto Namada.
+We need to have consensus on these events, we will only include those that 
+have been seen  and validated by at least 2/3 of the staking validators in
+the blockchain storage.
 
-Each piece of block data should have a list of the validators that have seen
-this block and the current amount of stake associated with it. This
+A valid message should correspond to the ICS20 fungible token packet. That 
+is to say it should be of the form:
+```rust
+struct EthEvent {
+    denom: String,
+    amount: u256,
+    sender: String,
+    receiver: String,
+    nonce: u64,
+}
+```
+The specification of the `denom` field may be custom to this bridge and not
+directly conform with the ICS20 specification. The nonce should just be an 
+increasing value. This helps keep message hashes unique. Validators should
+ignore improperly formatted events.
+
+Each event should have a list of the validators that have seen
+this event and the current amount of stake associated with it. This
 will need to be appropriately adjusted across epoch boundaries. However,
-once a block has been seen by 2/3 of the staking validators, it is locked into a
-`seen` state. Thus, even if after an epoch that block has no longer been
-reported as seen by 2/3 of the new staking validators set, it is still
+once an event has been seen by 2/3 of the voting power, it is locked into a
+`seen` state. Thus, even if after an epoch that event has no longer been
+reported as seen by 2/3 of the new staking validators voting power, it is still
 considered as `seen`.
 
-To make this easy, we take the approach of always overwriting the state with
+Each event from Ethereum should include the minimum number of confirmations
+necessary to be considered seen. Validators should not vote to include events
+that have not met the required number of confirmations. Furthermore, validators
+should not look at events that have not reached protocol specified minimum
+number of confirmations (regardless of what is specified in an event). This 
+constant may be changeable via governance. Voting on unconfirmed events is
+considered a slashable offence.
+
+To make including new events easy, we take the approach of always overwriting the state with
 the new state rather than applying state diffs. The storage keys involved
 are:
 ```
-/eth_block/$block_hash/header : Vec<u8>
-/eth_block/$block_hash/messages : Vec<Vec<u8>>
-/eth_block/$block_hash/seen_by : Vec<Address>
-/eth_block/$block_hash/voting_power: u64
-/eth_block/$block_hash/seen: bool
-/eth_block/$block_hash/? : [u8; 32]
-# not yet decided
-/eth_block/$block_hash/merkle_proofs : Vec<Vec<u8>>
+/eth_msgs/$msg_hash/body : Vec<u8>
+/eth_msgs/$msg_hash/seen_by : Vec<Address>
+/eth_msgs/$msg_hash/voting_power: u64
+/eth_msgs/$msg_hash/seen: bool
 ```
 
 For every Namada block proposal, the vote extension of a validator should include
-the headers, hash, & smart contract messages (possibly with Merkle proofs)
-of the Ethereum blocks they have seen via their full node such that:
-
-1. Has not been marked as `seen` by Namada
-2. The storage value `/eth_block/$block_hash/seen_by` does not include their
+the events of the Ethereum blocks they have seen via their full node such that:
+1. The storage value `/eth_msgs/$msg_hash/seen_by` does not include their
    address.
-3. Is a descendant of a block they have seen (even if it is not marked `seen`)
+2. Is correctly formatted.
+3. Has reached the required number of confirmations
 
-After a Namada block is finalized, every validator should apply an internal
-transaction making the proposed state change of the above form. The block proposer
-for the next block subsequently includes a transaction to that end in their block 
-proposal. This aggregated state change needs to be validated by at least 2/3 of
-the staking validators as usual.
+These vote extensions will be given to the next block proposer who will
+aggregate those that it can verify and will include them in their proposal.
+Validators will check the validity of the new votes as part of `ProcessProposal`.
+This includes checking signatures, that votes are really active validators,
+the calculation of backed voting power, etc.
 
-Changes to `/eth_block` are only ever made by internal transactions crafted by 
+After this block is finalized, the events are included into Namada storage.
+Once a message is marked as `seen`, the necessary transaction should be crafted
+internally by the ledger and applied in the same block as part of `FinalizeBlock`.
+Thus, the value of `/eth_msgs/$msg_hash/seen` should also indicate if the
+event has been applied on the Namada side.
+
+Changes to `/eth_msgs` are only ever made by internal transactions crafted by
 validators deterministically from the aggregate of vote extensions for the last Tendermint
-round. That is, changes to `/eth_block` are calculated and applied during the `FinalizeBlock` stage 
+round. That is, changes to `/eth_msgs` are calculated and applied during the `FinalizeBlock` stage
 of ABCI++ for block `n`, and then included (and validated) in a transaction in block `n+1`.
-It should not be possible for `/eth_block` storage to be modified by transactions submitted
+It should not be possible for `/eth_msgs` storage to be modified by transactions submitted
 from outside the ledger.
 
 ## Namada Validity Predicates
 
-There will be an internal account - `#EthBridge` - the storage of which will contain:
-- a queue of incoming transfers from Ethereum (under a `/queue` storage key)
-- ledgers of balances for wrapped Ethereum assets (ETH and ERC20 tokens) structured in a ["multitoken"](https://github.com/anoma/anoma/issues/1102) hierarchy
+There will be an internal account - `#EthVerifier` - whose validity predicate
+will verify the inclusion of events from Ethereum. This validity predicate will
+control the `/eth_msgs` storage subspace.
 
-Another internal account - `#EthBridgeEscrow` - will hold in escrow wrapped Namada tokens which have been sent to Ethereum.
+There will be two other internal accounts:
+ - `#EthBridge` - the storage of which will contain ledgers of balances for wrapped Ethereum assets (ETH and ERC20 tokens) structured in a ["multitoken"](https://github.com/anoma/anoma/issues/1102) hierarchy , 
+ - `#EthBridgeEscrow` which will hold in escrow wrapped Namada tokens which have been sent to Ethereum.
 ### Transferring assets from Ethereum to Namada
 
 We'll have a `TransferFromEthereum` data type which will look roughly like the following:
@@ -105,58 +125,15 @@ struct TransferFromEthereum {
     receiver: NamadaAddress,
     /// the amount of wrapped Ethereum token to mint, or wrapped Namada token to release from escrow
     amount: Amount,
-    /// minimum number of Ethereum confirmations needed for the transfer to happen
-    min_confirmations: u8,
-    /// height of the Ethereum block at which the message appeared
-    height: u64,
-    /// the hash & height of the latest descendant Ethereum block marked as `seen`
-    latest_descendant: ([u8; 32], u64)
 }
 ```
 
-The minimum number of confirmations indicated in the outgoing Ethereum message
-(maybe defaulting to 25 or 50 if unspecified) specifies the minimum number of
-confirmations in Ethereum block depth that must be reached before the assets will be
-minted on Namada. This is the purpose of the `/queue` for this validity
-predicate.
-
-The internal transaction that includes new Ethereum state into `/eth_block` must 
-also update `#EthBridge/queue` based on any newly seen blocks. `/eth_block/$block_hash/seen = true` 
-implies that that Ethereum block has been processed by the Ethereum bridge.
-
-Processing of the queue looks as follows:
-1. For each existing `TransferFromEthereum` in the `/queue`, update its number of 
-   confirmations.
-```rust
-impl TransferFromEthereum {
-    /// Update the hash and height of the block `B` marked as `seen` in Namada
-    /// storage such that 
-    ///   1. `B` is a descendant of the block containing the original message
-    ///   2. `B` has the maximum height of all blocks satisfying 1.
-    fn update_latest_descendant(&mut self, hash: [u8; 32], height: u64) {
-        if height > self.latest_descendant.1 {
-            self.latest_descendant = (hash, height);    
-        }
-    }
-}
-```
-2. Add new `TransferFromEthereum` messages from the seen Ethereum block into the queue.
-3. For each `TransferFromEthereum` that is confirmed, make the transfer for the address 
-in the `receiver` field and also remove the `TransferFromEthereum` from the `/queue`.
-
-Step 3 may happen in a separate transaction to steps 1 and 2, as it looks only at `#EthBridge/queue`
-and doesn't depend on any state changes to `/eth_block.
-
-```rust
-impl TransferFromEthereum {
-    /// Check if the number of confirmations for the block containing
-    /// the original message exceeds the minimum number required to 
-    /// consider the message confirmed.
-    pub fn is_confirmed(&self) -> bool {
-        self.latest_descendant.1 - self.height >= self.min_confirmations
-    }
-}
-```
+The internal transaction that includes new events into `/eth_msgs` must 
+also update submit a tx containing a `TransferFromEthereum` instance based
+on any newly seen blocks. Thus `/eth_msgs/$msg_hash/seen = true` 
+implies that an Ethereum event has been processed by the Ethereum bridge.
+For each `TransferFromEthereum` transaction, the included wasm code should make the transfer for the address 
+in the `receiver` field.
 
 Note that this means that a transfer initiated on Ethereum will automatically
 be seen and acted upon by Namada. The appropriate transfers of tokens to the

@@ -39,16 +39,20 @@ struct EthEvent {
     amount: u256,
     sender: String,
     receiver: String,
+    nonce: u64,
 }
 ```
-Validators should ignore improperly formatted events.
+The specification of the `denom` field may be custom to this bridge and not
+directly conform with the ICS20 specification. The nonce should just be an 
+increasing value. This helps keep message hashes unique. Validators should
+ignore improperly formatted events.
 
 Each event should have a list of the validators that have seen
-this block and the current amount of stake associated with it. This
+this event and the current amount of stake associated with it. This
 will need to be appropriately adjusted across epoch boundaries. However,
-once a block has been seen by 2/3 of the staking validators, it is locked into a
-`seen` state. Thus, even if after an epoch that block has no longer been
-reported as seen by 2/3 of the new staking validators set, it is still
+once an event has been seen by 2/3 of the voting power, it is locked into a
+`seen` state. Thus, even if after an epoch that event has no longer been
+reported as seen by 2/3 of the new staking validators voting power, it is still
 considered as `seen`.
 
 Each event from Ethereum should include the minimum number of confirmations
@@ -71,7 +75,7 @@ are:
 
 For every Namada block proposal, the vote extension of a validator should include
 the events of the Ethereum blocks they have seen via their full node such that:
-1. The storage value `/eth_block/$block_hash/seen_by` does not include their
+1. The storage value `/eth_msgs/$msg_hash/seen_by` does not include their
    address.
 2. Is correctly formatted.
 3. Has reached the required number of confirmations
@@ -101,9 +105,9 @@ There will be an internal account - `#EthVerifier` - whose validity predicate
 will verify the inclusion of events from Ethereum. This validity predicate will
 control the `/eth_msgs` storage subspace.
 
-There will be another internal account - `#EthBridge` - the storage of which will contain:
-- ledgers of balances for wrapped Ethereum assets (ETH and ERC20 tokens) structured in a ["multitoken"](https://github.com/anoma/anoma/issues/1102) hierarchy
-- Another internal account - `#EthBridgeEscrow` - will hold in escrow wrapped Namada tokens which have been sent to Ethereum.
+There will be two other internal accounts:
+ - `#EthBridge` - the storage of which will contain ledgers of balances for wrapped Ethereum assets (ETH and ERC20 tokens) structured in a ["multitoken"](https://github.com/anoma/anoma/issues/1102) hierarchy , 
+ - `#EthBridgeEscrow` which will hold in escrow wrapped Namada tokens which have been sent to Ethereum.
 ### Transferring assets from Ethereum to Namada
 
 We'll have a `TransferFromEthereum` data type which will look roughly like the following:
@@ -126,7 +130,7 @@ struct TransferFromEthereum {
 
 The internal transaction that includes new events into `/eth_msgs` must 
 also update submit a tx containing a `TransferFromEthereum` instance based
-on any newly seen blocks. Thus `/eth_block/$block_hash/seen = true` 
+on any newly seen blocks. Thus `/eth_msgs/$msg_hash/seen = true` 
 implies that an Ethereum event has been processed by the Ethereum bridge.
 For each `TransferFromEthereum` transaction, the included wasm code should make the transfer for the address 
 in the `receiver` field.

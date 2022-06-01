@@ -139,7 +139,7 @@ withdrawalAmount validatorProducts bondId unbonds =
 
 ## Commission
 
-Commission is charged by a validator on the rewards coming from delegations. These are set as percentages by the validator, who may charge any commission they wish (in $\[ 0,1\]$). 
+Commission is charged by a validator on the rewards coming from delegations. These are set as percentages by the validator, who may charge any commission they wish between 0-100%. 
 
 Let $c_V(e)$ be the commission rate for a delegation $D$ to a validator $V$ at epoch $e$. The expression for the product $p_n$ we have introduced earlier can be modified as
 

@@ -1,14 +1,14 @@
 [book]
 authors = ["Anoma Contributors"]
-edit-url-template = "https://github.com/anoma/spec/edit/master/{path}"
-git-repository-url = "https://github.com/anoma/spec"
 language = "en"
 multilingual = false
-site-url = "https://spec.anoma.network"
+site-url = "https://specs.anoma.network"
 src = "src"
-title = "Anoma Specification"
+title = "Anoma Specifications"
 
 [output.html]
+edit-url-template = "https://github.com/anoma/specs/edit/master/{path}"
+git-repository-url = "https://github.com/anoma/specs"
 additional-css = ["assets/custom.css"]
 additional-js = ["assets/mermaid.min.js", "assets/mermaid-init.js"]
 # mathjax-support = true

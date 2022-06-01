@@ -82,6 +82,15 @@ https://hackmd.io/@heliax/BJ5Gmyxrq
 The wallet UI will need to be configured to connect to the source chain from which you want to transfer tokens. The user will have to enter a valid channel ID
 in the interface, in addition to an established address on the destination chain (the receiver).
 
+## Configuration
+
+The wallet web app should accept a configuration per-environment that will contain not only the default network, but the possible destination networks that the user can transfer tokens to. We need the following information for each, at a minimum:
+
+- A user-friendly alias naming the network
+- Destination URL
+- Destination Port
+- A non-default `portId`, if necessary, though in most cases, the default of `transfer` would likely be used.
+
 ## Resources
 
 - [Anoma Ledger IBC Rust Docs](https://docs.anoma.network/master/rustdoc/anoma/ledger/ibc/)

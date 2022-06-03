@@ -67,10 +67,11 @@ Some guarantees apply pairwise to Entangled Learners: they are, in a sense, guar
 ### Batches and Worker Hashes
 When a worker has collected a batch of transactions, it transmits erasure shares (possibly full copies) of those transactions to other workers on a *weak quorum for every learner* of validators. 
 What's important about this erasure coding is that any Quorum of any Learner can reconstruct every transaction. 
+Furthermore, workers must be able to verify that they are in fact storing the correct Erasure Share of the data referenced in the Worker Hash.
 One way to accomplish this is to transmit a complete copy of all the data to an entire weak quorum for every learner. 
 
 In fact, rather than wait until a batch is complete to start transmitting, workers can stream erasure shares as they receive transactions. 
-When it has completed a batch, a worker also transmits a signed *worker hash* to those other workers, and its own primary.
+When it has completed a batch, a worker also transmits a signed *Worker Hash* to those other workers, and its own primary.
 We do not specify when workers should complete batches, but perhaps it should be after some timeout. Batches should not be empty. 
 
 ### Signed Quorums and Headers

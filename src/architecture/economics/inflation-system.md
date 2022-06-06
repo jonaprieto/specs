@@ -83,7 +83,11 @@ If $I_{PoS}{min}< I_{PoS}$ then $\frac{dI_{PoS}}{dt}=max(A(t),0$.
 
 If $I_{PoS}< I_{PoS}^{max}$ then $\frac{dI_{PoS}}{dt}=min(A(t),0)$.
 
-For $I_{PoS}^{min}=0.05$, $I_{PoS}^{max}=0.15$, $I_{PoS,target}=0.10$, and $R_{target}=0.50$ we set $K_1=-0.01$ and $K_2=-0.2$. This gives us: when 
+For $I_{PoS}^{min}=0.05$, $I_{PoS}^{max}=0.15$, $I_{PoS,target}=0.10$, and $R_{target}=0.50$ we set $K_1=-0.01$ and $K_2=-0.2$. Lets review what these parameters give us with examples as follows. 
+
+If $I= I_{PoS,target}=0.10$ and $R_{target}=0.50$, but then $R$ drops quickly to $0.25$, then the effect of the $K_2$ term will be to increase $I$ by $-0.2 \times -0.25=0.05$ and inflation will hit its maximum value of $0.15$. Changes in $R$ smaller than $0.25$ will not cause inflation to hit its maximum or minimum quickly.
+
+If $I=0.05$, but $R$ holds steady at $0.40$, then $K_1$ term will cause $I$ to increase by $-0.01 \times 0.10=0.001$ per day (? epoch? whatever unit you use) . $I$ will take 100 days to reach its maximum. This is slow compared to the unbonding period, allowing delegators time to react.
 
 
 ---

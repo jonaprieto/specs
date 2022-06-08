@@ -68,24 +68,103 @@ Some guarantees apply pairwise to Entangled Learners: they are, in a sense, guar
 When a worker has collected a batch of transactions, it transmits erasure shares (possibly full copies) of those transactions to other workers on a *weak quorum for every learner* of validators. 
 What's important about this erasure coding is that any Quorum of any Learner can reconstruct every transaction. 
 Furthermore, workers must be able to verify that they are in fact storing the correct Erasure Share of the data referenced in the Worker Hash.
-One way to accomplish this is to transmit a complete copy of all the data to an entire weak quorum for every learner. 
+One way to accomplish this is to transmit a complete copy of all the data to an entire Weak Quorum for every Learner. 
 
 In fact, rather than wait until a batch is complete to start transmitting, workers can stream erasure shares as they receive transactions. 
 When it has completed a batch, a worker also transmits a signed *Worker Hash* to those other workers, and its own primary.
-We do not specify when workers should complete batches, but perhaps it should be after some timeout. Batches should not be empty. 
+We do not specify when workers should complete batches, but perhaps it should be after some timeout, or perhaps primaries should signal workers to complete batches. Batches should not be empty. 
 
 ### Signed Quorums and Headers
-TODO
+Primaries ultimately produce blocks for each round, for each Learner, and send those blocks to other Primaries. 
+When a primary for validator `V` has received blocks for learner `L` and round `R` from an entire quorum of validators for learner `L`, it signs that collection, producing a *Signed Quorum* object, which identifies the validator `V`, the learner `L`, and the round `R`. 
+The Signed Quorum is then broadcast (or erasure coded) to primaries on a *weak quorum for every learner* of validators. 
+Much like batches, it is important that any Quorum for any Learner can re-construct the entire Signed Quorum. 
+
+Periodically, each primary `P` produces *Headers*.
+Each Header contains:
+- a set of signed Worker Hashes, all signed by `P`'s validator
+- a hash referencing at most one Signed Quorum per Learner, all signed  by `P`
+- an *Availability Certificate* (we'll get to how those are made shortly) for the previous Header `P` issued
+Headers should be relatively small.
+Each primary then sends the header to all the other primaries. 
+
+
+When a Primary receives a Header, it can produce an *Availability Vote* (which is a digital signature) iff
+- the primary has stored its share of all Signed Quorums referenced,
+- the primary has received messages from its workers indicating that they have stored their shares of all the Batches referenced
+The Availability Votes are then transmitted to the Header's Primary. 
+
+When a primary receives Availability Votes for a Header from a weak quorum for every learner, it can aggregate those signatures to produce an *Availability Certificate*, which proves that the Header (and its contents) are available to any Quorum. 
+Availability Certificates should be small.
+Note that, if primaries broadcast Availability Certificates as soon as they produce them, other primaries may have all the components necessary to "receive" a Header even before the Header's Primary actually sends it.
+Specifically, they may have:
+- Signed Batch Headers from their listening Workers
+- Signed Quorum shares received earlier from the Primary
+- Availability Certificate received earlier from the Primary
+
 
 
 ## Heterogeneous Narwhal Integrity Protocol
-TODO
+So far, only Signed Quorums have been Learner-specific: everything else requires a weak quorum for every learner.
+However, in the Integrity Protocol, almost everything is Learner-specific. 
+Furthermore, Workers are not involved in the Integrity Protocol: only Primaries. 
 ![Integrity Protocol Time-Space Diagram](primaries.svg)
+Each Header `H` features a predecessor `H'`: the availability certificate in `H` references the header `H'`. 
+When a Primary receives a Header `H`, it can produce an *Integrity Vote* iff it has not produced an Integrity vote for any other Header with the same predecessor as `H`
+In essence, this means that each correct Primary signs, for each other (even incorrect) Primary, a unique chain of Headers.
+This will ensure that no primary can produce conflicting blocks for entangled Learners. 
+Integrity Votes are transmitted back to the Primary associated with the Header. 
+In practice, a Integrity and Availability votes may be combined for Primaries who can cast both.
+
+For each Header it produces, a Primary can calculate its *Learner Vector*: this represents, for each Learner, the highest round number of any quorum referenced in this Header or its ancestors (its predecessor, of its predecessor's predecessor, etc.).
+If, for some Learner `L`, a header `H` has a greater round number `R` in its *Learner Vector* for `L` than did `H`'s predecessor, then the Primary can produce a *Block* for learner `R` and round `L`. 
+Intuitively, a Primary produces a block whenever it gets a quorum for a Learner in a latest round. 
+
+A block for learner `L` includes an Availability Certificate, as well as an aggregated signature formed from the Integrity Votes of (at least) a quorum (for learner `L`) for the same Header. 
+Blocks are transmitted to all other Primaries, who use them to form Signed Quorums. 
+
+If a Primary uses the same Header to make blocks for multiple Learners, each block it produces must use a superset of signatures as the previous. This ensures that if the Primary produces a block for Learner A and then a block for learner B, the Block for learner B effectively includes the block for learner A. 
+We can use this when we later establish a total ordering: any reference to the learner B block also effectively references the learner A block. 
+
+Here is an example timeline of a Primary producing headers, availability certificates, and blocks. 
+Blocks are color coded by learner and include a round number. 
+Headers display *Learner Vectors*.
 ![Single Primary Timeline](primary_timeline.svg)
 
+
+
+
 ## DAG Properties
-TODO
+Independently, the blocks for each Learner form a DAG with the same properties as in the original Narwhal:
+![Blue DAG](quorums_blue_5_red_0.svg)
+(In these diagrams, blocks reference prior blocks from the same Primary; I just didn't draw those arrows)
+
+Note that blocks reference a quorum of blocks from the previous round.
+This does not require that the same primary produced a block for the previous round.  
+In round 5, Primary 3 can produce a block if it has received a quorum of round 4 blocks from other Primaries. 
+
+Of course, primaries do not necessarily produce blocks for the same round at the same literal time.
+Here we see primaries producing blocks for round 3 for red learner at different times, depending on when they finish batches, or receive a round 2 quorum, or enough votes:
+![Blue DAG](quorums_blue_0_red_3.svg)
+In Heterogeneous Narwhal, these two DAGs are being created simultaneously (using the same sequence of Headers from each Primary, and many of the same Votes):
 ![Blue and Red DAG](quorums_blue_5_red_3.svg)
+Note that round numbers for different learners do not have to be close to each other. 
+Red round 3 blocks are produced after blue round 5 blocks, and that's ok.
+
+Furthermore, rounds of different learners are not totally ordered.
+Red round 3 cannot really be said to happen before, or after, blue round 4. 
+
+### Fair Broadcast
+In Homogeneous Narwhal, any block which is referenced by a weak quorum in the following round will be (transitively) referenced by all blocks thereafter. Heterogeneous Narwhal has analogous guarantees:
+
+#### Any block for learner `A`  referenced by a weak quorum for learner `A` will, after 3 rounds, be (transitively) referenced by all future blocks of learners entangled with `A`. 
+Specifically, such a block in round `R`, will be (transitively) referenced by all `A`-blocks in round `R+2`.
+
+TODO: finish this proof
+
+Consider the first round for learner `B` using at least a quorum of headers either used in `A` round `R+2` or after their primaries headers for `A` round `R+2`.
+
+Given that Learner `B` is entangled with `A`, any quorum 
 
 ## Consensus
 TODO

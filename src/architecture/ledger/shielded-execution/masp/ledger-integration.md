@@ -100,23 +100,6 @@ ledger's perspective, transact in that asset; therefore, the asset's own
 VP is not run as described above, and cannot be because the shielded
 pool is asset-hiding.
 
-## One-time Payment Addresses
-One-time payment addresses are designed to facilitate instant recognition of shielded payments. They are marked with the special bech32m prefix `otpatest` which indicates that payers should additionally place the newly created note at a storage key computed from the hash of the payment address. This same storage key is what the payee should query for unspent notes fulfilling the given payment request.
-
-### Pros
-* Instant determination of whether funds have or have not been received
-* Address encoding is almost exactly the same as for normal shielded payment addresses
-
-### Cons
-* All transaction's prior to the one-time payment's still have to be scanned before it can be spent
-  * Why? The unspent note's Merkle path can only be constructed with knowledge of all prior note commitments
-* All transactions subsequent to the one-time payment's still have to be scanned before it can be safely spent
-  * Why? The received note may have been subsequently nullified by this or another client
-* For payments known to have been received recently, this method is most likely only marginally faster than backwards scanning
-  * Relevance: Empirical evidence from Zcash shows that unspent notes are most likely to be recently broadcasted ones
-* Decryptions still eventually have to be attempted on all other shielded transactions in the blockchain
-  * Why? To ensure that user still has access to all their other unspent notes
-
 ## Client capabilities
 The client should be able to:
 * Make transactions with a shielded sender and/or receiver

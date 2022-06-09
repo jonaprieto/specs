@@ -1,4 +1,4 @@
-# Client
+# Client Application
 
 ### React Web Application
 

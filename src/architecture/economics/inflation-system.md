@@ -104,7 +104,7 @@ If $I_{L}< I_{L}^{max}$ then $\frac{dI_{L}}{dt}=min(A(t),0)$.
 
 For $I_{L}^{min}=0.03$, $I_{L}^{max}=0.07$, $I_{L,target}=0.05$, and $L_{target}=0.30$ we set $K_1=-0.42$ and $K_2=-0.1$. Lets review what these parameters give us with examples as follows. 
 
-**Example 1:** If $I= I_{L,target}=0.30$ and $L_{target}=0.30$, but then $L$ drops quickly to $0.15$, then the effect of the $K_2$ term will be to increase $I_L$ by $-0.1 \times -0.15=0.015$ and inflation will hit its maximum value of $0.07$. Changes in $L$ smaller than $0.15$ will not cause inflation to hit its maximum or minimum quickly.
+**Example 1:** If $I= I_{L,target}=0.05$ and $L_{target}=0.30$, but then $L$ drops quickly to $0.15$, then the effect of the $K_2$ term will be to increase $I_L$ by $-0.1 \times -0.15=0.015$ and inflation will hit its maximum value of $0.07$. Changes in $L$ smaller than $0.15$ will not cause inflation to hit its maximum or minimum quickly.
 
 **Example 2:**
 ---

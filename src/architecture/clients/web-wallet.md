@@ -1,4 +1,4 @@
-<h1> Namada wallet user interface</h1>
+<h1>Web Wallet UI and Features</h1>
 
 - [LockScreen](#lockscreen)
   - [LockScreen](#lockscreen-1)

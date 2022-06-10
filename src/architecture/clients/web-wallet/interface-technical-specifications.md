@@ -1,6 +1,4 @@
-# Web Wallet
-
-## Interface Technical Specifications
+# Interface Technical Specifications
 
 ### React Web Application
 
@@ -59,8 +57,8 @@ The wallet-interface should be able to run within the Jest testing framework. Th
 
 ```bash
 wasm-pack build ../anoma-lib/ --out-dir ../anoma-wallet/src/lib/anoma --out-name anoma --target web
-```
 
+```
 We would issue this in order to support Jest in NodeJS:
 
 ```bash

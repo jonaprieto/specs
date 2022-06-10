@@ -1,5 +1,3 @@
-# Web Wallet
-
 ## IBC Protocol
 
 The web wallet must be able to interact with other chains via the Inter-Blockchain Communication Protocol (IBC).

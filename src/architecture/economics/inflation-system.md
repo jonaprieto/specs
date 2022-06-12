@@ -87,7 +87,7 @@ For $I_{PoS}^{min}=0.05$, $I_{PoS}^{max}=0.15$, $I_{PoS,target}=0.10$, and $R_{t
 
 **Example 1:** If $I= I_{PoS,target}=0.10$ and $R_{target}=0.50$, but then $R$ drops quickly to $0.25$, then the effect of the $K_2$ term will be to increase $I_{PoS}$ by $-0.2 \times -0.25=0.05$ and inflation will hit its maximum value of $0.15$. Changes in $R$ smaller than $0.25$ will not cause inflation to hit its maximum or minimum quickly.
 
-**Example 2:** If $I_{PoS}=0.05$, but $R$ holds steady at $0.40$, then $K_1$ term will cause $I$ to increase by $-0.01 \times 0.10=0.001$ per day/epoch. $I_{PoS}$ will take 100 days to reach its maximum. This is slow compared to the unbonding period, allowing delegators time to react.
+**Example 2:** If $I_{PoS}=0.05$, but $R$ holds steady at $0.40$, then $K_1$ term will cause $I$ to increase by $-0.01 \times -0.10=0.001$ per day/epoch. $I_{PoS}$ will take 100 days to reach its maximum. This is slow compared to the unbonding period, allowing delegators time to react.
 
 
 ---
@@ -102,11 +102,12 @@ If $I_{L}^{min}< I_{L}$ then $\frac{dI_{L}}{dt}=max(A(t),0$.
 
 If $I_{L}< I_{L}^{max}$ then $\frac{dI_{L}}{dt}=min(A(t),0)$.
 
-For $I_{L}^{min}=0.03$, $I_{L}^{max}=0.07$, $I_{L,target}=0.05$, and $L_{target}=0.30$ we set $K_1=-0.42$ and $K_2=-0.1$. Lets review what these parameters give us with examples as follows. 
+For $I_{L}^{min}=0.03$, $I_{L}^{max}=0.07$, $I_{L,target}=0.05$, and $L_{target}=0.30$ we set $K_1=-0.05$ and $K_2=-0.1$. Lets review what these parameters give us with examples as follows. 
 
-**Example 1:** If $I= I_{L,target}=0.05$ and $L_{target}=0.30$, but then $L$ drops quickly to $0.15$, then the effect of the $K_2$ term will be to increase $I_L$ by $-0.1 \times -0.15=0.015$ and inflation will hit its maximum value of $0.07$. Changes in $L$ smaller than $0.15$ will not cause inflation to hit its maximum or minimum quickly.
+**Example 1:** If $I= I_{L,target}=0.05$ and $L_{target}=0.30$, but then $L$ drops quickly to $0.15$, then the effect of the $K_2$ term will be to increase $I_L$ by $-0.1 \times -0.15=0.015$ and inflation will hit $0.065$ which is short of its maximum value of $0.07$. Changes in $L$ smaller than $0.15$ will not cause inflation to hit its maximum or minimum quickly.
 
-**Example 2:**
+**Example 2:** If $I_{L}=0.03$, but $L$ holds steady at $0.20$, then $K_1$ term will cause $I_L$ to increase by $-0.05 \times -0.10=0.005$ per day/epoch. $I_{L}$ will take 8 days to reach its maximum. 
+
 ---
 
 The ratio between staking and locking in the shielded pool is a trade off between security, privacy, and liveness. A higher staking ratio means more security, a higher locking ratio means more privacy, and if both are too high there wont be enough liquidity for transactions. It would be easier to consider these separately, for example, setting the target staking ratio to 50 % and the target locking ratio to 30 %. 

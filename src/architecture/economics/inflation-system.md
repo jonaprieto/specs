@@ -108,6 +108,7 @@ For $I_{L}^{min}=0.03$, $I_{L}^{max}=0.07$, $I_{L,target}=0.05$, and $L_{target}
 
 **Example 2:** If $I_{L}=0.03$, but $L$ holds steady at $0.20$, then $K_1$ term will cause $I_L$ to increase by $-0.05 \times -0.10=0.005$ per day/epoch. $I_{L}$ will take 8 days to reach its maximum. 
 
+TODO: Why we chose those min and max values. 
 ---
 
 The ratio between staking and locking in the shielded pool is a trade off between security, privacy, and liveness. A higher staking ratio means more security, a higher locking ratio means more privacy, and if both are too high there wont be enough liquidity for transactions. It would be easier to consider these separately, for example, setting the target staking ratio to 50 % and the target locking ratio to 30 %. 
@@ -116,7 +117,7 @@ The funds minted for the treasury is a constant %, for example 1 %. Same goes fo
 
 We need to define $I_{PoS}^{max}$, $I_{L}^{max}$, and $I_{T}$ to bound total inflation. 
 
-$$I_{PoS}^{max})+I_{L}^{max}+I_T=< I^{max}$$
+$$I_{PoS}^{max}+I_{L}^{max}+I_T=< I^{max}$$
 
 The sum of $I_L$ and other $I_L1, ..., I_Ln$ will also be limited. If their sum would exceed the limit, then we need to scale them down to stay within the limit. 
 

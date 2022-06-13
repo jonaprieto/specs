@@ -68,7 +68,7 @@ MsgTransfer {
 
 **NOTE** Unlike with `tx_transfer`, the amount we pass with the Token is _not_ submitted in micro-units, but as a regular `f32` value. No conversion is needed in the web wallet.
 
-Once this transaction is unwrapped and validated, `apply_tx` will invoke `IBC.dispatch()` (see: https://github.com/anoma/anoma/blob/master/wasm/wasm_source/src/tx_ibc.rs).
+Once this transaction is unwrapped and validated, `apply_tx` will invoke `IBC.dispatch()` (see: <https://github.com/anoma/anoma/blob/master/wasm/wasm_source/src/tx_ibc.rs>).
 
 When this is executed on the source chain, the balance will be deducted on the source account, so we need to reflect this in the interface. If the transaction succeeds, query
 the balance for that token and display to the user.
@@ -77,7 +77,7 @@ the balance for that token and display to the user.
 
 Instructions for setting up local Namada chains, along with the Hermes relatyer (`ibc-rs`) can be found here:
 
-https://hackmd.io/@heliax/BJ5Gmyxrq
+<https://hackmd.io/@heliax/BJ5Gmyxrq>
 
 The wallet UI will need to be configured to connect to the source chain from which you want to transfer tokens. The user will have to enter a valid channel ID
 in the interface, in addition to an established address on the destination chain (the receiver).
@@ -97,11 +97,11 @@ The wallet web app should accept a configuration per-environment that will conta
 - [HackMD IBC Summary](https://hackmd.io/H2yGO3IQRLiWCPWwQQdVow)
 - [ibc-rs](https://github.com/informalsystems/ibc-rs/)
 - [ICS020 - Fungible Token Transfers](https://github.com/cosmos/ibc/blob/master/spec/app/ics-020-fungible-token-transfer/README.md)
-- https://spec.anoma.network/master/architecture/namada/ibc.html
-- https://docs.cosmos.network/master/ibc/overview.html
-- https://ibcprotocol.org/
+- <https://spec.anoma.network/master/architecture/namada/ibc.html>
+- <https://ibc.cosmos.network/main/ibc/overview.html>
+- <https://ibcprotocol.org/>
 
 Cosmos relayers:
 
-- https://hub.mintscan.io/ibc-network
-- https://www.mintscan.io/osmosis/relayers
+- <https://hub.mintscan.io/ibc-network>
+- <https://www.mintscan.io/osmosis/relayers>

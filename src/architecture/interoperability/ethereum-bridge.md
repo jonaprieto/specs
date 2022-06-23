@@ -62,16 +62,31 @@ number of confirmations (regardless of what is specified in an event). This
 constant may be changeable via governance. Voting on unconfirmed events is
 considered a slashable offence.
 
+### Storage
 To make including new events easy, we take the approach of always overwriting the state with
 the new state rather than applying state diffs. The storage keys involved
 are:
 ```
-/eth_msgs/$msg_hash/body : Vec<u8>
+# all values are Borsh-serialized
+/eth_msgs/$msg_hash/body : EthEvent
 /eth_msgs/$msg_hash/seen_by : Vec<Address>
 /eth_msgs/$msg_hash/voting_power: u64
 /eth_msgs/$msg_hash/seen: bool
 ```
 
+Changes to this `/eth_msgs` storage subspace are only ever made by internal transactions crafted 
+and injected by block proposers based on the aggregate of vote 
+extensions for the last Tendermint round. That is, changes to `/eth_msgs` happen 
+in block `n+1` in a deterministic manner based on the vote extensions of the Tendermint 
+round for block `n`.
+
+The `/eth_msgs` storage subspace does not belong to any account and it won't be possible
+for it to be modified by transactions submitted from outside of the ledger via Tendermint.
+The space will be guarded by a special validity predicate - `EthSentinel` - that runs
+on every transaction, but will be removed by the ledger code for the specific permitted
+protocol transactions that are allowed to update `/eth_msgs`.
+
+### Including events into storage
 For every Namada block proposal, the vote extension of a validator should include
 the events of the Ethereum blocks they have seen via their full node such that:
 1. The storage value `/eth_msgs/$msg_hash/seen_by` does not include their
@@ -80,23 +95,23 @@ the events of the Ethereum blocks they have seen via their full node such that:
 3. Has reached the required number of confirmations
 
 These vote extensions will be given to the next block proposer who will
-aggregate those that it can verify and will include them in their proposal.
-Validators will check the validity of the new votes as part of `ProcessProposal`.
-This includes checking signatures, that votes are really active validators,
-the calculation of backed voting power, etc.
+aggregate those that it can verify and will include them in their block proposal. 
+That is, during `PrepareProposal`, they will inject a protocol transaction during 
+that makes the appropriate state changes to the `/eth_msgs` storage subspace. 
+This protocol transaction will be signed by the block proposer.
 
-After this block is finalized, the events are included into Namada storage.
-Once a message is marked as `seen`, the necessary transaction should be crafted
-internally by the ledger and applied in the same block as part of `FinalizeBlock`.
-Thus, the value of `/eth_msgs/$msg_hash/seen` should also indicate if the
-event has been applied on the Namada side.
+Validators will check this transaction and the validity of the new votes as
+ part of `ProcessProposal`. This includes checking:
+ - signatures
+ - that votes are really from active validators
+ - the calculation of backed voting power
+ - any `/eth_msgs/$msg_hash/seen` that is changing from `false` to `true`
 
-Changes to `/eth_msgs` are only ever made by internal transactions crafted by
-validators deterministically from the aggregate of vote extensions for the last Tendermint
-round. That is, changes to `/eth_msgs` are calculated and applied during the `FinalizeBlock` stage
-of ABCI++ for block `n`, and then included (and validated) in a transaction in block `n+1`.
-It should not be possible for `/eth_msgs` storage to be modified by transactions submitted
-from outside the ledger.
+When an event is being marked as `seen`, another protocol transaction will be derived
+internally by the ledger and applied in the same block as part of `FinalizeBlock`, 
+that carries out any minting of wrapped Ethereum assets.
+Thus, the value of `/eth_msgs/$msg_hash/seen` will also indicate if the
+event has been acted on on the Namada side.
 
 ## Namada Validity Predicates
 

@@ -5,7 +5,7 @@ which naturally can be redeemed on Ethereum at a later time. Furthermore, it all
 minting of wrapped tokens on Ethereum backed by escrowed assets on Namada.
 
 The Namada Ethereum bridge system consists of:
-* An Ethereum full node for including relevant Ethereum events into Namada.
+* An Ethereum full node run by each Namada validator, for including relevant Ethereum events into Namada.
 * A set of validity predicates on Namada which roughly implements [ICS20](https://docs.cosmos.network/v0.42/modules/ibc/) fungible token transfers.
 * A set of Ethereum smart contracts.
 * A Namada bridge process

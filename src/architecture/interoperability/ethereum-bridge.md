@@ -91,14 +91,15 @@ For every Namada block proposal, the vote extension of a validator should includ
 the events of the Ethereum blocks they have seen via their full node such that:
 1. The storage value `/eth_msgs/$msg_hash/seen_by` does not include their
    address.
-2. Is correctly formatted.
-3. Has reached the required number of confirmations
+2. It's correctly formatted.
+3. It's reached the required number of confirmations on the Ethereum chain
 
 These vote extensions will be given to the next block proposer who will
 aggregate those that it can verify and will include them in their block proposal. 
-That is, during `PrepareProposal`, they will inject a protocol transaction during 
-that makes the appropriate state changes to the `/eth_msgs` storage subspace. 
-This protocol transaction will be signed by the block proposer.
+That is, during `PrepareProposal`, they will inject a protocol transaction 
+(the "state update" transaction) that makes the appropriate state changes to 
+the `/eth_msgs` storage subspace. This protocol transaction will be signed by 
+the block proposer.
 
 Validators will check this transaction and the validity of the new votes as
  part of `ProcessProposal`. This includes checking:
@@ -107,11 +108,15 @@ Validators will check this transaction and the validity of the new votes as
  - the calculation of backed voting power
  - any `/eth_msgs/$msg_hash/seen` that is changing from `false` to `true`
 
-When an event is being marked as `seen`, another protocol transaction will be derived
-internally by the ledger and applied in the same block as part of `FinalizeBlock`, 
-that carries out any minting of wrapped Ethereum assets.
-Thus, the value of `/eth_msgs/$msg_hash/seen` will also indicate if the
-event has been acted on on the Namada side.
+When an event is marked as `seen`, a second protocol transaction (the "minting" 
+transaction) will be derived and applied that carries out any requisite minting 
+of wrapped Ethereum assets. This minting transaction will not be recorded 
+onchain itself but will be deterministically derivable from the state update 
+transaction that updates `/eth_msgs` storage. All ledger nodes will be expected 
+to derive and apply this transaction to their own local blockchain state, 
+whenever they receive a block with a state update transaction. 
+Thus, the value of `/eth_msgs/$msg_hash/seen` will also indicate if the event 
+has been acted on on the Namada side.
 
 ## Namada Validity Predicates
 
@@ -120,7 +125,7 @@ will verify the inclusion of events from Ethereum. This validity predicate will
 control the `/eth_msgs` storage subspace.
 
 There will be two other internal accounts:
- - `#EthBridge` - the storage of which will contain ledgers of balances for wrapped Ethereum assets (ETH and ERC20 tokens) structured in a ["multitoken"](https://github.com/anoma/anoma/issues/1102) hierarchy , 
+ - `#EthBridge` - the storage of which will contain ledgers of balances for wrapped Ethereum assets (ETH and ERC20 tokens) structured in a ["multitoken"](https://github.com/anoma/anoma/issues/1102) hierarchy
  - `#EthBridgeEscrow` which will hold in escrow wrapped Namada tokens which have been sent to Ethereum.
 ### Transferring assets from Ethereum to Namada
 

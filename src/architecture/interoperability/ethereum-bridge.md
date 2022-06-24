@@ -85,7 +85,7 @@ The `/eth_msgs` storage subspace does not belong to any account and it won't be 
 for it to be modified by transactions submitted from outside of the ledger via Tendermint.
 The storage will be guarded by a special validity predicate - `EthSentinel` - that is 
 part of the verifier set by default for every transaction, but will be removed 
-by the ledger code for the specific permitted protocol transactions that are 
+by the ledger code for the specific permitted transactions that are 
 allowed to update `/eth_msgs`.
 
 ### Including events into storage
@@ -99,22 +99,27 @@ the events of the Ethereum blocks they have seen via their full node such that:
 These vote extensions will be given to the next block proposer who will
 aggregate those that it can verify and will inject a protocol transaction
 (the "state update" transaction) that makes the appropriate state changes to 
-the `/eth_msgs` storage subspace during `PrepareProposal`. This protocol 
-transaction must be signed by the block proposer.
+the `/eth_msgs` storage subspace during `PrepareProposal`. The protocol 
+transaction itself is signed by the block proposer, and the vote extensions
+inside the transaction will have been signed by the relevant validator.
 
 Validators will check this transaction and the validity of the new votes as
  part of `ProcessProposal`. This includes checking:
- - signatures
- - that votes are really from active validators
- - the calculation of backed voting power
- - any `/eth_msgs/$msg_hash/seen` that is changing from `false` to `true`
+- signatures
+- that votes are really from active validators
+- the calculation of backed voting power
 
-When an event is marked as `seen`, a second protocol transaction (the "transfer" 
-transaction) will be derived and applied that carries out any requisite minting 
-of wrapped Ethereum assets or release of escrowed Namada tokens. 
-This transfer transaction will not be recorded onchain itself but will be deterministically derivable from the state update transaction that updates `/eth_msgs` storage. All ledger nodes 
-will be expected to derive and apply this transaction to their own local 
-blockchain state, whenever they receive a block with a state update transaction. 
+In `FinalizeBlock`, we derive a second transaction (the "transfer" transaction) 
+from the state update transaction that:
+- changes `/eth_msgs/$msg_hash/seen` from `false` to `true` where appropriate
+- does minting of wrapped Ethereum assets or release of escrowed Namada tokens
+  based on `/eth_msgs/$msg_hash/body`
+
+This transfer transaction will not be recorded onchain itself but will be 
+deterministically derivable from the state update transaction that updates 
+`/eth_msgs` storage. All ledger nodes will derive and apply 
+this transaction to their own local blockchain state, whenever they 
+receive a block with a state update transaction. No signature is required.
 
 Thus, the value of `/eth_msgs/$msg_hash/seen` will also indicate if the event 
 has been acted on on the Namada side. The appropriate transfers of tokens to the
@@ -125,8 +130,8 @@ additional actions from the end user.
 
 There will be three internal accounts with associated native validity predicates:
 - `#EthSentinel` - whose validity predicate will verify the inclusion of events from Ethereum. This validity predicate will control the `/eth_msgs` storage subspace.
- - `#EthBridge` - the storage of which will contain ledgers of balances for wrapped Ethereum assets (ETH and ERC20 tokens) structured in a ["multitoken"](https://github.com/anoma/anoma/issues/1102) hierarchy
- - `#EthBridgeEscrow` which will hold in escrow wrapped Namada tokens which have been sent to Ethereum.
+- `#EthBridge` - the storage of which will contain ledgers of balances for wrapped Ethereum assets (ETH and ERC20 tokens) structured in a ["multitoken"](https://github.com/anoma/anoma/issues/1102) hierarchy
+- `#EthBridgeEscrow` which will hold in escrow wrapped Namada tokens which have been sent to Ethereum.
 ### Transferring assets from Ethereum to Namada
 
 #### Wrapped ETH or ERC20

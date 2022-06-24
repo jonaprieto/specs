@@ -88,9 +88,10 @@ round for block `n`.
 
 The `/eth_msgs` storage subspace does not belong to any account and it won't be possible
 for it to be modified by transactions submitted from outside of the ledger via Tendermint.
-The space will be guarded by a special validity predicate - `EthSentinel` - that runs
-on every transaction, but will be removed by the ledger code for the specific permitted
-protocol transactions that are allowed to update `/eth_msgs`.
+The storage will be guarded by a special validity predicate - `EthSentinel` - that is 
+part of the verifier set by default for every transaction, but will be removed 
+by the ledger code for the specific permitted protocol transactions that are 
+allowed to update `/eth_msgs`.
 
 ### Including events into storage
 For every Namada block proposal, the vote extension of a validator should include
@@ -101,11 +102,10 @@ the events of the Ethereum blocks they have seen via their full node such that:
 3. It's reached the required number of confirmations on the Ethereum chain
 
 These vote extensions will be given to the next block proposer who will
-aggregate those that it can verify and will include them in their block proposal. 
-That is, during `PrepareProposal`, they will inject a protocol transaction 
+aggregate those that it can verify and will inject a protocol transaction
 (the "state update" transaction) that makes the appropriate state changes to 
-the `/eth_msgs` storage subspace. This protocol transaction will be signed by 
-the block proposer.
+the `/eth_msgs` storage subspace during `PrepareProposal`. This protocol 
+transaction must be signed by the block proposer.
 
 Validators will check this transaction and the validity of the new votes as
  part of `ProcessProposal`. This includes checking:
@@ -114,59 +114,29 @@ Validators will check this transaction and the validity of the new votes as
  - the calculation of backed voting power
  - any `/eth_msgs/$msg_hash/seen` that is changing from `false` to `true`
 
-When an event is marked as `seen`, a second protocol transaction (the "minting" 
+When an event is marked as `seen`, a second protocol transaction (the "transfer" 
 transaction) will be derived and applied that carries out any requisite minting 
-of wrapped Ethereum assets. This minting transaction will not be recorded 
-onchain itself but will be deterministically derivable from the state update 
-transaction that updates `/eth_msgs` storage. All ledger nodes will be expected 
-to derive and apply this transaction to their own local blockchain state, 
-whenever they receive a block with a state update transaction. 
+of wrapped Ethereum assets or release of escrowed Namada tokens. 
+This transfer transaction will not be recorded onchain itself but will be deterministically derivable from the state update transaction that updates `/eth_msgs` storage. All ledger nodes 
+will be expected to derive and apply this transaction to their own local 
+blockchain state, whenever they receive a block with a state update transaction. 
+
 Thus, the value of `/eth_msgs/$msg_hash/seen` will also indicate if the event 
-has been acted on on the Namada side.
+has been acted on on the Namada side. The appropriate transfers of tokens to the
+given user will be included on chain free of charge and requires no
+additional actions from the end user.
 
 ## Namada Validity Predicates
 
-There will be an internal account - `#EthVerifier` - whose validity predicate
-will verify the inclusion of events from Ethereum. This validity predicate will
-control the `/eth_msgs` storage subspace.
-
-There will be two other internal accounts:
+There will be three internal accounts with associated native validity predicates:
+- `#EthSentinel` - whose validity predicate will verify the inclusion of events from Ethereum. This validity predicate will control the `/eth_msgs` storage subspace.
  - `#EthBridge` - the storage of which will contain ledgers of balances for wrapped Ethereum assets (ETH and ERC20 tokens) structured in a ["multitoken"](https://github.com/anoma/anoma/issues/1102) hierarchy
  - `#EthBridgeEscrow` which will hold in escrow wrapped Namada tokens which have been sent to Ethereum.
 ### Transferring assets from Ethereum to Namada
 
-We'll have a `TransferFromEthereum` data type which will look roughly like the following:
-```rust
-enum AssetFromEthereum {
-    Eth,  // Native ETH
-    Erc20(EthereumAddress),
-    WrappedNamadaToken(NamadaAddress),
-}
-
-struct TransferFromEthereum {
-    /// Asset to be minted (or released from escrow)
-    asset: AssetFromEthereum,
-    /// the address on Namada receiving the tokens
-    receiver: NamadaAddress,
-    /// the amount of wrapped Ethereum token to mint, or wrapped Namada token to release from escrow
-    amount: Amount,
-}
-```
-
-The internal transaction that includes new events into `/eth_msgs` must 
-also update submit a tx containing a `TransferFromEthereum` instance based
-on any newly seen blocks. Thus `/eth_msgs/$msg_hash/seen = true` 
-implies that an Ethereum event has been processed by the Ethereum bridge.
-For each `TransferFromEthereum` transaction, the included wasm code should make the transfer for the address 
-in the `receiver` field.
-
-Note that this means that a transfer initiated on Ethereum will automatically
-be seen and acted upon by Namada. The appropriate transfers of tokens to the
-given user will be included on chain free of charge and requires no
-additional actions from the end user.
-
 #### Wrapped ETH or ERC20
-The protocol transaction mints the appropriate amount to the corresponding multitoken balance key for the receiver.
+The "transfer" transaction mints the appropriate amount to the corresponding multitoken balance key for the receiver, based on the specifics of the `EthEvent`.
+
 
 ##### Examples
 For 2 wETH to `atest1v4ehgw36xue5xvf5xvuyzvpjx5un2v3k8qeyvd3cxdqns32p89rrxd6xx9zngvpegccnzs699rdnnt`

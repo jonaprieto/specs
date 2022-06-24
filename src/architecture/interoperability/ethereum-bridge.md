@@ -5,8 +5,11 @@ which naturally can be redeemed on Ethereum at a later time. Furthermore, it all
 minting of wrapped tokens on Ethereum backed by escrowed assets on Namada.
 
 The Namada Ethereum bridge system consists of:
-* An Ethereum full node run by each Namada validator, for including relevant Ethereum events into Namada.
-* A set of validity predicates on Namada which roughly implements [ICS20](https://docs.cosmos.network/v0.42/modules/ibc/) fungible token transfers.
+* An Ethereum full node run by each Namada validator, for including relevant 
+  Ethereum events into Namada.
+* A set of validity predicates on Namada which roughly implements 
+  [ICS20](https://docs.cosmos.network/v0.42/modules/ibc/) fungible token 
+  transfers.
 * A set of Ethereum smart contracts.
 * A relayer for submitting transactions to Ethereum
 
@@ -28,11 +31,11 @@ inconvenient.
 ## Ethereum Events Attestation
 We want to store events from the smart contracts of our bridge onto Namada.
 We need to have consensus on these events, we will only include those that 
-have been seen  and validated by at least 2/3 of the staking validators in
+have been seen and validated by at least 2/3 of the staking validators in
 the blockchain storage.
 
-A valid message should correspond to the ICS20 fungible token packet. That 
-is to say it should be of the form:
+A valid message should roughly correspond to the ICS20 fungible token packet. 
+That is to say it should be of the form:
 ```rust
 struct EthEvent {
     denom: String,
@@ -42,7 +45,7 @@ struct EthEvent {
     nonce: u64,
 }
 ```
-The specification of the `denom` field may be custom to this bridge and not
+The specification of the `denom` field will be custom to this bridge and not
 directly conform with the ICS20 specification. The nonce should just be an 
 increasing value. This helps keep message hashes unique. Validators should
 ignore improperly formatted events.
@@ -71,21 +74,20 @@ are:
 # all values are Borsh-serialized
 /eth_msgs/$msg_hash/body : EthEvent
 /eth_msgs/$msg_hash/seen_by : Vec<Address>
-/eth_msgs/$msg_hash/voting_power: u64
+/eth_msgs/$msg_hash/voting_power: (u64, u64)  # reduced fraction < 1 e.g. (2, 3)
 /eth_msgs/$msg_hash/seen: bool
 ```
 
 Changes to this `/eth_msgs` storage subspace are only ever made by internal transactions crafted 
-and injected by block proposers based on the aggregate of vote 
-extensions for the last Tendermint round. That is, changes to `/eth_msgs` happen 
+and applied by all nodes based on the aggregate of vote extensions for the last Tendermint round. That is, changes to `/eth_msgs` happen 
 in block `n+1` in a deterministic manner based on the vote extensions of the Tendermint 
 round for block `n`.
 
-The `/eth_msgs` storage subspace does not belong to any account and it won't be possible
-for it to be modified by transactions submitted from outside of the ledger via Tendermint.
-The storage will be guarded by a special validity predicate - `EthSentinel` - that is 
-part of the verifier set by default for every transaction, but will be removed 
-by the ledger code for the specific permitted transactions that are 
+The `/eth_msgs` storage subspace does not belong to any account and cannot be 
+modified by transactions submitted from outside of the ledger via Tendermint. 
+The storage will be guarded by a special validity predicate - `EthSentinel` - 
+that is part of the verifier set by default for every transaction, but will be 
+removed by the ledger code for the specific permitted transactions that are 
 allowed to update `/eth_msgs`.
 
 ### Including events into storage
@@ -96,32 +98,52 @@ the events of the Ethereum blocks they have seen via their full node such that:
 2. It's correctly formatted.
 3. It's reached the required number of confirmations on the Ethereum chain
 
+Each event that a validator is voting to include must be individually signed by them. The vote extension data field will be a Borsh-serialization of something like the following.
+```rust
+pub struct VoteExtension(Vec<Signed<EthEvent>>);
+```
+
 These vote extensions will be given to the next block proposer who will
 aggregate those that it can verify and will inject a protocol transaction
-(the "state update" transaction) that makes the appropriate state changes to 
-the `/eth_msgs` storage subspace during `PrepareProposal`. The protocol 
-transaction itself is signed by the block proposer, and the vote extensions
-inside the transaction will have been signed by the relevant validator.
+(the "vote extensions" transaction) with a `tx.data` field containing a vector
+of something like a `MultiSignedEthEvent`.
 
-Validators will check this transaction and the validity of the new votes as
- part of `ProcessProposal`. This includes checking:
+```rust
+pub struct MultiSigned<T: BorshSerialize + BorshDeserialize> {
+    /// Arbitrary data to be signed
+    pub data: T,
+    /// The signature of the data
+    pub sigs: Vec<common::Signature>,
+}
+
+pub struct MultiSignedEthEvent {
+    /// Address and voting power of the signing validators
+    pub signers: Vec<(Address, u64)>,
+    /// Events along with a nonce, as signed by validators
+    pub event: MultiSigned<(EthereumEvent, u64)>,
+}
+```
+
+This vote extensions transaction will be signed by the block proposer. 
+Validators will check this transaction and the validity of the new votes as 
+part of `ProcessProposal`, this includes checking:
 - signatures
 - that votes are really from active validators
 - the calculation of backed voting power
 
-In `FinalizeBlock`, we derive a second transaction (the "transfer" transaction) 
-from the state update transaction that:
-- changes `/eth_msgs/$msg_hash/seen` from `false` to `true` where appropriate
-- does minting of wrapped Ethereum assets or release of escrowed Namada tokens
-  based on `/eth_msgs/$msg_hash/body`
+In `FinalizeBlock`, we derive a second transaction (the "state update" 
+transaction) from the vote extensions transaction that:
+- calculates the required changes to `/eth_msgs` storage and applies it
+- acts on any `/eth_msgs/$msg_hash` where `seen` is going from `false` to `true`
+  (e.g. appropriately minting wrapped Ethereum assets)
 
-This transfer transaction will not be recorded onchain itself but will be 
-deterministically derivable from the state update transaction that updates 
-`/eth_msgs` storage. All ledger nodes will derive and apply 
-this transaction to their own local blockchain state, whenever they 
-receive a block with a state update transaction. No signature is required.
+This state update transaction will not be recorded onchain but will be 
+deterministically derived from the vote extensions transaction . All ledger 
+nodes will derive and apply this transaction to their own local blockchain 
+state, whenever they receive a block with a vote extensions transaction. No 
+signature is required.
 
-Thus, the value of `/eth_msgs/$msg_hash/seen` will also indicate if the event 
+The value of `/eth_msgs/$msg_hash/seen` will also indicate if the event 
 has been acted on on the Namada side. The appropriate transfers of tokens to the
 given user will be included on chain free of charge and requires no
 additional actions from the end user.
@@ -132,6 +154,7 @@ There will be three internal accounts with associated native validity predicates
 - `#EthSentinel` - whose validity predicate will verify the inclusion of events from Ethereum. This validity predicate will control the `/eth_msgs` storage subspace.
 - `#EthBridge` - the storage of which will contain ledgers of balances for wrapped Ethereum assets (ETH and ERC20 tokens) structured in a ["multitoken"](https://github.com/anoma/anoma/issues/1102) hierarchy
 - `#EthBridgeEscrow` which will hold in escrow wrapped Namada tokens which have been sent to Ethereum.
+
 ### Transferring assets from Ethereum to Namada
 
 #### Wrapped ETH or ERC20

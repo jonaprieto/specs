@@ -41,10 +41,16 @@ struct EthEvent {
     nonce: u64,
 }
 ```
-The specification of the `denom` field may be custom to this bridge and not
-directly conform with the ICS20 specification. The nonce should just be an 
-increasing value. This helps keep message hashes unique. Validators should
-ignore improperly formatted events.
+The specification of the `denom` field will be custom to this bridge and not
+directly conform with the ICS20 specification. It will be of the form:
+
+```
+erc20/<Ethereum address>
+# TBD
+```
+
+The nonce should just be an increasing value. This helps keep message hashes 
+unique. Validators should ignore improperly formatted events.
 
 Each event should have a list of the validators that have seen
 this event and the current amount of stake associated with it. This

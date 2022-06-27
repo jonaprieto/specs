@@ -137,8 +137,8 @@ transaction) from the vote extensions transaction that:
 - acts on any `/eth_msgs/$msg_hash` where `seen` is going from `false` to `true`
   (e.g. appropriately minting wrapped Ethereum assets)
 
-This state update transaction will not be recorded onchain but will be 
-deterministically derived from the vote extensions transaction . All ledger 
+This state update transaction will not be recorded on chain but will be 
+deterministically derived from the vote extensions transaction. All ledger 
 nodes will derive and apply this transaction to their own local blockchain 
 state, whenever they receive a block with a vote extensions transaction. No 
 signature is required.

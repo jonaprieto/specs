@@ -105,8 +105,7 @@ pub struct VoteExtension(Vec<Signed<EthEvent>>);
 
 These vote extensions will be given to the next block proposer who will
 aggregate those that it can verify and will inject a protocol transaction
-(the "vote extensions" transaction) with a `tx.data` field containing a vector
-of something like a `MultiSignedEthEvent`.
+(the "vote extensions" transaction).
 
 ```rust
 pub struct MultiSigned<T: BorshSerialize + BorshDeserialize> {
@@ -116,11 +115,15 @@ pub struct MultiSigned<T: BorshSerialize + BorshDeserialize> {
     pub sigs: Vec<common::Signature>,
 }
 
-pub struct MultiSignedEthEvent {
+pub struct SeenEthEvent {
     /// Address and voting power of the signing validators
     pub signers: Vec<(Address, u64)>,
     /// Events along with a nonce, as signed by validators
-    pub event: MultiSigned<(EthereumEvent, u64)>,
+    pub event: MultiSigned<(EthEvent, u64)>,
+}
+
+pub enum ProtocolTxType {
+    EthereumEventVoteExtensions(Vec<SeenEthEvent>)
 }
 ```
 

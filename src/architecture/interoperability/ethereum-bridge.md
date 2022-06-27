@@ -100,7 +100,7 @@ the events of the Ethereum blocks they have seen via their full node such that:
 
 Each event that a validator is voting to include must be individually signed by them. The vote extension data field will be a Borsh-serialization of something like the following.
 ```rust
-pub struct VoteExtension(Vec<Signed<EthEvent>>);
+pub struct VoteExtension(Vec<Signed<EthereumEvent>>);
 ```
 
 These vote extensions will be given to the next block proposer who will

@@ -108,6 +108,13 @@ aggregate those that it can verify and will inject a protocol transaction
 (the "vote extensions" transaction).
 
 ```rust
+pub enum EthereumEvent {
+    // we will have different variants here corresponding to different types
+    // of events from Ethereum - that will be mapped from the raw `EthEvent`
+    // type
+    // ...
+}
+
 pub struct MultiSigned<T: BorshSerialize + BorshDeserialize> {
     /// Arbitrary data to be signed
     pub data: T,
@@ -115,15 +122,15 @@ pub struct MultiSigned<T: BorshSerialize + BorshDeserialize> {
     pub sigs: Vec<common::Signature>,
 }
 
-pub struct SeenEthEvent {
+pub struct MultiSignedEthEvent {
     /// Address and voting power of the signing validators
     pub signers: Vec<(Address, u64)>,
-    /// Events along with a nonce, as signed by validators
-    pub event: MultiSigned<(EthEvent, u64)>,
+    /// Events as signed by validators
+    pub event: MultiSigned<EthereumEvent>,
 }
 
 pub enum ProtocolTxType {
-    EthereumEventVoteExtensions(Vec<SeenEthEvent>)
+    EthereumEvents(Vec<MultiSignedEthEvent>)
 }
 ```
 
@@ -161,8 +168,29 @@ There will be three internal accounts with associated native validity predicates
 ### Transferring assets from Ethereum to Namada
 
 #### Wrapped ETH or ERC20
-The "transfer" transaction mints the appropriate amount to the corresponding multitoken balance key for the receiver, based on the specifics of the `EthEvent`.
+The "transfer" transaction mints the appropriate amount to the corresponding multitoken balance key for the receiver, based on the specifics of a `TransferToNamada` Ethereum event.
 
+```rust
+pub struct EthAddress(pub [u8; 20]);
+
+/// Represents Ethereum assets on the Ethereum blockchain
+pub enum EthereumAsset {
+    /// Native ETH
+    Eth,
+    /// An ERC20 token and the address of its contract
+    ERC20(EthAddress),
+}
+
+/// An event transferring some kind of value from Ethereum to Anoma
+pub struct TransferToNamada {
+    /// Quantity of ether in the transfer
+    pub amount: Amount,
+    /// Address on Ethereum of the asset
+    pub asset: EthereumAsset,
+    /// The Namada address receiving wrapped assets on Anoma
+    pub receiver: Address,
+}
+```
 
 ##### Examples
 For 2 wETH to `atest1v4ehgw36xue5xvf5xvuyzvpjx5un2v3k8qeyvd3cxdqns32p89rrxd6xx9zngvpegccnzs699rdnnt`

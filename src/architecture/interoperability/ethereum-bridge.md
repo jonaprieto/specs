@@ -138,10 +138,10 @@ transaction) from the vote extensions transaction that:
   (e.g. appropriately minting wrapped Ethereum assets)
 
 This state update transaction will not be recorded on chain but will be 
-deterministically derived from the vote extensions transaction. All ledger 
-nodes will derive and apply this transaction to their own local blockchain 
-state, whenever they receive a block with a vote extensions transaction. No 
-signature is required.
+deterministically derived from the vote extensions transaction, which is 
+recorded on chain. All ledger nodes will derive and apply this transaction to 
+their own local blockchain state, whenever they receive a block with a vote 
+extensions transaction. No signature is required.
 
 The value of `/eth_msgs/$msg_hash/seen` will also indicate if the event 
 has been acted on on the Namada side. The appropriate transfers of tokens to the

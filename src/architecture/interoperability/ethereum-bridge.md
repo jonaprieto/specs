@@ -34,21 +34,18 @@ We need to have consensus on these events, we will only include those that
 have been seen and validated by at least 2/3 of the staking validators in
 the blockchain storage.
 
-A valid message should roughly correspond to the ICS20 fungible token packet. 
-That is to say it should be of the form:
+There will be multiple types of events emitted. Validators should
+ignore improperly formatted events. Raw events from Ethereum are converted to a 
+Rust enum type (`EthereumEvent`) by Namada validators before being included 
+in vote extensions or stored on chain.
+
 ```rust
-struct EthEvent {
-    denom: String,
-    amount: u256,
-    sender: String,
-    receiver: String,
-    nonce: u64,
+pub enum EthereumEvent {
+    // we will have different variants here corresponding to different types
+    // of raw events we receive from Ethereum
+    // ...
 }
 ```
-The specification of the `denom` field will be custom to this bridge and not
-directly conform with the ICS20 specification. The nonce should just be an 
-increasing value. This helps keep message hashes unique. Validators should
-ignore improperly formatted events.
 
 Each event should have a list of the validators that have seen
 this event and the current amount of stake associated with it. This
@@ -67,9 +64,9 @@ constant may be changeable via governance. Voting on unconfirmed events is
 considered a slashable offence.
 
 ### Storage
-To make including new events easy, we take the approach of always overwriting the state with
-the new state rather than applying state diffs. The storage keys involved
-are:
+To make including new events easy, we take the approach of always overwriting 
+the state with the new state rather than applying state diffs. The storage 
+keys involved are:
 ```
 # all values are Borsh-serialized
 /eth_msgs/$msg_hash/body : EthereumEvent
@@ -98,18 +95,9 @@ the events of the Ethereum blocks they have seen via their full node such that:
 2. It's correctly formatted.
 3. It's reached the required number of confirmations on the Ethereum chain
 
-Each event that a validator is voting to include must be converted to an `EthereumEvent` by their oracle and then signed by them.
-
-```rust
-pub enum EthereumEvent {
-    // we will have different variants here corresponding to different types
-    // of events from Ethereum - that will be mapped from the raw `EthEvent`
-    // type
-    // ...
-}
-```
-
-The vote extension data field will be a Borsh-serialization of something like the following.
+Each event that a validator is voting to include must be individually signed by 
+them. The vote extension data field will be a Borsh-serialization of something 
+like the following.
 ```rust
 pub struct VoteExtension(Vec<Signed<EthereumEvent>>);
 ```

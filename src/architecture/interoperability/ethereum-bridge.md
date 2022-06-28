@@ -43,6 +43,7 @@ in vote extensions or stored on chain.
 pub enum EthereumEvent {
     // we will have different variants here corresponding to different types
     // of raw events we receive from Ethereum
+    TransfersToNamada(Vec<TransferToNamada>)
     // ...
 }
 ```

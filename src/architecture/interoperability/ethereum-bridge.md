@@ -98,7 +98,18 @@ the events of the Ethereum blocks they have seen via their full node such that:
 2. It's correctly formatted.
 3. It's reached the required number of confirmations on the Ethereum chain
 
-Each event that a validator is voting to include must be individually signed by them. The vote extension data field will be a Borsh-serialization of something like the following.
+Each event that a validator is voting to include must be converted to an `EthereumEvent` by their oracle and then signed by them.
+
+```rust
+pub enum EthereumEvent {
+    // we will have different variants here corresponding to different types
+    // of events from Ethereum - that will be mapped from the raw `EthEvent`
+    // type
+    // ...
+}
+```
+
+The vote extension data field will be a Borsh-serialization of something like the following.
 ```rust
 pub struct VoteExtension(Vec<Signed<EthereumEvent>>);
 ```
@@ -108,13 +119,6 @@ aggregate those that it can verify and will inject a protocol transaction
 (the "vote extensions" transaction).
 
 ```rust
-pub enum EthereumEvent {
-    // we will have different variants here corresponding to different types
-    // of events from Ethereum - that will be mapped from the raw `EthEvent`
-    // type
-    // ...
-}
-
 pub struct MultiSigned<T: BorshSerialize + BorshDeserialize> {
     /// Arbitrary data to be signed
     pub data: T,

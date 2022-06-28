@@ -72,7 +72,7 @@ the new state rather than applying state diffs. The storage keys involved
 are:
 ```
 # all values are Borsh-serialized
-/eth_msgs/$msg_hash/body : EthEvent
+/eth_msgs/$msg_hash/body : EthereumEvent
 /eth_msgs/$msg_hash/seen_by : Vec<Address>
 /eth_msgs/$msg_hash/voting_power: (u64, u64)  # reduced fraction < 1 e.g. (2, 3)
 /eth_msgs/$msg_hash/seen: bool

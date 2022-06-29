@@ -1,8 +1,9 @@
 # Ethereum bridge
 
-The Namada - Ethereum bridge exists to mint wrapped ETH and ERC20 tokens on Namada 
-which naturally can be redeemed on Ethereum at a later time. Furthermore, it allows the
-minting of wrapped tokens on Ethereum backed by escrowed assets on Namada.
+The Namada - Ethereum bridge exists to mint ERC20 tokens on Namada 
+which naturally can be redeemed on Ethereum at a later time. Furthermore, it 
+allows the minting of wrapped tokens on Ethereum backed by escrowed assets on 
+Namada.
 
 The Namada Ethereum bridge system consists of:
 * An Ethereum full node run by each Namada validator, for including relevant 
@@ -22,11 +23,11 @@ Ethereum side.
 On Namada, the validators are full nodes of Ethereum and their stake is also
 accounting for security of the bridge. If they carry out a forking attack
 on Namada to steal locked tokens of Ethereum their stake will be slashed on Namada.
-On the Ethereum side, we will add a limit to the amount of ETH that can be
+On the Ethereum side, we will add a limit to the amount of assets that can be
 locked to limit the damage a forking attack on Namada can do. To make an attack
-more cumbersome we will also add a limit on how fast wrapped ETH can be
-redeemed. This will not add more security, but rather make the attack more
-inconvenient.
+more cumbersome we will also add a limit on how fast wrapped Ethereum assets can
+be redeemed from Namada. This will not add more security, but rather make the 
+attack more inconvenient.
 
 ## Ethereum Events Attestation
 We want to store events from the smart contracts of our bridge onto Namada.
@@ -160,16 +161,16 @@ There will be three internal accounts with associated native validity predicates
 
 ### Transferring assets from Ethereum to Namada
 
-#### Wrapped ETH or ERC20
-The "transfer" transaction mints the appropriate amount to the corresponding multitoken balance key for the receiver, based on the specifics of a `TransferToNamada` Ethereum event.
+#### Wrapped ERC20
+The "transfer" transaction mints the appropriate amount to the corresponding 
+multitoken balance key for the receiver, based on the specifics of a 
+`TransferToNamada` Ethereum event.
 
 ```rust
 pub struct EthAddress(pub [u8; 20]);
 
 /// Represents Ethereum assets on the Ethereum blockchain
 pub enum EthereumAsset {
-    /// Native ETH
-    Eth,
     /// An ERC20 token and the address of its contract
     ERC20(EthAddress),
 }
@@ -185,15 +186,7 @@ pub struct TransferToNamada {
 }
 ```
 
-##### Examples
-For 2 wETH to `atest1v4ehgw36xue5xvf5xvuyzvpjx5un2v3k8qeyvd3cxdqns32p89rrxd6xx9zngvpegccnzs699rdnnt`
-```
-#EthBridge
-    /eth
-        /balances
-            /atest1v4ehgw36xue5xvf5xvuyzvpjx5un2v3k8qeyvd3cxdqns32p89rrxd6xx9zngvpegccnzs699rdnnt 
-            += 2
-```
+##### Example
 
 For 10 DAI i.e. ERC20([0x6b175474e89094c44da98b954eedeac495271d0f](https://etherscan.io/token/0x6b175474e89094c44da98b954eedeac495271d0f)) to `atest1v4ehgw36xue5xvf5xvuyzvpjx5un2v3k8qeyvd3cxdqns32p89rrxd6xx9zngvpegccnzs699rdnnt`
 ```
@@ -211,16 +204,14 @@ The protocol transaction should simply make a transfer from `#EthBridgeEscrow` t
 
 ### Transferring from Namada to Ethereum
 
-#### Wrapped ETH or ERC20
-To redeem wrapped ETH/ERC20, a user should make a transaction to burn their 
-wrapped ETH or ERC20 tokens, which the `#EthBridge` validity 
-predicate will accept.
+To redeem wrapped Ethereum assets, a user should make a transaction to burn 
+their wrapped tokens, which the `#EthBridge` validity predicate will accept.
 
 Once this burn is done, it is incumbent on the end user to
 request an appropriate "proof" of the transaction. This proof must be
 submitted to the appropriate Ethereum smart contract by the user to
-redeem their ETH. This also means all Ethereum gas costs are the
-responsibility of the end user.
+redeem their native Ethereum assets. This also means all Ethereum gas costs 
+are the responsibility of the end user.
 
 The proofs to be used will be custom bridge headers that are calculated
 deterministically from the block contents, including messages sent by Namada and
@@ -236,7 +227,7 @@ responsibility of the next block proposer.
 
 The bridge headers need only be produced when the proposed block contains
 requests to transfer value over the bridge to Ethereum. The exception is
-when validator sets change.  Since the Ethereum smart contract should
+when validator sets change. Since the Ethereum smart contract should
 accept any header signed by bridge header signed by 2 / 3 of the staking
 validators, it needs up-to-date knowledge of:
 - The current validators' public keys
@@ -288,7 +279,7 @@ If a user wishes to mint a wrapped Namada token on Ethereum, they must submit a 
 - stores `MintWrappedNam` on chain somewhere - TBD
 - sends the correct amount of Namada token to `#EthBridgeEscrow`
 
-Just as in redeeming ETH/ERC20 above, it is incumbent on the end user to
+Just as in redeeming Ethereum assets above, it is incumbent on the end user to
 request an appropriate proof of the transaction. This proof must be
 submitted to the appropriate Ethereum smart contract by the user.
 The corresponding amount of wrapped NAM tokens will be transferred to the

@@ -77,6 +77,9 @@ keys involved are:
 /eth_msgs/$msg_hash/seen: bool
 ```
 
+`$msg_hash` is the SHA256 digest of the Borsh serialization of the relevant 
+`EthereumEvent`.
+
 Changes to this `/eth_msgs` storage subspace are only ever made by internal transactions crafted 
 and applied by all nodes based on the aggregate of vote extensions for the last Tendermint round. That is, changes to `/eth_msgs` happen 
 in block `n+1` in a deterministic manner based on the vote extensions of the Tendermint 

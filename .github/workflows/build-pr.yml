@@ -24,7 +24,7 @@ jobs:
           ~/.cargo
         key: ${{ hashFiles('Makefile') }}
     - name: Install cargo deps
-      run: make dev-deps
+      run: make ci-deps
     - name: Generate website
       run: make build
     - name: Archive rendered site

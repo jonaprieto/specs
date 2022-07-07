@@ -104,7 +104,22 @@ Each event that a validator is voting to include must be individually signed by
 them. The vote extension data field will be a Borsh-serialization of something 
 like the following.
 ```rust
-pub struct VoteExtension(Vec<Signed<EthereumEvent>>);
+pub struct VoteExtension(Vec<SignedEthEvent>);
+
+/// A struct used by validators to sign that they have seen a particular
+/// ethereum event. These are included in vote extensions
+#[derive(Debug, Clone, BorshSerialize, BorshDeserialize, BorshSchema)]
+pub struct SignedEthEvent {
+    /// The address of the signing validator
+    signer: Address,
+    /// The proportion of the total voting power held by the validator
+    power: FractionalVotingPower,
+    /// The event being signed and the block height at which
+    /// it was seen. We include the height as part of enforcing
+    /// that a block proposer submits vote extensions from
+    /// **the previous round only**
+    event: Signed<(EthereumEvent, BlockHeight)>,
+}
 ```
 
 These vote extensions will be given to the next block proposer who will
@@ -121,9 +136,9 @@ pub struct MultiSigned<T: BorshSerialize + BorshDeserialize> {
 
 pub struct MultiSignedEthEvent {
     /// Address and voting power of the signing validators
-    pub signers: Vec<(Address, u64)>,
+    pub signers: Vec<(Address, FractionalVotingPower)>,
     /// Events as signed by validators
-    pub event: MultiSigned<EthereumEvent>,
+    pub event: MultiSigned<(EthereumEvent, BlockHeight)>,
 }
 
 pub enum ProtocolTxType {
@@ -137,6 +152,14 @@ part of `ProcessProposal`, this includes checking:
 - signatures
 - that votes are really from active validators
 - the calculation of backed voting power
+
+It is also checked that each vote extension came from the previous round, 
+requiring validators to sign over the Namada block height with their vote
+extension. Furthermore, the vote extensions included by the block proposer
+should have at least 2 / 3 of the total voting power backing it. Otherwise
+the block proposer would not have passed the `FinalizeBlock` phase of the
+last round. These checks are to prevent censorship of events from validators
+by the block proposer.
 
 In `FinalizeBlock`, we derive a second transaction (the "state update" 
 transaction) from the vote extensions transaction that:

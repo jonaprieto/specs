@@ -1,7 +1,6 @@
 # Fee system
 
-This specification should cover:
-- Fee & gas system for Namada
+This specification should covers fee & gas system for Namada. 
 
 ## Transaction Fees 
 
@@ -21,7 +20,7 @@ where $Tx_{fee}$ is the previous transaction fee, $Tx_{fee}'$ is the new transca
 ![](https://i.imgur.com/p3qeWw3.jpg)
 
 
-TODO: To calculate base fees we need to define the gas fees for the following types of transactions.
+To calculate base fees we need to define the gas fees for the following types of transactions.
 1. Send governance proposals (every delegator/validator can propose a governance proposal: say "we want to increase gas fees")
 2. Vote on governance proposals
 3. Create accounts

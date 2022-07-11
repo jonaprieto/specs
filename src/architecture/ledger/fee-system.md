@@ -15,6 +15,7 @@ The change in base fees cannot be too fast or too frequent. We propose a minimum
 $$
 Tx_{fee}'=Tx_{fee}*(1+ch_{max}(F-0.5))
 $$
+
 where $Tx_{fee}$ is the previous transaction fee, $Tx_{fee}'$ is the new transcation fee, $ch_{max}$ is the max change the transaction fee can have, and $F$ is the block fullness. We decided that our target block fullness is 50 %.  
 
 ![](https://i.imgur.com/p3qeWw3.jpg)

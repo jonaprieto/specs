@@ -1,10 +1,6 @@
 # Anoma
 
-Anoma is a suite of protocols and mechanisms for self-contained self-sovereign coordination.
-
-- _Coordination_ means that Anoma concerns itself with actions requiring agreement and/or exchange between parties.
-- _Self-sovereign_ means that the Anoma protocol aims to foster alignment between users, operators, and developers.
-- _Self-contained_ means that the Anoma protocol should be alone sufficient for the technological part of this coordination.
+[Anoma](http://anoma.net) is an intent-centric, privacy-preserving protocol for decentralized counterparty discovery, solving, and multi-chain atomic settlement. To learn more about Anoma's vision, take a look at the [Anoma Vision Paper](https://anoma.net/vision-paper.pdf).
 
 These documents describe the motivation, design rationale, architecture, and protocol details of Anoma. They are intended to be both _minimal_, in that no more is said than necessary, and _complete_, in that enough is said to define precisely what Anoma is. Anoma is a protocol, it is not an implementation. Documentation for the implementation of the Anoma protocol by Heliax can be found [here](https://docs.anoma.network/v0.4.0/).
 

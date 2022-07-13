@@ -3,7 +3,7 @@ name: Deploy Master
 on:
   push:
     branches:
-      - master
+      - main
 
 jobs:
   build-deploy:
@@ -24,15 +24,15 @@ jobs:
           ~/.cargo
         key: ${{ hashFiles('Makefile') }}
     - name: Install cargo deps
-      run: make dev-deps
+      run: make ci-deps
     - name: Generate website
       run: make build
     - name: Create tag folder
       run: |
-        mkdir -p docs/master && mv book/html/* docs/master
+        mkdir -p docs/main && mv book/html/* docs/main
     - name: Deploy
       uses: JamesIves/github-pages-deploy-action@v4.2.3
       with:
-        branch: gh-pages 
+        branch: gh-pages
         folder: docs
         clean: false

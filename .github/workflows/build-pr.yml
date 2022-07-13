@@ -3,7 +3,7 @@ name: Build PR
 on:
   pull_request:
     branches:
-      - master
+      - main
 
 jobs:
   build:
@@ -24,7 +24,7 @@ jobs:
           ~/.cargo
         key: ${{ hashFiles('Makefile') }}
     - name: Install cargo deps
-      run: make dev-deps
+      run: make ci-deps
     - name: Generate website
       run: make build
     - name: Archive rendered site

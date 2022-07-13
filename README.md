@@ -1,3 +1,5 @@
+# Anoma Specifications
+
 [Anoma](http://anoma.net) is an intent-centric, privacy-preserving protocol for decentralized counterparty discovery, solving, and multi-chain atomic settlement. To learn more about Anoma's vision, take a look at the [Anoma Vision Paper](https://anoma.net/vision-paper.pdf).
 
 ## Raison d'être

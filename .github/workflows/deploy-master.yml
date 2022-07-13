@@ -3,7 +3,7 @@ name: Deploy Master
 on:
   push:
     branches:
-      - master
+      - main
 
 jobs:
   build-deploy:
@@ -29,7 +29,7 @@ jobs:
       run: make build
     - name: Create tag folder
       run: |
-        mkdir -p docs/master && mv book/html/* docs/master
+        mkdir -p docs/main && mv book/html/* docs/main
     - name: Deploy
       uses: JamesIves/github-pages-deploy-action@v4.2.3
       with:

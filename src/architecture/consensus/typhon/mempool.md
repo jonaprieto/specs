@@ -17,7 +17,7 @@ This should not be a problem, since in Heterogeneous Paxos, for any connected le
 This ensures that, within a finite number of rounds (3, I think), any transaction batch referenced by a weak quorum of batches in its own Narwhal will be (transitively) referenced by all batches in all Narwhals for entangled learners. 
 
 ### Overview
-Like [Narwhal](https://arxiv.org/abs/2105.11827) Heterogeneous Narwhal Validators have multiple concurrent processes (which can even run on separate machines).
+Like [Narwhal](https://arxiv.org/abs/2105.11827), Heterogeneous Narwhal Validators have multiple concurrent processes (which can even run on separate machines).
 Each validator has one *primary* process and many *worker* processes. 
 When a client submits a transaction, they first send it to a worker process.
 
@@ -46,7 +46,7 @@ More formally, we present the Heterogeneous Narwhal protocol as the composition 
 Some guarantees apply pairwise to Entangled Learners: they are, in a sense, guaranteed to agree on stuff. 
 - <img src="weak_quorum.svg" alt="weak quorum" height="12pt"/> *Weak Quorum*: a set of validators that intersects every quorum. Weak Quorums are Learner-specific, so when we say *weak quorum for every learner* we mean a set of validators that intersects every quorum of every Learner. 
 - <img src="transaction.svg" alt="transaction" height="12pt"/> *Transaction*: data from clients to be ordered. We do not specify how it's formatted. 
-- *Batch* a set of transactions collected by a Worker.
+- *Batch*: a set of transactions collected by a Worker.
 - <img src="erasure_share.svg" alt="erasure share" height="12pt"/> *Erasure Share*: data transmitted to a weak quorum of listening workers, such that any Quorum of validators can re-construct the original data (Transaction or Batch of Transactions).
 - <img src="worker_hash.svg" alt="worker hash" height="12pt"/> *Worker Hash*: a signed digest of a batch of transactions collected by (and signed) by a worker.
 - <img src="header.svg" alt="header" height="12pt"/> *Header*s have:
@@ -84,7 +84,7 @@ Periodically, each primary `P` produces *Headers*.
 Each Header contains:
 - a set of signed Worker Hashes, all signed by `P`'s validator
 - a hash referencing at most one Signed Quorum per Learner, all signed  by `P`
-- an *Availability Certificate* (we'll get to how those are made shortly) for the previous Header `P` issued
+- an *Availability Certificate* (we'll get to how those are made shortly) for the previous Header `P` issued.
 Headers should be relatively small.
 Each primary then sends the header to all the other primaries. 
 
@@ -158,15 +158,24 @@ Red round 3 cannot really be said to happen before, or after, blue round 4.
 In Homogeneous Narwhal, any block which is referenced by a weak quorum in the following round will be (transitively) referenced by all blocks thereafter. Heterogeneous Narwhal has analogous guarantees:
 
 #### Any block for learner `A`  referenced by a weak quorum for learner `A` will, after 3 rounds, be (transitively) referenced by all future blocks of learners entangled with `A`. 
-Specifically, such a block in round `R`, will be (transitively) referenced by all `A`-blocks in round `R+2`.
+Specifically, such a block `B` in round `R`, will be (transitively) referenced by all `A`-blocks in round `R+2`.
 
-TODO: finish this proof
-
-Consider the first round for learner `B` using at least a quorum of headers either used in `A` round `R+2` or after their primaries headers for `A` round `R+2`.
-
-Given that Learner `B` is entangled with `A`, any quorum 
+Consider the first round for learner `B` using at least a quorum of headers either used in `A` round `R+2` or after their primaries' headers for `A` round `R+2`.
+Given that Learner `B` is entangled with `A`, any `B`-quorum for this round will be a descendant of an `A`-block from round `R+2`, and therefore, of `B`.
 
 ## Consensus
-TODO
 ![Leader Path](leader_path_3.svg)
 
+In order to establish a total order of transactions, we use [Heterogeneous Paxos](heterogeneous_paxos.md) to decide on an ever-growing path through the DAG (for each Learner). 
+Heterogeneous Paxos guarantees that, if two Learners are *entangled*, they will decide on the same path. 
+In order to guarantee liveness (and fairness) for each Learner's transactions, we require that:
+
+*For any accurate learner `L`, if one of `L`'s quorums remains live, and an entire quorum of `L` issues blocks for round `R`, consensus will eventually append one of `L`'s round-`R` blocks, or one of its descendants, to `L`'s path.*
+
+Crucially, if two learners are not entangled, and their blocks never reference each other, consensus should not forever choose blocks exclusively from one learner. 
+This does require a minimal amount of fairness from consensus itself: as long as blocks for learner `L` keep getting proposed (indefinitely), consensus should eventually append one of them to the path. 
+
+### Choosing a total order
+Given a consensus-defined path, we can impose a total order on all transactions which are ancestors of any block in the path.
+We require only that, given some block `B` in the path, all transactions which are ancestors of `B` are ordered before all transactions which are not ancestors of `B`. 
+Among the transactiosn which are ancestors of `B` but not of its predecessor in the path, total order can be imposed by some arbitrary deterministic function. 

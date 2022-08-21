@@ -1,0 +1,60 @@
+name: Build and Deploy docs
+
+on:
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest]
+        mdbook_version: [rust-lang/mdbook@v0.4.21]
+        mdbook_mermaid: [badboy/mdbook-mermaid@v0.11.2]
+        mdbook_linkcheck: [Michael-F-Bryan/mdbook-linkcheck@v0.7.6]
+        mdbook_katex: [heliaxdev/mdbook-katex@v0.3.0]
+
+    steps:
+    - name: Checkout code
+      uses: nschloe/action-cached-lfs-checkout@v1
+    - uses: actions-rs/toolchain@v1
+      with:
+        profile: minimal
+        toolchain: stable
+        override: true
+    - name: Cache
+      uses: actions/cache@v2
+      with:
+        path: |
+          ~/.cargo
+        key: ${{ hashFiles('Makefile') }}
+    - name: Install cargo tool
+      run: |
+          curl https://i.jpillora.com/${{ matrix.mdbook_version }}! | bash
+          curl https://i.jpillora.com/${{ matrix.mdbook_mermaid }}! | bash
+          curl https://i.jpillora.com/${{ matrix.mdbook_linkcheck }}! | bash
+          curl https://i.jpillora.com/${{ matrix.mdbook_katex }}! | bash
+    - name: Generate website
+      run: make build
+    - name: Archive rendered site
+      uses: actions/upload-artifact@v3
+      with:
+        name: rendered-site
+        path: book/html/
+        retention-days: 5
+    - name: Create docs folder
+      if: github.ref == 'refs/heads/main'
+      run: mkdir -p docs/main && mv book/html/* docs/main
+    - name: Deploy
+      if: github.ref == 'refs/heads/main'
+      uses: JamesIves/github-pages-deploy-action@v4.2.3
+      with:
+        branch: gh-pages
+        folder: docs
+        clean: false

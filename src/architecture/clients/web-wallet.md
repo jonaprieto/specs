@@ -7,12 +7,16 @@
   - [AccountOverview/TokenDetails](#accountoverviewtokendetails)
   - [AccountOverview/TokenDetails/Receive](#accountoverviewtokendetailsreceive)
   - [AccountOverview/TokenDetails/Send](#accountoverviewtokendetailssend)
-- [StakingAndGovernance](#stakingandgovernance)
-  - [StakingAndGovernance](#stakingandgovernance-1)
-  - [StakingAndGovernance/Staking](#stakingandgovernancestaking)
-  - [StakingAndGovernance/ValidatorDetails](#stakingandgovernancevalidatordetails)
-  - [StakingAndGovernance/Proposals](#stakingandgovernanceproposals)
-  - [StakingAndGovernance/Proposals/AddProposal](#stakingandgovernanceproposalsaddproposal)
+- [StakingGovernancePgf](#stakinggovernancepgf)
+  - [Staking/Overview](#stakingoverview)
+  - [Staking/ValidatorDetails](#stakingvalidatordetails)
+  - [Governance/Proposals](#governanceproposals)
+  - [Governance/ProposalDetails](#governanceproposaldetails)
+  - [Governance/AddProposal](#governanceaddproposal)
+  - [PublicGoodsFunding/Overview](#publicgoodsfundingoverview)
+  - [PublicGoodsFunding/Council](#publicgoodsfundingcouncil)
+  - [PublicGoodsFunding/ContinuousFunding](#publicgoodsfundingcontinuousfunding)
+  - [PublicGoodsFunding/RetrospectiveFunding](#publicgoodsfundingretrospectivefunding)
 - [Settings](#settings)
   - [Settings](#settings-1)
   - [Settings/WalletSettings](#settingswalletsettings)
@@ -96,58 +100,101 @@ view 3:
 
 
 
-## StakingAndGovernance
-Aside of **AccountOverview** this is a part that the user is likely visiting quite frequently. All staking and governance related activities are performed here. 
+## StakingGovernancePgf
+Aside of **AccountOverview** this is a part that the user is likely visiting frequently. When user clicks the main menu **Staking & Governance** a sub menu with 3 options (Staking, Governance, Public Goods Funding) opens. Staking is selected as a default.
 
-### StakingAndGovernance
-[Wireframe](https://www.figma.com/file/aiWZpaXjPLW6fDjE7dpFaU/Projects-2021?node-id=6496%3A6316)
+### Staking/Overview
+
+[designs](https://www.figma.com/file/aiWZpaXjPLW6fDjE7dpFaU/Projects-2021?node-id=9259%3A15554)
+
 User can:
-* see a dashboard with the most interesting information regarding staking
-* see a dashboard with the most interesting information regarding governance
-* can navigate to **StakingAndGovernance/Staking** for performing staking actions
-* can navigate to **StakingAndGovernance/Proposals** for performing governance actions
 
-### StakingAndGovernance/Staking
-[Wireframe 1](https://www.figma.com/file/aiWZpaXjPLW6fDjE7dpFaU/Projects-2021?node-id=6496%3A6377)
-[Wireframe 2](https://www.figma.com/file/aiWZpaXjPLW6fDjE7dpFaU/Projects-2021?node-id=6496%3A14001)
-[Wireframe 3](https://www.figma.com/file/aiWZpaXjPLW6fDjE7dpFaU/Projects-2021?node-id=6496%3A14101)
+* see an overview of own balances (staked, available, ...)
+* see own active staking positions
+* see listing and be able to search all validators
+* easily be able to filter validators by state (active, inactive, ...)
+
+### Staking/ValidatorDetails
+
+[designs](https://www.figma.com/file/aiWZpaXjPLW6fDjE7dpFaU/Projects-2021?node-id=9286%3A11884)
+
 User can:
-view 1:
-* view a listing of validators
-* be able to navigate to aaa for seeing further details about the validator
-* select to stake with one of them
+* see all information in chain about the validator
+* see a logo of the validator
+* see a and click link to validators website
+* see all staking positions with the current validator
+* see all unclaimed rewards with the current validator
+* open a modal to manage new staking, unstake, and claim rewards
 
-view 2:
-* select an amount to stake
-* see a summary of the staking transaction
+### Governance/Proposals
 
-view 3:
-* see a confirmation of a successful staking with the selected validator
-
-### StakingAndGovernance/ValidatorDetails
-[Wireframe](https://www.figma.com/file/aiWZpaXjPLW6fDjE7dpFaU/Projects-2021?node-id=6496%3A13919)
+[designs](https://www.figma.com/file/aiWZpaXjPLW6fDjE7dpFaU/Projects-2021?node-id=9296%3A13063)
 User can:
-* can see all relevant details of the validator
+* see a listing of the latest proposals and their statuses
+* filter by proposal status
+* search by proposal title
+* navigate to the details of any proposal
+* navigate to a view to create new proposal
 
-### StakingAndGovernance/Proposals
-[Wireframe](https://www.figma.com/file/aiWZpaXjPLW6fDjE7dpFaU/Projects-2021?node-id=6496%3A14167)
-User can:
-* see a listing of all open proposals
-* be able to vote for yes, no, no with veto and abstain
-* see the current vote share per proposal
-* navigate to **StakingAndGovernance/Proposals/AddProposal** for adding a new proposal
+### Governance/ProposalDetails
 
-### StakingAndGovernance/Proposals/AddProposal
-[Wireframe 1](https://www.figma.com/file/aiWZpaXjPLW6fDjE7dpFaU/Projects-2021?node-id=6496%3A14286)
-[Wireframe 2](https://www.figma.com/file/aiWZpaXjPLW6fDjE7dpFaU/Projects-2021?node-id=6496%3A14405)
+[designs](https://www.figma.com/file/aiWZpaXjPLW6fDjE7dpFaU/Projects-2021?node-id=9296%3A13745)
 User can:
-view 1:
+* see all the details of the proposal
+* can vote on proposal if vote is open and the user has not voted yet
+* can see all voting details of the proposal
+* can see full description
+
+### Governance/AddProposal
+
+[designs](https://www.figma.com/file/aiWZpaXjPLW6fDjE7dpFaU/Projects-2021?node-id=9296%3A14019)
+User can:
 * enter the details (TBD) of the proposal
 * see a summary of the proposal
 * submit the proposal
+* be prompted for a payment by the wallet
 
-view 2:
-* see a confirmation of successfully submitted proposal
+### PublicGoodsFunding/Overview
+
+[designs](https://www.figma.com/file/aiWZpaXjPLW6fDjE7dpFaU/Projects-2021?node-id=9254%3A14841)
+User can:
+* see a list of current council members
+* see a list of the latest continuous funding
+* see a list of the latest retrospective funding
+* [navigate](###PublicGoodsFunding/Council) to see current and past council members
+* [navigate](###PublicGoodsFunding/ContinuousFunding) to see all continuous funding
+* [navigate](###PublicGoodsFunding/RetrospectiveFunding) to see all retrospective funding
+
+
+### PublicGoodsFunding/Council
+
+[designs](https://www.figma.com/file/aiWZpaXjPLW6fDjE7dpFaU/Projects-2021?node-id=9254%3A14099)
+User can:
+* see the details of the councils, including their funding, budget, members, ...
+* As a default see the current council is being displayed
+* select a tab "Past" and see all the past councils
+* Select any of the past council in the table and see it's details
+* navigate to [governance vote](#Governance/ProposalDetails) for the council
+* navigate to see the details of [continuous](#PublicGoodsFunding/RetrospectiveFunding) and [retrospective](#PublicGoodsFunding/ContinuousFunding) funding of the funding of the council
+* navigate to [the council member view](#PublicGoodsFunding/CouncilMemberDetails) to see details about the council members
+
+### PublicGoodsFunding/ContinuousFunding
+
+[designs](https://www.figma.com/file/aiWZpaXjPLW6fDjE7dpFaU/Projects-2021?node-id=9254%3A13845)
+User can:
+* See all the funding
+* filter by: all, active, past
+* navigate to the council details that approved this funding
+* navigate to block explorer to see the transaction for the payments
+
+### PublicGoodsFunding/RetrospectiveFunding
+
+[designs](https://www.figma.com/file/aiWZpaXjPLW6fDjE7dpFaU/Projects-2021?node-id=9254%3A13845)
+User can:
+* See all the funding
+* filter by: all, upcoming
+* navigate to the council details that approved this funding
+* navigate to block explorer to see the transaction for the payments
 
 ## Settings
 This is a part of the application that is visited less often. This is where the user can change settings of select the active account.

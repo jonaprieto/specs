@@ -1,5 +1,33 @@
 <h1>Web Wallet UI and Features</h1>
 
+The application is divided to 4 main sections:
+* LockScreen
+* AccountOverview
+* Staking, Governance, Public Goods Funding
+* Settings
+
+These are further divided to individual screens or flows (comprising several screens) grouping activities that belong together. The user stories below are associated with visual representation of the views. They are either wireframes or placeholder designs. When the view is represented with a wireframe, there is likely a ready design for the view. When there is no ready designs the developers can develop the features using the placeholder designs.
+
+Example:
+The wireframe for staking view would look like this:
+
+<img style="max-width: 600px" src="stakingAndGovernance.png" />
+
+And the placeholder design for the same feature looks like this:
+
+<img style="max-width: 600px" src="stakingPlaceholder.png" />
+
+Here is the example user stories for that view:
+
+User can:
+
+* see an overview of own balances (staked, available, ...)
+* see own active staking positions
+* see listing and be able to search all validators
+* easily be able to filter validators by state (active, inactive, ...)
+
+<h1>Views</h1>
+
 - [LockScreen](#lockscreen)
   - [LockScreen](#lockscreen-1)
 - [AccountOverview](#accountoverview)
@@ -23,23 +51,6 @@
   - [Settings/Accounts](#settingsaccounts)
   - [Settings/Accounts/NewAccount](#settingsaccountsnewaccount)
   - [Settings/AccountSettings](#settingsaccountsettings)
-
-The application is divided to 4 main sections:
-* LockScreen
-* AccountOverview
-* StakingAndGovernance
-* Settings
-
-These are further divided to individual screens or flows (comprising several screens) grouping activities that belong together. For example, under **StakingAndGovernance** we have:
-
-* **StakingAndGovernance/Staking** - which gives the user the possibility to see all the validators and navigate to a screen where the actual staking is performed.
-
-Each screen listed below is associated with a high level wireframe design to give a visual presentation of the user interface. Each view is named and being referred with that name through out all communication and in the codebase.
-
-<img style="max-width: 600px" src="stakingAndGovernance.png" />
-
-*This screen represents StakingAndGovernance/Staking view*
-
 
 ## LockScreen
 When the user accesses the wallet for the first time there is a need to create a new account. This screen gives the user to possibility to do so or unlock the wallet by using an existing account.
@@ -111,6 +122,7 @@ User can:
 
 * see an overview of own balances (staked, available, ...)
 * see own active staking positions
+* see the state of all the staking position (pending, staked, unbonding with remaining time)
 * see listing and be able to search all validators
 * easily be able to filter validators by state (active, inactive, ...)
 
@@ -123,12 +135,14 @@ User can:
 * see a logo of the validator
 * see a and click link to validators website
 * see all staking positions with the current validator
+* see the state of all the staking position (pending, staked, unbonding with remaining time)
 * see all unclaimed rewards with the current validator
 * open a modal to manage new staking, unstake, and claim rewards
 
 ### Governance/Proposals
 
 [designs](https://www.figma.com/file/aiWZpaXjPLW6fDjE7dpFaU/Projects-2021?node-id=9296%3A13063)
+
 User can:
 * see a listing of the latest proposals and their statuses
 * filter by proposal status
@@ -139,6 +153,7 @@ User can:
 ### Governance/ProposalDetails
 
 [designs](https://www.figma.com/file/aiWZpaXjPLW6fDjE7dpFaU/Projects-2021?node-id=9296%3A13745)
+
 User can:
 * see all the details of the proposal
 * can vote on proposal if vote is open and the user has not voted yet
@@ -148,6 +163,7 @@ User can:
 ### Governance/AddProposal
 
 [designs](https://www.figma.com/file/aiWZpaXjPLW6fDjE7dpFaU/Projects-2021?node-id=9296%3A14019)
+
 User can:
 * enter the details (TBD) of the proposal
 * see a summary of the proposal
@@ -157,6 +173,7 @@ User can:
 ### PublicGoodsFunding/Overview
 
 [designs](https://www.figma.com/file/aiWZpaXjPLW6fDjE7dpFaU/Projects-2021?node-id=9254%3A14841)
+
 User can:
 * see a list of current council members
 * see a list of the latest continuous funding
@@ -169,6 +186,7 @@ User can:
 ### PublicGoodsFunding/Council
 
 [designs](https://www.figma.com/file/aiWZpaXjPLW6fDjE7dpFaU/Projects-2021?node-id=9254%3A14099)
+
 User can:
 * see the details of the councils, including their funding, budget, members, ...
 * As a default see the current council is being displayed
@@ -181,6 +199,7 @@ User can:
 ### PublicGoodsFunding/ContinuousFunding
 
 [designs](https://www.figma.com/file/aiWZpaXjPLW6fDjE7dpFaU/Projects-2021?node-id=9254%3A13845)
+
 User can:
 * See all the funding
 * filter by: all, active, past
@@ -190,6 +209,7 @@ User can:
 ### PublicGoodsFunding/RetrospectiveFunding
 
 [designs](https://www.figma.com/file/aiWZpaXjPLW6fDjE7dpFaU/Projects-2021?node-id=9254%3A13845)
+
 User can:
 * See all the funding
 * filter by: all, upcoming

@@ -155,15 +155,15 @@ In general, acceptor relay all sent or received messages to all learners and oth
 
 #### Definition: Message Signer
 $$
-  \sig{\green x\!:\!message}\!\triangleq\!
+  \sig{\green x : Message} \triangleq
   \textrm{the acceptor or proposer that signed }\green x
 $$
 
 #### Definition: Message Set Signers
 We can define $\sig{}$ over sets of messages, to mean the set of signers of those messages:
 $$
-  \sig{\green x : set}
-  \triangleq \cb{\tallpipe{\sig{\blue m}}{\blue m \in \green x}}
+  \sig{\green s : set(Message)}
+  \triangleq \cb{\tallpipe{\sig{\blue m}}{\blue m \in \green s}}
 $$
 
 
@@ -243,7 +243,7 @@ If some learner $l_1$ does not agree with some other learner $l_3$, then learner
 * A heterogeneous consensus protocol has _agreement_ if, for all possible executions of that protocol, all entangled pairs of learners have agreement.
 
 ##### Definition: Accurate Learner
-An accurate learner is entangled with itself:
+An _accurate_ learner is [entangled](#definition-entangled) with itself:
 $$
 \accurate{\red a} \triangleq \entangled{\red a}{\red a}
 $$
@@ -288,7 +288,7 @@ $$
     {\green x:\textit{2a}}}
 $$
 
-Now we are ready to discuss what makes a _Well-Formed_ $2a$ message. This requires considering whethern two learners might be entangled, and (unless we can prove they are not engangled), whether one of them might have already decided:
+Now we are ready to discuss what makes a _Well-Formed_ $2a$ message. This requires considering whether two learners might be entangled, and (unless we can prove they are not engangled), whether one of them might have already decided:
 
 ##### Definition: Caught
 Some behavior can create proof that an acceptor is Byzantine. Unlike Byzantine Paxos, our acceptors and learners must adapt to Byzantine behavior.  We say that an acceptor $\purple p$ is _Caught_ in a message $\green x$ if the transitive references of the messages include evidence such as two messages, $\red m$ and $\blue{m^\prime}$, both signed by $\purple p$, in which neither is featured in the other's transitive references (safe acceptors transitively reference all prior messages).
@@ -306,7 +306,7 @@ $$
 **Slashing**: Caught proofs can be used for slashing. 
 
 ##### Definition: Connected
-When some acceptors are proved \byzantine, clearly some learners need not agree, meaning that $\reallysafe$ isn't in the edge between them in the CLG: at least one acceptor in each safe set in the edge is proven Byzantine. Homogeneous learners are always connected unless there are so many failures no consensus is required.
+When some acceptors are proved Byzantine, clearly some learners need not agree, meaning that $\reallysafe$ isn't in the edge between them in the CLG: at least one acceptor in each safe set in the edge is proven Byzantine. Homogeneous learners are always connected unless there are so many failures no consensus is required.
 $$
   \con{\red a}{\green x} \triangleq
   \cb{\tallpipe{\blue b}{\andlinesTwo
@@ -314,17 +314,6 @@ $$
         {\purple s \cap \caught{\green x} = \emptyset }
       }
      }
-$$
-
-##### Definition: Quorums in Messages
-$2a$ messages reference _quorums of messages_ with the same  value and ballot. A $2a$'s quorums are formed from [fresh](#Definition-Fresh) $1b$ messages with the same ballot and value.
-$$
-  \qa{\green x : \textit{2a}} \triangleq \cb{\tallpipe{\red m}{\andlinesFour
-  {\red m : \textit{1b}}
-  {\fresh{\hetdiff{\green{x.lrn}}}{\red m}}
-  {\red m \in \tran{\green x}}
-  {\ba{\red m} = \ba{\green x}}
-}}
 $$
 
 ##### Definition: Buried
@@ -343,7 +332,7 @@ $$
 $$
 
 ##### Definition: Connected 2a Messages
-Entangled learners must agree, but learners that are not connected are not entangled, so they need not agree. Intuitively, a $1b$ message references a $2a$ message to demonstrate that some learner may have decided some value. For learner $\red a$, it can be useful to find the set of $2a$ messages from the same sender as a message ${\green x}$ (and sent earlier) which are still unburied and for learners connected to $\red a$. The $1b$ cannot be used to make any new $2a$ messages for learner $\red a$ that have values different from these $2a$ messages.
+Entangled learners must agree, but learners that are not connected are not entangled, so they need not agree. Intuitively, a $1b$ message references a $2a$ message to demonstrate that some learner may have decided some value. For learner $\red a$, it can be useful to find the set of $2a$ messages from the same sender as a message ${\green x}$ (and sent earlier) which are still [unburied](#definition-buried) and for learners connected to $\red a$. The $1b$ cannot be used to make any new $2a$ messages for learner $\red a$ that have values different from these $2a$ messages.
 $$
       \cona{\hetdiff{\red a}}{\green x} \triangleq
       \cb{\tallpipe{\blue m}{\andlinesFive
@@ -363,23 +352,40 @@ $$
       \va{\green x} = \va{\blue m}
 $$
 
+##### Definition: Quorums in Messages
+$2a$ messages reference _quorums of messages_ with the same  value and ballot. A $2a$'s quorums are formed from [fresh](#definition-fresh) $1b$ messages with the same ballot and value.
+$$
+  \qa{\green x : \textit{2a}} \triangleq \cb{\tallpipe{\red m}{\andlinesFour
+  {\red m : \textit{1b}}
+  {\fresh{\hetdiff{\green{x.lrn}}}{\red m}}
+  {\red m \in \tran{\green x}}
+  {\ba{\red m} = \ba{\green x}}
+}}
+$$
+
 ##### Definition: Well-Formed
-We define what it means for a $1b$ or a $2a$ message to be _well-formed_.
+We define what it means for a message to be _well-formed_.
 $$
   \begin{array}{l}
-WellFormed(\green x : \textit{1b}) \triangleq 
-  \ \blue y \in \tran{\green x}
-  \ \land\ \green x \ne \blue y 
+WellFormed(\purple u : \textit{1a}) \triangleq
+  \ {\purple u}.\mathit{refs} = \emptyset
+\\
+WellFormed(\green x : \textit{1b}) \triangleq
+  \ {\green x}.\mathit{refs} \ne \emptyset
+  \ \land\ \forall\,\blue y \in \tran{\green x} .
+  \ \green x \ne \blue y
   \ \land\ \blue y \ne \geta{\green x}
   \ \Rightarrow\ \ba{\blue y} \ne \ba{\green x}
 \\
 WellFormed(\red z : \textit{2a}) \triangleq
-  \ \qa{\red z} \in \red{Q_{\hetdiff{z.lrn}}}
-  \ \land\ \sig{\red z} \in \sig{\qa{\red z}}
+  \ {\red z}.\mathit{refs} \ne \emptyset
+  \ \land\ \sig{\qa{\red z}} \in \red{Q_{\hetdiff{z.lrn}}}
 \end{array}
 $$
 
 An acceptor who has received a $1b$ sends a $2a$ for every learner for which it can produce a Well-formed $2a$.
+
+Before processing a received message, acceptors and learners check if the message is well-formed. Non-wellformed messages are rejected.
 
 ### Incentive Model
 
@@ -415,7 +421,7 @@ Alternatively, each "chimera chain" could keep an account on each base chain tha
 
 
 ## Security Discussion
-Note that the chimera cannot guarantee atomicty under the same adversary assumption as the base chains. For example, if we assume the adversar to control less than 1/3 of the stake to assure safety on the base chains, atomicity is not guaranteed for such an adversary but inly a weaker one. This is important for users so they can decide whether for their transaction chimera chians would be secure enough. 
+Note that the chimera cannot guarantee atomicty under the same adversary assumption as the base chains. For example, if we assume the adversary to control less than 1/3 of the stake to assure safety on the base chains, atomicity is not guaranteed for such an adversary but only a weaker one. This is important for users so they can decide whether for their transaction chimera chians would be secure enough.
 
 By setting the quorums of each learner to be the same as the quorums of the corresponding base chain, we ensure that each learner's view is *as consistent* as the base chain. Specifically, two instantiations of the learner for some base chain $A$ should decide on the same blocks in any chimera chain, unless the adversary is powerful enough to fork chain $A$.
 

@@ -1,6 +1,20 @@
 # Summary
 
-- [Index](./index.md)
+- [Abstract](./abstract.md)
+- [Angles of approach](./angles-of-approach.md)
+    - [Blockchain systems architecture](./angles-of-approach/distributed-ledger-architecture.md)
+    - [Cybernetics of coordination](./angles-of-approach/cybernetics-of-coordination.md)
+    - [Anthropology of money](./angles-of-approach/anthropology-of-money.md)
+    - [Web-of-trust history](./angles-of-approach/web-of-trust-history.md)
+- [Architecture](./architecture.md)
+    - [Conceptual topology](./architecture/conceptual-topology.md)
+    - [Cryptographic components](./architecture/cryptographic-components.md)
+    - [Layers](./architecture/layers.md)
+- [Applications](./applications.md)
+    - [Causal accounting](./applications/causal-accounting.md)
+    - [Entanglement graph](./applications/entanglement-graph.md)
+- [Acknowledgements](./acknowledgements.md)
+
 - [Motivation](./motivation.md)
 - [Releases](./releases.md)
   - [V1](./releases/v1.md)

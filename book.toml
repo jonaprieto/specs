@@ -24,7 +24,7 @@ expand = true
 
 [output.linkcheck]
 
-[output.pdf]
+# [output.pdf]
 
 [preprocessor]
 

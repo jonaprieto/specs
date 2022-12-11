@@ -24,6 +24,8 @@ expand = true
 
 [output.linkcheck]
 
+[output.pdf]
+
 [preprocessor]
 
 [preprocessor.katex]

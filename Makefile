@@ -1,7 +1,7 @@
 cargo = $(env) cargo
 
 serve:
-	mdbook serve
+	mdbook serve --open
 
 build:
 	mdbook build

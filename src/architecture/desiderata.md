@@ -1,19 +1,20 @@
+> PLEASE IGNORE THIS SECTION, I NEED TO REWRITE IT. JUST MOVE ON TO "LAYERS".
+
 # Desiderata
 
-This protocol provides to an observer the ability to:
+In this context, with the specified primitives, the protocol should provide to an agent the ability to:
+
 - Create cryptographically-content-addressed history
-    - e.g. issue messages from a private/public keypair that they create from nothing (LL: initial object)
-    - send messages to the terminal identity, after which they can never be used again (LL: terminal object)
-- Validate cryptographically-content-addressed history that the observer learns about from elsewhere
+    - e.g. issue messages from a private/public keypair that they create from local randomness
+- Validate cryptographically-content-addressed history that they learn about from elsewhere
     - Validation covers correct instantiation (cryptographically-content-addressed), linear consumption from instantiation, and validity of predicates (state transition rules)
-    - Privacy provisions allow for any arbitrary part of this history known by another party to be revealed by that party to this observer while retaining all of these validity guarantees
-        - e.g. the party can reveal to the observer a message at the end of some chain of history and prove that the history is valid and terminated in that message - this message (if desired) can then be built upon by the observer who now knows it
-        - knowledge of a message is a necessary but not sufficient condition in order to consume / create history on top of it
+    - Privacy provisions allow for any arbitrary part of this history known by another agent to be revealed by that agent to this agent while retaining all of these validity guarantees
+        - e.g. that agent can reveal to this agent a message at the end of some chain of history and prove that the history is valid and terminated in that message - this message (if desired) can then be built upon by the agent who now knows it
+        - knowledge of a message is a necessary but not sufficient condition in order to consume and/or create history on top of it
 - Merge two cryptographically-content-addressed histories and ensure that the linearity condition is not violated in the output
     - Checks that no message was consumed to create different descendents in both histories (and as descendents commit to their ancestors, also checks that no message was consumed alongside different other messages in both histories) 
     - Can create a message which witnesses many prior histories (but does not consume them), and restricts its descendents to never witness conflicting histories from ones already witnessed.
         - e.g. used for block production by consensus providers
-
 
 These functions are scale-free, in that the compute costs do not depend on the complexity of the particular histories in question. Implementation choices for particular primitives (identity, proof systems) can be made in order to trade between different computational and communication costs and who bears them.
 

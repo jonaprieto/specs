@@ -1,12 +1,22 @@
 # Conceptual context
 
-## Agents
+The Anoma architecture operates on the basis of _agents_ in a _world_. _Agents_ are assumed to have the ability to generate local randomness, locally store and retrieve data, perform arbitrary classical (Turing-equivalent) compute, and send and receive messages over an arbitrary, asynchronous physical network. Agents _may_ have local (e.g. human user) input. Agents operate in a _world_, which consists of other agents of the same (abstract) capacities, with whom they may be able to communicate. The _world_ is open, in that agents can join and leave at any time -- from the architectural perspective, we can only speak of and reason about the perspective of a particular agent, i.e. which messages they have sent and received, and in what (local) order.
 
-Observers are assumed to have the ability to store data (privately via locality), perform compute, and send and receive messages over an arbitrary, asynchronous physical network (~ Turing machine with a network).
+The architecture does not presume any sort of global view or global time. It also does not presume any particular _motivations_ of agents, but rather describes the state of the system as a function of the decisions taken by agents over (partially ordered) time.
 
-## World
+> Note: The concept of _agent_ is similar to that of _process_ as used in the distributed systems literature. We use "agent" to emphasize non-determinism (local randomness and/or external user choice input) and possible agency (in the sense of decision-making which impacts the state of the system).
 
-partial ordering, partial connectivity
+```haskell
+type Agent
 
-We assume an asynchronous physical network in the general case, where liveness w.r.t. some message set and some observers will require eventual receipt of all messages in the set by the observers in question.
+class Monad m => AgentContext m where
+    random :: Finite a => m a
 
+    set :: ByteString -> ByteString -> m ()
+    get :: ByteString -> m (Maybe ByteString)
+```
+
+The rest of this specification defines the _Anoma protocol_, which is specific logic that agents run to read, create, and process messages. For convenicen, the Anoma protocol shall be referred to henceforth as just _the protocol_.
+
+```
+```

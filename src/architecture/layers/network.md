@@ -8,6 +8,22 @@ A separate physical network abstraction layer is responsible for keeping appropr
 
 > TODO: Link to part of Typhon networking spec. Also, clearly define (somewhere) what entanglement data should be provided to / used by the physical network layer, this is probably important.
 
+```haskell
+class Monad m => AgentContext m where
+    send :: ExternalIdentity -> ByteString -> m ()
+    onRecv :: (ByteString -> m ()) -> m ()
+```
+
 ## Messages
 
-A `Message` is the lowest layer type, sent around between nodes. `Message` subtypes include `Observation`s, which capture partial ordering information used to craft the physical DAG, `Storage` read/write requests and responses for the distributed content-addressed data storage layer, `Compute` requests and responses for the distributed content-addressed compute cache layer, and `Network` P2P metadata requests and responses for gossiping external identity / IP associations, routing information, uptime information, etc. (full details TBD).
+A `Message` is the lowest layer type, sent around between agents over the network using `send` and received with `onRecv`. There are four `Message` subtypes:
+
+- `Network` P2P metadata requests and responses for [physical network abstraction](./network/physical-network-abstraction.md)
+- `Storage` read/write requests and responses for the [distributed content-addressed data storage layer](./network/distributed-content-addressed-storage.md)
+- `Compute` requests and responses for the [distributed content-addressed compute cache layer](./network/distributed-content-addressed-compute.md)
+- `Observation` messages, which capture partial ordering information used to craft the [physical DAG](./physical-dag.md)
+
+The protocol orthogonalises correctness (verification) and efficiency concerns, such that `Network`, `Storage`, and `Compute` messages are independent of the actual ordering of data (physical DAG) and relations in question (logical DAG). 
+
+```haskell
+```

@@ -16,3 +16,9 @@
 - decentralised logistics coordination
 	- decentralised transport (uber)
 	- decentralised housing (airbnb)
+
+~
+
+causal model of events
+theory of value
+want to reward whatever led to the production of this value

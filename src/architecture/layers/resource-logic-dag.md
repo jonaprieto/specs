@@ -1,85 +1,107 @@
 # Resource logic DAG
 
-## Resource logic DAG
+The resource logic DAG structure provides an abstraction of a _linear resource logic_ with which distributed applications can model finite objects. This logic is based on a concept of a _resource_, which is a unique datum created at a particular point in logical time and possibly consumed later in logical time. Each resource is an instante of a particular _resource logic_, which specifies how (under what conditions) resources of that type can be created and consumed. The resource logic DAG tracks when resources are created and when they are consumed. Resources are only allowed to be consumed after they have been created. This DAG also tracks linear logic violations (duplicate consumptions of the same resource, or "double spends"), but it is up to particular resource logics to decide how to handle this information and resolve conflicts. At any point in logical time, the resource logic DAG has a state consisting of all resources which have been created but not consumed. 
 
-The resource logic structure is based on a concept of a _resource_, where particular resources have rules as to how they can be created & consumed along with logic to resolve any conflicts between duplicate consumptions (linearity violations) if applicable.
+## Resource logics
 
-Resource types are defined by a particular `ResourceLogic`, which specifies under what conditions resources of that type can be created and consumed. 
+Resource types are defined by a particular `ResourceLogic`, which specifies under what conditions resources of that type can be created and consumed. The `creationPredicate` describes under which conditions a resource can be created. For a fungible token, for example, new tokens may be created with a valid signature from the issuing identity. The `consumptionPredicate` describes under which conditions a resource can be consumed. For a fungible token, for example, tokens may be spent with a valid signature from the owning identity.
+
+These predicates have access only to data in the transaction itself. The transaction may include arbitrary data in the extradata field such as proofs or signatures, to which the predicates have access, but they do not have access to the physical DAG in which the transaction is included. 
+
+> TODO: Figure out conflict resolution information requirements here.
 
 ```haskell=
 data ResourceLogic = ResourceLogic {
-  creationPredicate :: PhysicalDAG -> Transaction -> Bool,
-  consumptionPredicate :: PhysicalDAG -> Transaction -> Bool,
+  creationPredicate :: ResourceLogicTx -> Bool,
+  consumptionPredicate :: ResourceLogicTx -> Bool,
 }
 ```
 
-- The `creationPredicate` describes under which conditions a resource can be created.
-    - e.g. for credit: message from issuing user, or consumption of equal existing credit
-- The `consumptionPredicate` describes under which conditions a resource can be consumed.
-    - e.g. for credit: authorisation from owning user
+## Resources
 
-A `Resource` is data owned by a particular resource logic. In order to allow for the rendering of a global content-addressed state, resources include a `prefix` and `suffix`, which can be combined together to form a `key`, and an arbitrary `value`.
+A `Resource` is a unique datum controlled by a particular resource logic. Resources include a reference to their `logic` and an application-defined `suffix` field, which can be combined together with the logic to form a `key`, an arbitrary `data` field, and a `value` natural number used to model relative weight for fungible resources.
+
+- The `logic` is a hash commitment to the pair of creation and consumption predicates (as above) defining under what conditions the resource can be created and under what conditions the resource can be consumed.
+- The `suffix` is a key suffix used to distinguish between distinct-but-equal resources (e.g. same logic, same prefix, same value, but distinct suffix). Semantics of the `suffix` semantics are enforced by the resource logic (e.g. for application internal prefixing by resource owners, with suffixes addressing individual resources).
+- The `data` is an arbitrary bytestring which can be interpreted by the predicates (it could itself contain other predicates).
+- The `value` is a natural number (non-negative integer). This resource logic model builds in a notion of fungibility, i.e. two resources with logic `l`, different suffixes, and values `a` and `b` are treated as equivalent to one resource with logic `l` and value `c` iff. `c = a + b`.
 
 ```haskell=
 data Resource = Resource {
-  logic :: ByteString,
-  prefix :: ByteString,
+  logic :: Hash,
   suffix :: ByteString,
   data :: ByteString,
   value :: Natural
 }
-```
 
-```haskell=
 key :: Resource -> ByteString
-key r = logic r <> domainSeparator <> prefix r <> domainSeparator <> suffix r
+key r = logic r <> domainSeparator <> suffix r
 ```
 
-- The `logic` is a hash commitment to the set of creation and consumption predicates (as above) defining under what conditions the resource can be created and under what conditions the resource can be consumed.
-- The `prefix` is an application-determined name component.
-- The `suffix` is a key suffix used to distinguish between distinct-but-equal resources (e.g. same logic, same prefix, same value, but distinct suffix). Semantics of the `suffix` semantics are enforced by the resource logic (e.g. for application internal prefixing by resource owners, with suffixes addressing individual resources).
-- The `data` is an arbitary bytestring which can be interpreted by the predicates (it could itself contain other predicates).
-- The `value` is a natural number (non-negative integer). This resource logic model builds in a notion of fungibility, i.e. two resources with logic (and prefix) `l`, different suffixes, and values `a` and `b` are treated as equivalent to one resource with logic (and prefix) `l` and value `c` iff. `c = a + b`.
+The `key` of a resource is computable from the logic and suffix. As we will see later, the _state_ of the resource logic DAG at a point in logical time can be represented as a mapping from `key` to `(data, value)` of all resources which have been created but not consumed at that point in logical time.
 
-Resources can be created in a content-addressed way with the appropriate logic whenever `creationPredicate` is satisfied.
+## Transactions
 
-```haskell=
-data Transaction = Transaction {
-  created :: Set Resource,
-  consumed :: Set Resource,
-  extradata :: ByteString,
-  finalityPredicate :: PhysicalDAG -> Transaction -> Bool
-}
-```
-
+A `Transaction` in a resource logic DAG simply consumes a (possibly empty) set of existing resources and creates a (possibly empty) set of new resources. Transactions are atomic, in that either the whole transaction is valid (and can be appended to / part of a valid resource logic DAG), or the transaction is not valid and cannot be appended to / included in the resource logic DAG. Transactions include an `extradata` field which can be read by the resource logic predicates and may contain signatures, proofs, etc. 
 - The set of `created` resources are resources which this transaction creates.
-- The set of `consumed` resources are resources which this transaction consumes.
-- The `extradata` field is for additional data which may be meaningful to predicates in resource logics (e.g. signatures).
+- The set of `consumed` resources are hashes of resources which this transaction consumes.
+- The `extradata` field is for additional data which may be meaningful to predicates in resource logics (e.g. signatures). It is not otherwise processed by the resource logic DAG itself.
 - The `finalityPredicate` determines whether a transaction is considered finalized. After the finality predicate is satisfied, resources consumed by this transaction are marked as having been consumed, and resources created by this transaction can be consumed in future transactions (assuming that their consumption predicates are satisfied).
 
-> Additional context on finality predicates: a separate predicate is used here to provide a notion of atomicity at the level of individual transactions. Finality predicates may, for example, wait for confirmation by a consensus quorum, or select between transactions which consume the same resources according to some selection criterion. Two consumptions of the same resource are considered to possibly conflict only if both of their finality predicates are satisfied.
-
-> TODO: Figure out more clearly what data predicates in resource logics have access to. Instead of passing the whole physical DAG / transaction data, can we instead rely on a local view of "messages" / resources sent & received? Want to rely on local invariants - and e.g. even stuff like consensus should be expressible as a resource which was previously created (and is then witnessed, but not consumed). 
-
-A `Transaction` in a resource logic DAG simply consumes a (possibly empty) set of existing resources and creates a (possibly empty) set of new resources. Transactions are atomic, in that either the whole transaction is valid (and can be appended to / part of a valid resource logic DAG), or the transaction is not valid and cannot be appended to / included in the resource logic DAG. Transactions include an `extradata` field which can be read by the resource logic predicates and may contain signatures, proofs, etc.
+```haskell=
+data ResourceLogicTx = ResourceLogicTx {
+  created :: Set Resource,
+  consumed :: Set Hash,
+  extradata :: ByteString,
+  finalityPredicate :: PhysicalDAG -> Bool
+}
+```
 
 Transactions are valid if and only if:
 - all consumed resources were previously created by a transaction in the history, which was itself (recursively) valid, and whose `finalityPredicate` was satisfied
 - the consumption predicates of all the resources consumed by the transaction are satisfied
 - the creation predicates of all the resources created by the transaction are satisfied
-- prefixes of any created resources are of the form `hash(logic)` for the resources created
+
+
+> Additional context on finality predicates: a separate predicate is used here to provide a notion of atomicity at the level of individual transactions. Finality predicates may, for example, wait for confirmation by a consensus quorum, or select between transactions which consume the same resources according to some selection criterion. Two consumptions of the same resource are considered to possibly conflict only if both of their finality predicates are satisfied.
+
+> TODO: Figure out more clearly what data predicates in resource logics have access to. Instead of passing the whole physical DAG / transaction data, can we instead rely on a local view of "messages" / resources sent & received? Want to rely on local invariants - and e.g. even stuff like consensus should be expressible as a resource which was previously created (and is then witnessed, but not consumed). 
+
+## DAG
+
+```haskell
+type Transaction = ResourceLogicTx
+
+type State = Set Resource
+```
 
 A resource logic DAG is valid if and only if:
 - all transactions are valid by these conditions
 - all transactions are included in the same order as their data in the physical DAG
 
-From a particular resource logic DAG, an observer can calculate a _state_ as a key-value mapping by taking `key(resource)` and `value(resource)` for all resources created but not yet consumed in the history of that DAG.
+From a particular resource logic DAG, an observer can calculate a _state_ as a key-value mapping by taking `key(resource)` and `(data resource, value resource)` for all resources created but not yet consumed in the history of that DAG.
 
 > Note: For a multihop atomic swap, the transaction needs to refer to a consensus provider for finality, or consensus providers, at which point conflict resolution might need to be done post-hoc. If my pre-transaction (a transaction before finality criteria are met, roughly equivalent to an intent) specifies that resources need to be considered final in respect to the CP I chose, we get atomicity without risking to need post-hoc conflict resolution.
 
 > TODO: Work out how the taiga representation is a special case of this. Ask Joe if that maps to taigas "creating virtual resources" approach.
 
+---
+
+What data to expose to predicates in order to handle linearity violations?
+- after processing a double-spend, mark certain resources unspendable (~ consumed)
+- special transaction type for handling double-spends (after two transactions appended)
+- preserving locality of resources
+- chain-of-promises approach ~ promises "built on" are preserved, but local violation must be resolved
+    "now there are 2 house nfts"
+    - this requires some wrapping/unwrapping
+    - requires an identity embedded in the resource
+    - list of identities here?
+
+---
+
 ### Linearity
+
+Particular resource logics may, for example, pick one side of any conflict according to the local ordering of a particular identity, treat a double-spend of a fungible resource as a minting event (debasing the supply), or lock (burn) both sides of any conflict.
 
 Many kinds of resources may like to encode a notion of _linearity_, in that resources of that kind should only be able to be consumed exactly once, and any instances of consumption more than once encountered in a history should be detectable and addressable with an associated notion of _conflict resolution_. For example, contemporary blockchain protocols typically require linearity for representing scarce fungible and non-fungible assets, and resolve conflicts by the decision of a particular consensus algorithm. 
 
@@ -231,5 +253,4 @@ stateDiagram-v2
 
 ## Consensus Providers
 Have liveness, merge and conflict resolve conflicts on join of logical DAGs
-
 

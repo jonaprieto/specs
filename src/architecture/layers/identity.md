@@ -41,6 +41,10 @@ To illustrate the generality we can come up with the following special identitie
 
 Anyone can sign and decrypt (`verify` returns true and `encrypt` returns the plaintext). No secret knowledge is required, so all agents can take on this identity.
 
+The true identity preserves structure under conjunction (`x && true == x`) and forgets structure under disjunction (`x || true == true`).
+
 #### "False / None"
 
 No one can sign or decrypt (`verify` returns false and `encrypt` returns empty string). No secret knowledge exists that fulfills these requirements, so no agent can take on this identity.
+
+The false identity forgets structure under disjunction (`x && false == false`) and preserves structure under disjunction (`x || false == x`).

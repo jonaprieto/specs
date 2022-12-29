@@ -1,3 +1,3 @@
-# Anoma Specifications
+# Anoma Specification
 
-This repository contains canonical specifications for the Anoma protocols. If you would like to read the specs, please visit [specs.anoma.net](https://specs.anoma.net).
+This repository contains the canonical specification for the Anoma protocols. If you would like to read the spec, please visit [specs.anoma.net](https://specs.anoma.net).

@@ -48,3 +48,7 @@ The true identity preserves structure under conjunction (`x && true == x`) and f
 No one can sign or decrypt (`verify` returns false and `encrypt` returns empty string). No secret knowledge exists that fulfills these requirements, so no agent can take on this identity.
 
 The false identity forgets structure under disjunction (`x && false == false`) and preserves structure under disjunction (`x || false == x`).
+
+## Observer-dependence
+
+> Note here that an identity can be dependent on a logical DAG.

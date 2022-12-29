@@ -1,5 +1,19 @@
 > PLEASE IGNORE THIS SECTION, I NEED TO REWRITE IT. JUST MOVE ON TO "LAYERS".
 
+- talk about sub-network part
+- scaling
+- separation of syntax and (identity) semantics
+- observer-dependence
+- information locality
+
+
+...
+
+
+given these requirements and assumptions, the anoma protocol herein described is unique up to isomorphism.
+
+
+
 # Desiderata
 
 In this context, with the specified primitives, the protocol should provide to an agent the ability to:

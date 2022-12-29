@@ -1,14 +1,14 @@
 # Resource logic DAG
 
-The resource logic DAG structure provides an abstraction of a _linear resource logic_ with which distributed applications can model finite objects. This logic is based on a concept of a _resource_, which is a unique datum created at a particular point in logical time and possibly consumed later in logical time. Each resource is an instante of a particular _resource logic_, which specifies how (under what conditions) resources of that type can be created and consumed. The resource logic DAG tracks when resources are created and when they are consumed. Resources are only allowed to be consumed after they have been created. This DAG also tracks linear logic violations (duplicate consumptions of the same resource, or "double spends"), but it is up to particular resource logics to decide how to handle this information and resolve conflicts. At any point in logical time, the resource logic DAG has a state consisting of all resources which have been created but not consumed. 
+The resource logic DAG structure provides an abstraction of a _linear resource logic_ with which distributed applications can model finite objects. This logic is based on a concept of a _resource_, which is a unique datum created at a particular point in logical time and possibly consumed later in logical time. Each resource is an instante of a particular _resource logic_, which specifies how (under what conditions) resources of that type can be created and consumed. The resource logic DAG tracks when resources are created and when they are consumed. Resources are only allowed to be consumed after they have been created.  At any point in logical time, the resource logic DAG has a state consisting of all resources which have been created but not consumed. 
+
+This DAG also tracks linear logic violations (duplicate consumptions of the same resource, or "double spends"). Each resource has an ordered list of owner identities, where a valid signature from the last identity in the list is required to consume the resource. At any point in logical time, the right-most owner of a resource is responsible for ordering possibly conflicting transactions. Resources can be transferred to a new owner (modulo additional validation in the predicates) by appending to the list, or as a special case, they can be transferred to the previous owner (dropping an item from the end of the list). In the case of a double-spend of a resource - namely, a non-total order of two conflicting transactions both signed by the current owner - the conflict is resolved by the owner one element earlier in the list, and in the case of multiple double-spends recursively until the originator (at which point, if they also double-spend, linearity is violated, but often it would as if the originator had just issued more resources, and in any case there is no in-system recovery possible at this point). Recovery from linearity violations does not require any reversal or reordering of transactions, as we keep this explicit "chain of promises" of owners, so if some owner `I` double-spends, subsequent resources with `I` in the owner list may simply no longer be redeemable back along the original path.
 
 ## Resource logics
 
 Resource types are defined by a particular `ResourceLogic`, which specifies under what conditions resources of that type can be created and consumed. The `creationPredicate` describes under which conditions a resource can be created. For a fungible token, for example, new tokens may be created with a valid signature from the issuing identity. The `consumptionPredicate` describes under which conditions a resource can be consumed. For a fungible token, for example, tokens may be spent with a valid signature from the owning identity.
 
 These predicates have access only to data in the transaction itself. The transaction may include arbitrary data in the extradata field such as proofs or signatures, to which the predicates have access, but they do not have access to the physical DAG in which the transaction is included. 
-
-> TODO: Figure out conflict resolution information requirements here.
 
 ```haskell=
 data ResourceLogic = ResourceLogic {
@@ -22,23 +22,25 @@ data ResourceLogic = ResourceLogic {
 A `Resource` is a unique datum controlled by a particular resource logic. Resources include a reference to their `logic` and an application-defined `suffix` field, which can be combined together with the logic to form a `key`, an arbitrary `data` field, and a `value` natural number used to model relative weight for fungible resources.
 
 - The `logic` is a hash commitment to the pair of creation and consumption predicates (as above) defining under what conditions the resource can be created and under what conditions the resource can be consumed.
+- The `owners` is the ordered list of resource owners, with the originator first and most recent owner last, which must be non-empty.
 - The `suffix` is a key suffix used to distinguish between distinct-but-equal resources (e.g. same logic, same prefix, same value, but distinct suffix). Semantics of the `suffix` semantics are enforced by the resource logic (e.g. for application internal prefixing by resource owners, with suffixes addressing individual resources).
 - The `data` is an arbitrary bytestring which can be interpreted by the predicates (it could itself contain other predicates).
-- The `value` is a natural number (non-negative integer). This resource logic model builds in a notion of fungibility, i.e. two resources with logic `l`, different suffixes, and values `a` and `b` are treated as equivalent to one resource with logic `l` and value `c` iff. `c = a + b`.
+- The `value` is a natural number (non-negative integer). This resource logic model builds in a notion of fungibility, i.e. two resources with the same logic `l` and owners `[o]`, different suffixes, and values `a` and `b` are treated as equivalent to one resource with logic `l` and value `c` iff. `c = a + b`.
 
 ```haskell=
 data Resource = Resource {
   logic :: Hash,
+  owners :: [ExternalIdentity],
   suffix :: ByteString,
   data :: ByteString,
   value :: Natural
 }
 
 key :: Resource -> ByteString
-key r = logic r <> domainSeparator <> suffix r
+key r = logic r <> domainSeparator <> owners r <> domainSeparator <> suffix r
 ```
 
-The `key` of a resource is computable from the logic and suffix. As we will see later, the _state_ of the resource logic DAG at a point in logical time can be represented as a mapping from `key` to `(data, value)` of all resources which have been created but not consumed at that point in logical time.
+The `key` of a resource is computable from the logic, owners, and suffix. As we will see later, the _state_ of the resource logic DAG at a point in logical time can be represented as a mapping from `key` to `(data, value)` of all resources which have been created but not consumed at that point in logical time.
 
 ## Transactions
 
@@ -57,11 +59,19 @@ data ResourceLogicTx = ResourceLogicTx {
 }
 ```
 
-Transactions are valid if and only if:
-- all consumed resources were previously created by a transaction in the history, which was itself (recursively) valid, and whose `finalityPredicate` was satisfied
+A transaction is _valid_ if and only if:
+- all consumed resources were previously created by a transaction in the history, which was itself (recursively) valid and final
 - the consumption predicates of all the resources consumed by the transaction are satisfied
 - the creation predicates of all the resources created by the transaction are satisfied
 
+A transaction is _final_ if and only if:
+- the latest owners of all consumed resources have signed over it
+- its `finalityPredicate` is satisfied
+
+A transaction is _non-conflicting_ if and only if:
+- all consumed resources have not been consumed by another antecedent transaction
+
+> TODO: How does this interact with the observation graph?
 
 > Additional context on finality predicates: a separate predicate is used here to provide a notion of atomicity at the level of individual transactions. Finality predicates may, for example, wait for confirmation by a consensus quorum, or select between transactions which consume the same resources according to some selection criterion. Two consumptions of the same resource are considered to possibly conflict only if both of their finality predicates are satisfied.
 
@@ -253,4 +263,7 @@ stateDiagram-v2
 
 ## Consensus Providers
 Have liveness, merge and conflict resolve conflicts on join of logical DAGs
+
+
+## Partial transactions (intents)
 

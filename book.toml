@@ -7,8 +7,8 @@ src = "src"
 title = "Anoma Specification"
 
 [output.html]
-edit-url-template = "https://github.com/anoma/spec/edit/master/{path}"
-git-repository-url = "https://github.com/anoma/spec"
+edit-url-template = "https://github.com/anoma/specs/edit/master/{path}"
+git-repository-url = "https://github.com/anoma/specs"
 additional-css = ["assets/custom.css"]
 additional-js = ["assets/mermaid.min.js", "assets/mermaid-init.js"]
 # mathjax-support = true
@@ -23,8 +23,6 @@ expand = true
 [output.katex]
 
 [output.linkcheck]
-
-# [output.pdf]
 
 [preprocessor]
 

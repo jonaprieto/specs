@@ -1,6 +1,5 @@
 # Schelling-human PPGF
 
-bidirectional "humanity"
-
-random graph walks
-density of interconnection
+- Random graph walks
+- Density of interconnection
+- bidirectional "humanity" relation

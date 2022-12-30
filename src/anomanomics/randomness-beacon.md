@@ -1,3 +1,5 @@
 # Randomness beacon
 
-randomness for schelling ppgf
+- Randomness for Schelling PPGF
+- Human-provided input cadence & rewards
+- Threshold randomness from key shares

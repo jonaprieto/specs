@@ -1,9 +1,6 @@
 # Liquid RPGF
 
-consensus on areas of rpgf
-
-category-separated liquid (chain-delegated) democracy
-
-privacy/randomness?
-
-maybe we can do advance market commitments of some sort?
+- Consensus on areas of RPGF
+- Category-separated liquid (chain-delegated) democracy
+- Privacy of funding decisions, but rewards for agreement
+- Advance market commitments?

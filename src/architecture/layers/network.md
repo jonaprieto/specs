@@ -2,7 +2,7 @@
 
 Agents can send messages to each other by `send(identity, msg)` where `identity` is an external identity, and they can handle received messages with some `onRecv(msg)` (to which messages addressed to them will be sent). We assume an asynchronous physical network in the general case, where liveness with regard to some message set and some agents will require eventual receipt of all messages in the set by the agents in question.
 
-Note that sending to multiple identities can be accomplished by composition of identity by disjunction as defined previously, and blind broadcast can be accomplished by using the "all" identity.
+Note that sending to multiple identities can be accomplished by composition of identity by disjunction as defined previously, and blind broadcast can be accomplished by using the "all" identity. Messages (particularly those to the "all" identity) may also be prefixed with a topic (bytestring) such that agents can receive messages only for topics which they are interested.
 
 A separate physical network abstraction layer is responsible for keeping appropriate routing tables to map external identities (including compositions thereof) to known IP addresses and route messages around. This physical layer has many specific optimisation concerns which are out of scope of the abstract specification.
 

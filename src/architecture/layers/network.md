@@ -23,7 +23,25 @@ A `Message` is the lowest layer type, sent around between agents over the networ
 - `Compute` requests and responses for the [distributed content-addressed compute cache layer](./network/distributed-content-addressed-compute.md)
 - `Observation` messages, which capture partial ordering information used to craft the [physical DAG](./physical-dag.md)
 
-The protocol orthogonalises correctness (verification) and efficiency concerns, such that `Network`, `Storage`, and `Compute` messages are independent of the actual ordering of data (physical DAG) and relations in question (logical DAG). 
+Messages may also be bundled together into a multi-message, which may carry specific semantics (e.g. a storage request could be bundled with payment). 
 
 ```haskell
+data Message
+  = NM NetworkMessage
+  | SM StorageMessage
+  | CM ComputeMessage
+  | OM ObservationMessage
+  | MM [Message]
 ```
+
+&nbsp;
+
+The protocol orthogonalises correctness (verification) and efficiency concerns, such that `Network`, `Storage`, and `Compute` messages are independent of the actual ordering of data (physical DAG) and relations in question (logical DAG).
+
+```
+```
+
+See next:
+- [Physical network abstraction](./network/physical-network-abstraction.md)
+- [Distributed content-addressed storage](./network/distributed-content-addressed-storage.md)
+- [Distributed content-addressed compute](./network/distributed-content-addressed-compute.md)

@@ -9,7 +9,20 @@ An _identity_ is defined by two pairs of functions which are inverse to each oth
 - `sign` and `verify`, where `sign` takes a string to sign and produces a signature such that any `sign`-ed message is accepted by `verify`
 - `encrypt` and `decrypt`, where `encrypt` takes a string to encrypt such that any `encrypt`-ed message is opened by `decrypt`
 
-The `verify` and `encrypt` functions together form the _external identity_, while the `sign` and `decrypt` operations together form the _internal identity_. In general, the external identity can be derived from the internal identity. The internal identity is a self-contained name which can be used to send messages from and decrypt messages sent by another agent to the corresponding external identity, while the external identity is a self-contained name which can be used to verify messages from and encrypt messages to any agent with knowledge of the internal identity.
+```haskell
+data Identity where
+    sign :: ByteString -> ByteString
+    verify :: ByteString -> ByteString -> Bool
+
+    verify m (sign m) = 1
+
+    encrypt :: ByteString -> ByteString
+    decrypt :: ByteString -> Maybe ByteString
+
+    decrypt . encrypt = pure
+```
+
+The `verify` and `encrypt` functions together form the _external identity_, while the `sign` and `decrypt` operations together form the _internal identity_. In general, the external identity can be derived from the internal identity, but not vice-versa. The internal identity is a self-contained name which can be used to send messages from and decrypt messages sent by another agent to the corresponding external identity, while the external identity is a self-contained name which can be used to verify messages from and encrypt messages to any agent with knowledge of the internal identity.
 
 For example, an identity can be the signature generation and decryption functions in a standard asymmetric public-key encryption scheme with secret key `secret` and public key `key`, where:
 - `sign` and `decrypt` are curried with the secret as `sign'(secret)` and `decrypt'(secret)`
@@ -51,4 +64,7 @@ The false identity forgets structure under disjunction (`x && false == false`) a
 
 ## Observer-dependence
 
-> Note here that an identity can be dependent on a logical DAG.
+The basic interface of an identity is stateless, but identities may also be _stateful_, where an identity is defined with respect to a logical DAG (described later). In that case, the logical DAG is taken as an additional parameter to `encrypt` and `verify`, and the external identity commits to the predicate function of the logical DAG and the `verify` function at the logical time of instantiation (such that from any later version of the identity there will exist a valid chain of signatures back to the origin point).
+
+```
+```

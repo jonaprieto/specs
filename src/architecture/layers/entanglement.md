@@ -39,3 +39,10 @@ entanglement can be _proven_ from the logical DAG, generally
 - does, however, often require private information
 - can be proved to some other party in ZK
 
+## Bootstrapping
+
+## Operations
+
+## Measurement
+
+## Automation

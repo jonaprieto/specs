@@ -1,6 +1,7 @@
+> TODO: Write this section. Readers, skip for now.
+
 # Web-of-trust history
 
-idk, research this
-unifies things
-
-twitter/facebook/money graphs
+- Twitter trust graph
+- Facebook trust graph
+- Money trust graph

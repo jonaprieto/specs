@@ -1,5 +1,6 @@
 # Architecture
 
+- [Principle of locality](./architecture/principle-of-locality.md)
 - [Conceptual context](./architecture/conceptual-context.md)
 - [Prerequisite primitives](./architecture/prerequisite-primitives.md)
 - [Desiderata](./architecture/desiderata.md)

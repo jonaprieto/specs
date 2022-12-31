@@ -7,6 +7,7 @@ We assume a verifiable computation scheme as defined previously.
 ```haskell
 data ComputeRead
   = ComputeRead {
+    scheme :: ProofScheme,
     address :: Hash,
     predicate :: Hash -> Hash -> Bool
   }
@@ -15,6 +16,9 @@ data ComputeRead
 ```haskell
 data ComputeWrite
   = ComputeWrite {
+    scheme :: ProofScheme,
+    address :: Hash,
+    predicate :: Hash -> Hash -> Bool,
     result :: Hash,
     proof :: ByteString
   }

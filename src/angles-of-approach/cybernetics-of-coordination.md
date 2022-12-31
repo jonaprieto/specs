@@ -1,3 +1,6 @@
+> TODO: Write this section. Readers, skip for now.
+
 # Cybernetics of coordination
 
-that paper aurora apolito
+- Cybernetic systems architecture
+- That paper by Aurora Apolito

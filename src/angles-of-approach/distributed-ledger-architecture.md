@@ -1,3 +1,5 @@
+> TODO: Write this section. Readers, skip for now.
+
 # Blockchain systems architecture
 
 vis-a-vis cosmos/ibc
@@ -11,4 +13,3 @@ vis-a-vis cosmos/ibc
 
  - We unify various concepts of state-machine-level cryptographic identity -- public-key-based accounts, smart-contract accounts, BFT light clients, threshold keys -- and network-level cryptographic identity into a singular information-theoretic duality of _external identity_ and _internal identity_, the fundamental abstraction on top of which the protocol is built.
 - We unify the concepts of _message_ and _state_, in that each message commits to its own history, and that there is no state other than can be computed from a set of messages at a particular point in partially-ordered logical time.
-

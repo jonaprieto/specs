@@ -1,3 +1,5 @@
+> TODO: Write this section. Readers, skip for now.
+
 # Anthropology of money
 
-cite graeber
+- Graeber's "wave theory" of credit-cash money

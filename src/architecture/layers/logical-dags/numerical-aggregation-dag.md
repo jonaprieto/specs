@@ -3,10 +3,13 @@
 As a simple logical DAG, consider a numerical aggregation DAG: transactions are non-negative integers, state is computed by adding, and there are no conflicts.
 
 ```haskell
-type TxType = Integer
-
 type State = Integer
+type Tx = Integer
+type NumericalDAG = DAG Integer
 
-validState :: NumAggDAG -> State -> Bool
+validDAG : PhysicalDAG -> NumericalDAG -> Bool
+validDAG = subDAGBy isNumber
+
+validState :: NumericalDAG -> State -> Bool
 validState = (==) . foldBy (+)
 ```

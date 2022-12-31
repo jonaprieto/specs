@@ -16,7 +16,7 @@ class Monad m => AgentContext m where
     get :: ByteString -> m (Maybe ByteString)
 ```
 
-The rest of this specification defines the _Anoma protocol_, which is specific logic that agents run to read, create, and process messages. For convenicen, the Anoma protocol shall be referred to henceforth as just _the protocol_.
+The rest of this specification defines the _Anoma protocol_, which is specific logic that agents run to read, create, and process messages. For convenience, the Anoma protocol shall be referred to henceforth as just _the protocol_.
 
 ```
 type Protocol

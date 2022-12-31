@@ -8,3 +8,4 @@ The central principle in the design of Anoma's protocol architecture is that of 
 - _Informational locality_ (privacy), i.e. keep information to smallest group by default
 - _Measurement locality_, i.e. rely on local measurements only
 - _Value locality_, i.e. local values may differ
+- _Name locality_, i.e. local names may differ

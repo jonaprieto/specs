@@ -267,3 +267,26 @@ Have liveness, merge and conflict resolve conflicts on join of logical DAGs
 
 ## Partial transactions (intents)
 
+_Partial transactions_, or _intents_, are:
+
+```haskell
+data Intent
+  = Intent {
+    consumed :: Set Hash,
+    created :: Set Resource,
+    toBeConsumed :: Set Hash -> Bool,
+    toBeCreated :: Set Resource -> Bool,
+    finalityPredicate :: PhysicalDAG -> Bool
+  }
+```
+
+more abstractly, `intent :: Transaction -> Bool`, valid also for independently balanced sub-transactions (?), some explicit representation of conditions
+
+state dependence = transactions themselves are functions (resources read from particular keys become inputs, outputs are a function of inputs)
+
+---
+
+outstanding concerns:
+- what is the equivalent of the ibc balance checks, if any? is fungibility of cross-chain assets important?
+
+---

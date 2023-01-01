@@ -15,3 +15,13 @@ is this the same or different than the applications section?
 is this really a layer
 in a sense it is
 maybe part of the resource logic dag section
+
+---
+
+outstanding
+- definition of issuance
+- generalisation for fungible/non-fungible
+- r-i-pgf - pay-to-integral-of-holders
+- 
+
+---

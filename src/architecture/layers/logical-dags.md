@@ -14,6 +14,8 @@ Particular logical DAG algorithms, if their assumptions are met, generally guara
 
 > TODO: Specify this property (eventual agreement, isomorphism w.r.t. reordering?)
 
+The verifiable compute primitive comes in play here, in that particular agents may be willing to accept a logical DAG or state as valid if the above predicates are proven by a verifiable compute scheme (or possibly parts are proven by different schemes) in a configuration which matches their security assumptions.
+
 ## Transaction DAG
 
 The most basic concept of a logical DAG is a `Transaction`, which is a blob of data atomically included or not included in a particular physical DAG (witnessed as `hash(tx bytes)`). From a view of the physical DAG which includes transactions, we can compute a logical DAG of those transactions (which are trivially atomically included or not included in the logical DAG) merely by filtering out all other witnesses:

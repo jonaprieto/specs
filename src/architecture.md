@@ -1,15 +1,9 @@
 # Architecture
 
-Architectural subcomponents:
-
-- [Clients](./architecture/clients.md)
-- [Consensus](./architecture/consensus.md)
-- [Economics](./architecture/economics.md)
-- [Gossip](./architecture/gossip.md)
-- [Governance](./architecture/governance.md)
-- [Identity](./architecture/identity.md)
-- [Interoperability](./architecture/interoperability.md)
-- [Language](./architecture/language.md)
-- [Ledger](./architecture/ledger.md)
-- [Matchmaking](./architecture/matchmaking.md)
-- [State](./architecture/state.md)
+- [Principle of locality](./architecture/principle-of-locality.md)
+- [Conceptual context](./architecture/conceptual-context.md)
+- [Prerequisite primitives](./architecture/prerequisite-primitives.md)
+- [Desiderata](./architecture/desiderata.md)
+- [Layers](./architecture/layers.md)
+- [Privacy](./architecture/privacy.md)
+- [Roles](./architecture/roles.md)

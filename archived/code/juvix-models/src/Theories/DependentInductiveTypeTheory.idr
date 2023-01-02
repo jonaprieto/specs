@@ -1,6 +1,0 @@
-module Theories.DependentInductiveTypeTheory
-
-import Library.FunctionsAndRelations
-import public Datatypes.DependentInductiveDatatypes
-
-%default total

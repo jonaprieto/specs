@@ -1,81 +1,113 @@
 # Resource logic DAG
 
-The resource logic DAG structure provides an abstraction of a _linear resource logic_ with which distributed applications can model finite objects. This logic is based on a concept of a _resource_, which is a unique datum created at a particular point in logical time and possibly consumed later in logical time. Each resource is an instante of a particular _resource logic_, which specifies how (under what conditions) resources of that type can be created and consumed. The resource logic DAG tracks when resources are created and when they are consumed. Resources are only allowed to be consumed after they have been created.  At any point in logical time, the resource logic DAG has a state consisting of all resources which have been created but not consumed. 
+The resource logic DAG provides an abstraction of a _linear resource logic_ with which distributed applications can model finite objects. This logic is based on a concept of a _resource_, which is a unique datum created at a particular point in logical time and possibly consumed later in logical time. Each resource is an instance of a particular _resource logic_, which specifies how (under what conditions) resources of that type can be created and consumed. The resource logic DAG tracks when resources are created and when they are consumed. Resources are only allowed to be consumed after they have been created.  At any point in logical time, the resource logic DAG has a state consisting of all resources which have been created but not consumed. 
 
-This DAG also tracks linear logic violations (duplicate consumptions of the same resource, or "double spends"). Each resource has an ordered list of owner identities, where a valid signature from the last identity in the list is required to consume the resource. At any point in logical time, the right-most owner of a resource is responsible for ordering possibly conflicting transactions. Resources can be transferred to a new owner (modulo additional validation in the predicates) by appending to the list, or as a special case, they can be transferred to the previous owner (dropping an item from the end of the list). In the case of a double-spend of a resource - namely, a non-total order of two conflicting transactions both signed by the current owner - the conflict is resolved by the owner one element earlier in the list, and in the case of multiple double-spends recursively until the originator (at which point, if they also double-spend, linearity is violated, but often it would as if the originator had just issued more resources, and in any case there is no in-system recovery possible at this point). Recovery from linearity violations does not require any reversal or reordering of transactions, as we keep this explicit "chain of promises" of owners, so if some owner `I` double-spends, subsequent resources with `I` in the owner list may simply no longer be redeemable back along the original path.
+The resource logic DAG also tracks linear logic violations (duplicate consumptions of the same resource, or "double spends"). Each resource has an ordered list of controller identities, where a valid signature from the last identity in the list is required to consume the resource. At any point in logical time, the latest (right-most) controller of a resource is responsible for ordering possibly conflicting transactions. Resources can be transferred to a new controller (modulo additional validation in the predicates) by appending to the list, or as a special case, they can be transferred to the previous controller (dropping an item from the end of the list). In the case of a double-spend of a resource - namely, a non-total order of two conflicting transactions both signed by the current controller - the conflict is resolved by the controller one element earlier in the list when the resource is eventually transferred back, and in the case of multiple double-spends recursively until the originator (at which point, if they also double-spend, linearity is violated, but as if the originator had just issued more resources, and in any case there is no in-system recovery possible at this point). Controller identies can be defined in particular ways which encode bespoke conflict resolution logic. Recovery from linearity violations does not require any reversal or reordering of transactions, as we keep this explicit "chain of promises" of controllers, so if some controller `I` double-spends, subsequent resources with `I` in the controller list may simply no longer be redeemable back along the original path. By accepting resources with a particular path of controllers, an application or user accepts the double-spend risk of any of the controllers, which can be mitigated by waiting for those controllers to sign over the transaction (which finalises it and guarantees future redemption from their perspective).
 
 ## Resource logics
 
-Resource types are defined by a particular `ResourceLogic`, which specifies under what conditions resources of that type can be created and consumed. The `creationPredicate` describes under which conditions a resource can be created. For a fungible token, for example, new tokens may be created with a valid signature from the issuing identity. The `consumptionPredicate` describes under which conditions a resource can be consumed. For a fungible token, for example, tokens may be spent with a valid signature from the owning identity.
+Resource types are defined by a particular `ResourceLogic`, which specifies under what conditions resources of that type can be created and consumed. The `creationPredicate` describes under which conditions a resource can be created. For a fungible token, for example, new tokens may be created with a valid signature from the issuing identity. The `consumptionPredicate` describes under which conditions a resource can be consumed. For a fungible token, for example, tokens may be spent with a valid signature from the identity which currently owns the tokens.
 
 These predicates have access only to data in the transaction itself. The transaction may include arbitrary data in the extradata field such as proofs or signatures, to which the predicates have access, but they do not have access to the physical DAG in which the transaction is included. 
 
 ```haskell=
 data ResourceLogic = ResourceLogic {
-  creationPredicate :: ResourceLogicTx -> Bool,
-  consumptionPredicate :: ResourceLogicTx -> Bool,
+  creationPredicate :: TxData -> Bool,
+  consumptionPredicate :: TxData -> Bool,
 }
 ```
 
+> TODO: It should be possible to simplify this to just one predicate (which could be split into two for optimisation or privacy reasons as an implementation choice).
+
 ## Resources
 
-A `Resource` is a unique datum controlled by a particular resource logic. Resources include a reference to their `logic` and an application-defined `suffix` field, which can be combined together with the logic to form a `key`, an arbitrary `data` field, and a `value` natural number used to model relative weight for fungible resources.
+A `Resource` is a unique datum controlled by a particular resource logic. Resources include a reference to their `logic`, an application-defined `suffix` field, a list of `controllers` (external identities), an arbitrary `data` field, and a `value` natural number used to model relative weight for fungible resources.
 
 - The `logic` is a hash commitment to the pair of creation and consumption predicates (as above) defining under what conditions the resource can be created and under what conditions the resource can be consumed.
-- The `owners` is the ordered list of resource owners, with the originator first and most recent owner last, which must be non-empty.
-- The `suffix` is a key suffix used to distinguish between distinct-but-equal resources (e.g. same logic, same prefix, same value, but distinct suffix). Semantics of the `suffix` semantics are enforced by the resource logic (e.g. for application internal prefixing by resource owners, with suffixes addressing individual resources).
-- The `data` is an arbitrary bytestring which can be interpreted by the predicates (it could itself contain other predicates).
-- The `value` is a natural number (non-negative integer). This resource logic model builds in a notion of fungibility, i.e. two resources with the same logic `l` and owners `[o]`, different suffixes, and values `a` and `b` are treated as equivalent to one resource with logic `l` and value `c` iff. `c = a + b`.
+- The `controllers` is the ordered list of resource controllers, with the originator first and most recent controller last. This list must be non-empty, except in the case of an internal resource, in which case it must be empty.
+- The `suffix` is a key suffix used to distinguish between distinct-but-equal resources (e.g. same logic, same prefix, same value, but distinct suffix). Semantics of the `suffix` semantics are enforced by the resource logic (e.g. for application internal prefixing by resource controllers, with suffixes addressing individual resources).
+- The `data` is an arbitrary bytestring which can be interpreted by the predicates (it could itself contain other predicates, identities, etc.).
+- The `value` is a natural number (non-negative integer). This resource logic model builds in a notion of fungibility, i.e. two resources with the same logic `l` and controllers `[cs]`, different suffixes, and values `a` and `b` are treated as equivalent to one resource with logic `l`, controllers `[cs]` and value `c` iff. `c = a + b`.
 
 ```haskell=
 data Resource = Resource {
   logic :: Hash,
-  owners :: [ExternalIdentity],
+  controllers :: [ExternalIdentity],
   suffix :: ByteString,
   data :: ByteString,
   value :: Natural
 }
 
-key :: Resource -> ByteString
-key r = logic r <> domainSeparator <> owners r <> domainSeparator <> suffix r
+type Key = ByteString
+
+key :: Resource -> Key
+key r = logic r <> domainSeparator <> controllers r <> domainSeparator <> suffix r
 ```
 
-The `key` of a resource is computable from the logic, owners, and suffix. As we will see later, the _state_ of the resource logic DAG at a point in logical time can be represented as a mapping from `key` to `(data, value)` of all resources which have been created but not consumed at that point in logical time.
+The `key` of a resource is computable from the logic, controllers, and suffix. As we will see later, the _state_ of the resource logic DAG at a point in logical time can be represented as a mapping from `key` to `(data, value)` of all resources which have been created but not consumed at that point in logical time.
 
 ## Transactions
 
-A `Transaction` in a resource logic DAG simply consumes a (possibly empty) set of existing resources and creates a (possibly empty) set of new resources. Transactions are atomic, in that either the whole transaction is valid (and can be appended to / part of a valid resource logic DAG), or the transaction is not valid and cannot be appended to / included in the resource logic DAG. Transactions include an `extradata` field which can be read by the resource logic predicates and may contain signatures, proofs, etc. 
+A _transaction_ in a resource logic DAG consumes a (possibly empty) set of existing resources and creates a (possibly empty) set of new resources. Transactions are atomic, in that either the whole transaction is valid (and can be appended to / part of a valid resource logic DAG), or the transaction is not valid and cannot be appended to / included in the resource logic DAG. Transactions include:
+
+Transactions have the following fields:
+
 - The set of `created` resources are resources which this transaction creates.
 - The set of `consumed` resources are hashes of resources which this transaction consumes.
+- The sets of `createdInternal` and `consumedInternal` resources are resources for partial application and constraint forwarding.
 - The `extradata` field is for additional data which may be meaningful to predicates in resource logics (e.g. signatures). It is not otherwise processed by the resource logic DAG itself.
-- The `finalityPredicate` determines whether a transaction is considered finalized. After the finality predicate is satisfied, resources consumed by this transaction are marked as having been consumed, and resources created by this transaction can be consumed in future transactions (assuming that their consumption predicates are satisfied).
 
-```haskell=
-data ResourceLogicTx = ResourceLogicTx {
-  created :: Set Resource,
-  consumed :: Set Hash,
-  extradata :: ByteString,
-  finalityPredicate :: PhysicalDAG -> Bool
-}
+Internal resources are used as they are in Taiga, for constraint forwarding.
+
+> TODO: Describe this in detail, particularly the structural correspondence (should be) to partially applied functions.
+
+```haskell
+data Transaction
+  = Transaction {
+    created :: Set Resource,
+    consumed :: Set Hash,
+    createdInternal :: Set Resource,
+    consumedInternal :: Set Hash
+    extradata :: Map ByteString ByteString
+  }
 ```
 
+A transaction is _balanced_ if and only if:
+- the sum of values of all input resources with key `k` equals the sum of values of all output resources with key `k`, for each unique `k` in the union of the keys of input and output resources, for both permanent resources and internal resources
+
 A transaction is _valid_ if and only if:
-- all consumed resources were previously created by a transaction in the history, which was itself (recursively) valid and final
-- the consumption predicates of all the resources consumed by the transaction are satisfied
-- the creation predicates of all the resources created by the transaction are satisfied
+- the consumption predicates of all the resources consumed by the transaction are satisfied (both internal and permanent)
+- the creation predicates of all the resources created by the transaction are satisfied (both internal and permanent)
 
-A transaction is _final_ if and only if:
-- the latest owners of all consumed resources have signed over it
-- its `finalityPredicate` is satisfied
+A transaction is _consistent_ w.r.t. a physical DAG `D` if and only if:
+- all consumed resources were previously created by a transaction in the history, which was itself (recursively) consistent and final
 
-A transaction is _non-conflicting_ if and only if:
-- all consumed resources have not been consumed by another antecedent transaction
+A transaction is _final_ w.r.t. a physical DAG `D` if and only if:
+- it is balanced and valid
+- it is consistent w.r.t. `D`
+- the latest owners of all consumed resources have signed over it in `D`
+- all consumed resources have not been consumed by another antecedent transaction in `D` which was itself final
 
-> TODO: How does this interact with the observation graph?
+In the case of two _conflicting_ transactions, where the rightmost controller(s) `c` did not totally order them, resolution is defined as
+- the transaction ordered first by the rightmost controller after dropping the last element of the list, or in case of another conflict (by them), drop the last element of the list and repeat. if the end of the list is reached, both transactions are valid (this may violate linearity guarantees), and we rely on some sort of out-of-band fault resolution
 
-> Additional context on finality predicates: a separate predicate is used here to provide a notion of atomicity at the level of individual transactions. Finality predicates may, for example, wait for confirmation by a consensus quorum, or select between transactions which consume the same resources according to some selection criterion. Two consumptions of the same resource are considered to possibly conflict only if both of their finality predicates are satisfied.
+Agents, then, have _safe finality_ under the assumption of correct behaviour of the leftmost controller from whom they have obtained a signature.
 
-> TODO: Figure out more clearly what data predicates in resource logics have access to. Instead of passing the whole physical DAG / transaction data, can we instead rely on a local view of "messages" / resources sent & received? Want to rely on local invariants - and e.g. even stuff like consensus should be expressible as a resource which was previously created (and is then witnessed, but not consumed). 
+## Delayed execution transactions
+
+Transactions may want to choose their exact input and output resources on the basis of the state just prior to application of the transaction to the state (when it is "executed", or so to speak), in order to, for example, read the most current resource at a particular (known) key and thus avoid conflicts. To facilitate this, transactions in the resource logic DAG can also be modeled as functions which _produce_ transactions, possibly taking into account the latest resource at a particular key. This entails an ordering with respect to the keys read, so the transaction must include all keys which it might read (for which the transaction author does not necessarily know the values and/or wishes ordering to be delegated). The transaction then receives the values of those keys at the logical time of execution and can use them to compute the input and output resources. 
+
+> TODO: Strict ordering is required here, so if all keys do not have the same identity, we will need to create a joint identity (chimera-chain-on-demand) to try to order w.r.t. all involved resources.
+
+> TODO: I think we can/should combine this with executable transaction so in-between states are possible.
+
+```haskell
+data DelayedTx
+  = DelayedTx {
+    keys :: Set Key,
+    exec :: Set (Key, Resource) -> Transaction
+  }
+```
 
 ## DAG
 
@@ -86,207 +118,17 @@ type State = Set Resource
 ```
 
 A resource logic DAG is valid if and only if:
-- all transactions are valid by these conditions
-- all transactions are included in the same order as their data in the physical DAG
+- all transactions are valid by the conditions as above
+- all transactions are included in the same order as their data in the physical DAG (i.e. if `a` happens no later than `b` in the physical DAG, `a` happens no later than `b` in the logical DAG)
+  - within ordering determined by the physical DAG, creations and consumptions determine ordering within the logical DAG, i.e. a transaction `b` which consumes a resource created by `a` happens after `a`
 
-From a particular resource logic DAG, an observer can calculate a _state_ as a key-value mapping by taking `key(resource)` and `(data resource, value resource)` for all resources created but not yet consumed in the history of that DAG.
-
-> Note: For a multihop atomic swap, the transaction needs to refer to a consensus provider for finality, or consensus providers, at which point conflict resolution might need to be done post-hoc. If my pre-transaction (a transaction before finality criteria are met, roughly equivalent to an intent) specifies that resources need to be considered final in respect to the CP I chose, we get atomicity without risking to need post-hoc conflict resolution.
-
-> TODO: Work out how the taiga representation is a special case of this. Ask Joe if that maps to taigas "creating virtual resources" approach.
+From a particular resource logic DAG, an observer can calculate a _state_ as a key-value mapping by taking `key(resource)` and `(data resource, value resource)` for all resources created but not yet consumed (by final transactions) in the history of that DAG.
 
 ---
 
-What data to expose to predicates in order to handle linearity violations?
-- after processing a double-spend, mark certain resources unspendable (~ consumed)
-- special transaction type for handling double-spends (after two transactions appended)
-- preserving locality of resources
-- chain-of-promises approach ~ promises "built on" are preserved, but local violation must be resolved
-    "now there are 2 house nfts"
-    - this requires some wrapping/unwrapping
-    - requires an identity embedded in the resource
-    - list of identities here?
+> TODO: This section is notes, readers please ignore.
 
----
-
-### Linearity
-
-Particular resource logics may, for example, pick one side of any conflict according to the local ordering of a particular identity, treat a double-spend of a fungible resource as a minting event (debasing the supply), or lock (burn) both sides of any conflict.
-
-Many kinds of resources may like to encode a notion of _linearity_, in that resources of that kind should only be able to be consumed exactly once, and any instances of consumption more than once encountered in a history should be detectable and addressable with an associated notion of _conflict resolution_. For example, contemporary blockchain protocols typically require linearity for representing scarce fungible and non-fungible assets, and resolve conflicts by the decision of a particular consensus algorithm. 
-
-- model enforces balance check in a transaction (w/encoded fungibility)
-- model enforces recording of conflicts
-- virtual resources created/destroyed in a single tx need not be recorded
-- conflict resolution predicate encoded in consumption predicate - in order for resources created by a tx to be later consumed, conflicts in the history of that tx's resource graph must be resolved
-
-
-#### Modeling non-linearity: virtual resources
-
-- virtual resources are created & destroyed in a single tx, need not be recorded
-
-### Handling conflicts
-
-A conflict is for a linear resource created at one point `t_0` (logical time) in a resource logic DAG to be consumed at two points `t_1` and `t_1'`, both downstream of `t_0` but unordered with respect to each other, in valid transactions whose finality predicates are otherwise satisfied. Later on, when `t_1` and `t_1'` are both seen by a node computing the current state frontier of a logical DAG, the conflict is detected, and before further transactions are appended to the logical DAG, which reference both `t_1` and `t_1'`, some action must be taken to resolve the conflict.
-
-Conflicts are detected by computing a unique nullifier for each resource, which is published when the resource is consumed. If the same nullifier is published twice in a history, this constitutes a conflict, and consumption predicates of resources in this application namespace can require that all conflicts in their namespace be resolved before those resources can be spent. Resolving conflicts might mean that some resources created on one or both sides of the conflict are rendered unspendable (meaning that their consumption predicates will never be satisfied). 
-
-For example, suppose the case of a non-fungible token with a conflict resolution rule depending on local order of a particular consensus provider. The consumption predicate of that non-fungible token will require that all spends in its history be on the locally-first side of the ordering by the referenced consensus provider, so if a conflict is detected, the version of the NFT on the side which is locally-second will be unable to be spent in the future. 
-
-Conflicts-by-resource-type
-- conflict detection w/nullifiers
-- somehow figure out the resource type
-- keep a mapping of resource types to conflict y/n
-- consumption predicates of resource types require conflict resolution of conflicts of their type
-- conflict resolution can render some of the resources of that type unspendable
-
-**CR rules determine linearizability of an application and should be checked for that by the compiler, if people write their own.**
-
-Cases of CR:
-- Resolved by some consensus provider (or ordered list of consensus providers)
-    - Specified at the application level (which prefixes the namespace for resources)
-- Credit (fungible) - resource-level
-    - Let both sides of the double spend live, but broadcast double spend/violation of annouced credit issuance policy and track reputation/slash outher credit assets the originator holds
-    - when a double spend is detected at the resource level, require a transaction before any transaction from a particular identity is considered valid, and potentially slash the resource type on one side or both sides of the double spend
-- NFT - resource-level
-    - vote on which side gets the real thing
-    - one side of the double spend is marked unspendable (as if it had been spent) at CR time
-    - Consumption predicate could enforce specific finality predicate, tying to the application, to make CR CP and finality CP be the same
-
-Consumption predicates for linear resources will enforce that if a conflict (double-spend) conflict tracking state which must then be resolved before resources created downstream of either side of the conflict can be consumed.
-
-
-(explain how conflict resolution predicate can be included in the consumption predicate)
-(> TODO: which properties does a conflic resolution rule need to have and how do we verify/enforce them?
-- deterministic 
-
-How do CRs rules compose? Which types are composable, if they can contain different finality conditions, resolution approaches, etc. First approach: Require in an app, that the underlying apps CR rule is satisfied, in a specified hierarchy.
-
-TODO <)
-
-- The `conflictResolutionPredicate` describes what to do when the resource in question is spent more than once in a particular history. After a particular resource has been spent more than once, the `conflictResolutionPredicate` must be satisified by any history which builds on any of those spends (i.e. any transaction with transitive inputs including the "double-spend"). Once satisfied in a particular transaction, the conflict resolution rule does not need to be satisfied again for any of the histories built on the double-spent resource for this particular double-spend, but if another spent (of the same resource) is later detected, it will need to be satisfied agian.
-
-It is important to note that the abstraction of an `Application` is "virtual" - applications are not "deployed" or tracked in any sort of registry - they are content-addressed by particular resources. An `Application` can be said to exist by virtue of the existence resources referencing it, and if those resources are completely consumed it no longer exists (except in history).
-
-Applications can have "sub-applications", i.e. allow for their state to be consumed to create state with a different creation/consumption/conflict resolution predicate, without restriction.
-
-> TODO QUESTION: in this framework, is `Consensus` an `Application`? 
-
-(TODO ordering here)
-
----
-## Conflict Resolution
-
-There are several resons why conflicts can arise:
-
-1. Linearity Violations (e.g. double spends, post-hoc equivocation of ancestral state)
-2. Predicate non-fulfillment
-
-For both of these types, conflict resolution rules can get shipped via predicates.
-Conflict resolution rules are:
-- Application specific
-    - Each application (indicated by prefix) only uses one CR rule. This can be enforced by requiring the proof to record that a newly minted new  carries the same predicate as is predecessors. Since state resources are also separated by application prefix, no inconsistencies can happen with CR rule application and resource consumption.
-    
-The default CR rule is local order first.
-
-### Example CR rule: Credit
-If we assume an equivocation on ancestral state of E (Equivocator), who transacted A first and now issues transactions with B, re-using the same resources. (E, A, B could be Accounts or Consensus Providers, the semantics don't change, only the merge mechanism)
-A and B (or the subnetworks they provide consensus for) now produce internal history which is inconsistent with the one in the other subnet.
-
-```mermaid
-stateDiagram-v2
-    [*] --> E
-    state fork <<fork>>
-    E --> fork : equivocation
-    fork --> A0: first
-    fork --> B0: second
-    B0 --> B1
-    B1 --> B2
-    A0 --> A1
-    A1 --> A2
-    state join <<join>>
-    A2 --> join
-    B2 --> join
-    join --> Merged : slash
-    Merged --> [*]
-```
-
-One naive CR rule would be to slash all "bad state", in which case we would need to prune the all subtrees which have EQV state as an ancestor.
-If we prefer to keep the histories, we can burn and remint credit stemming from the EQV (assume we are on the side of AX and BX is merged into our history). 
-
-After the merge, the in addition to E credit, E' credit exists: A variety of rules on how to do pricing can be imagined, for different tradeoffs:
-- 1:1 for all assets --> inflates E credit
-- 0.5:1 for E' : E --> keeps value post merge equal, punishes E credit holders
-
-Futher punishment, outside of slashing, can be executed towards E and should be voted upon by affected parties.
-
-After AX and BX have both had the other side merged into their history, E, E'A and E'B will exist, which all are not fungible.
-
-For every transaction of which not all downstream transactions are merged, we need to inform the recepients. There could e.g. be forced swaps before spending tainted assets, exchanging E proportionally for any E' (depending on height of branching?) to resolve. This could happend during a finality period as well.
-
-> Note: For granular finality periods: Use an application specific consensus provider.
-
-After finality, a message containing the conflicting subtrees, as well as the resolution is published, s.t. eventual consistency is achieved.
-
-Users should be able to specify intentional "double-spends" in finality conditions, in case of submission to multiple solvers etc. 
-
-### Example CR rule: NFT
-
-In case of non-fungible assets, a vote needs to happen during finality, which one is the true transaction going forward. For high value transactions, one might want to wait for finality, and possibly do an atomic swap during a finality period or other escrow mechanism.
-
-We care about modeling material scarcity of the underlying assets correctly. 
-
-
-### Example CR rule: Deterministic PRF
-
-If the network wants shared randomness, determistic given a seed, including replay of numbers, one way would be to set the CR rule to "None", enabling state resources to be repeatedly consumed.
-
-Here R is a transaction containing the PRF in the predicate, with the content of the transaction being only dependent on the consumed previous state of it, RX == RX' == RX'' and merges being free.
-
-```mermaid
-stateDiagram-v2
-    [*] --> R0
-    R0 --> R1
-    R1 --> R2
-    R1 --> R2'
-    R2' --> R3'
-    R2' --> R3''
-    R3'' --> R4''
-    R4'' --> R5
-    R3' --> R4
-    R2 --> R3
-    R3 --> R4
-    R4 --> R5
-    R5 --> [*]
-```
-
-
-## Consensus Providers
-Have liveness, merge and conflict resolve conflicts on join of logical DAGs
-
-
-## Partial transactions (intents)
-
-_Partial transactions_, or _intents_, are:
-
-```haskell
-data Intent
-  = Intent {
-    consumed :: Set Hash,
-    created :: Set Resource,
-    toBeConsumed :: Set Hash -> Bool,
-    toBeCreated :: Set Resource -> Bool,
-    finalityPredicate :: PhysicalDAG -> Bool
-  }
-```
-
-more abstractly, `intent :: Transaction -> Bool`, valid also for independently balanced sub-transactions (?), some explicit representation of conditions
-
-state dependence = transactions themselves are functions (resources read from particular keys become inputs, outputs are a function of inputs)
-
----
-
-outstanding concerns:
-- what is the equivalent of the ibc balance checks, if any? is fungibility of cross-chain assets important?
-
----
+Outstanding topics:
+- What exactly is the desired logic of a finality predicate? I think, from the intent layer, it is: "among the transactions which consume my intent and are valid, pick this one". It should not be more general than that because other constraints could have been encoded into the predicates already - finality predicate is only for _ranking_ in information uncertainty, and it is an _ordering_ which should also reference a _logical time_ (w.r.t. some identity). Then the question becoems how ranking functions are _combined_ across intents - we should be able to retain the guarantee that between two transactions with the same intents, where all intent authors prefer the latter, the former is not accepted. Given a set of intents included in a set of transactions, the ranking functions give a partial order to the transactions.  -- then these should _not_ be first-class, rather they are part of the definition of an identity, since ordering/ranking is concerned. So instead we should contemplate ways of encoding this into consensus providers'
+- Previously we had this concept of a "virtual resource" for modelling non-linear (infinitely consumable) things. However, since often these were physical-DAG-dependent, I think identity is the right abstraction here instead, maybe it would be good to come up with some motivating examples.
+- Spell out how nullifiers and commitments can be used to track linearity efficiently here.

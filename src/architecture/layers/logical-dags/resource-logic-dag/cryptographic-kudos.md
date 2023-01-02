@@ -1,5 +1,7 @@
 # Cryptographic kudos
 
+_Cryptographic kudos_ are a transferable 
+
 - transferable
 - non-transferable
 - fungible

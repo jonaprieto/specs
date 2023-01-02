@@ -23,6 +23,7 @@
         - [Directed relationship DAG](./architecture/layers/logical-dags/directed-relationship-dag.md)
         - [Bilateral relationship DAG](./architecture/layers/logical-dags/bilateral-relationship-dag.md)
         - [Resource logic DAG](./architecture/layers/logical-dags/resource-logic-dag.md)
+          - [Modelling applications](./architecture/layers/logical-dags/resource-logic-dag/modelling-applications.md)
           - [Cryptographic kudos](./architecture/layers/logical-dags/resource-logic-dag/cryptographic-kudos.md)
       - [Entanglement](./architecture/layers/entanglement.md)
     - [Privacy](./architecture/privacy.md)

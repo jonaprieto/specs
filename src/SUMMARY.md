@@ -14,7 +14,7 @@
     - [Layers](./architecture/layers.md)
       - [Identity](./architecture/layers/identity.md)
       - [Network](./architecture/layers/network.md)
-        - [Physical network abstraction](./architecture/layers/network/physical-network-abstraction.md)
+        - [Network abstraction layer](./architecture/layers/network/network-abstraction-layer.md)
         - [Distributed content-addressed storage](./architecture/layers/network/distributed-content-addressed-storage.md)
         - [Distributed content-addressed compute](./architecture/layers/network/distributed-content-addressed-compute.md)
       - [Physical DAG](./architecture/layers/physical-dag.md)

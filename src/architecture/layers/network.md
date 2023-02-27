@@ -18,7 +18,7 @@ class Monad m => AgentContext m where
 
 A `Message` is the lowest layer type, sent around between agents over the network using `send` and received with `onRecv`. There are four `Message` subtypes:
 
-- `Network` P2P metadata requests and responses for [physical network abstraction](./network/physical-network-abstraction.md)
+- `Network` P2P metadata requests and responses for [physical network abstraction](./network/network-abstraction-layer.md)
 - `Storage` read/write requests and responses for the [distributed content-addressed data storage layer](./network/distributed-content-addressed-storage.md)
 - `Compute` requests and responses for the [distributed content-addressed compute cache layer](./network/distributed-content-addressed-compute.md)
 - `Observation` messages, which capture partial ordering information used to craft the [physical DAG](./physical-dag.md)
@@ -42,6 +42,6 @@ The protocol orthogonalises correctness (verification) and efficiency concerns, 
 ```
 
 See next:
-- [Physical network abstraction](./network/physical-network-abstraction.md)
+- [Network abstraction layer](./network/network-abstraction-layer.md)
 - [Distributed content-addressed storage](./network/distributed-content-addressed-storage.md)
 - [Distributed content-addressed compute](./network/distributed-content-addressed-compute.md)

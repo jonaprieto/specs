@@ -1,6 +1,6 @@
 # Anoma Specification
 
-This repository contains the canonical specification documents for the Anoma protocol.
+This repository contains the canonical specification documents for the Anoma protocol stack.
 
 ## Reading the specification
 

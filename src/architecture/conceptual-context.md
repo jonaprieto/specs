@@ -1,11 +1,9 @@
 # Conceptual context
 
-<!-- What if the title goes to the point directly, "Agents in a world" -->
-
 The Anoma architecture operates on the basis of
-*[agents](../glossary.md#agents)* in the real world. The architecture does not
-presume any sort of global view or global time. It also does not presume any
-particular _motivations_ of agents, but rather describes the state of the
+*[agents](../glossary.md#agents)*. The architecture does not presume any sort of
+global view or global time. It also does not presume any particular
+_motivations_ of agents, but rather describes the state of the
 [system](../glossary.md#system) as a function of the decisions taken by agents
 over (partially ordered) time. 
 
@@ -31,7 +29,8 @@ over (partially ordered) time.
     of actions committed by agents up to that point in time.
 
 <!-- 
-We can use Juvix syntax instead of Haskell syntax for the following snippets. I'm commenting as I don't see they add much clarity to the spec, (at least not now)
+We can use Juvix syntax instead of Haskell syntax for the following snippets. I'm commenting
+this out as I don't see they add much clarity to the spec, (at least not now)
 
 ```juvix
 

@@ -9,7 +9,8 @@ _motivations_ of agents, but rather describes the state of the
 [system](../glossary.md#system) as a function of the decisions taken by agents
 over (partially ordered) time. 
 
-0. An Agent is ...
+0. *Agent* is a primary notion in the Anoma protocol that aims to extend/replace
+   the notion of _process_ in the distributed systems.
 
 1. _Agents_ are assumed to have the ability to:
    - generate local randomness, 
@@ -24,14 +25,9 @@ over (partially ordered) time.
 
 3. Agents can _join_ and _leave_ the world at any time.
 
-4. The world is message-passing transparent, meaning that any agent has access
-   to the list of messages sent and received by any other agent. 
-
-<!-- What kind of decisions an agent can make? -->
-5. Knowledge of all *actions* committed by agents are recorded in the *history.
+4. Knowledge of all *actions* committed by agents are recorded in the *history.
    The *state* of the system at any point in time is a function of the history
     of actions committed by agents up to that point in time.
-
 
 <!-- 
 We can use Juvix syntax instead of Haskell syntax for the following snippets. I'm commenting as I don't see they add much clarity to the spec, (at least not now)

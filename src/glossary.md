@@ -9,6 +9,10 @@ Anoma is ...
 An *agent* is ...
 Read more about agents in the [conceptual context](../architecture/conceptual-context.md).
 
+# Message
+
+A *message* is any data sent between agents.
+
 # World
 
 A *word* is a virtual environment which

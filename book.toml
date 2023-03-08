@@ -2,7 +2,7 @@
 authors = ["Anoma Contributors"]
 language = "en"
 multilingual = false
-site-url = "https://specs.anoma.network"
+site-url = "https://specs.anoma.net"
 src = "src"
 title = "Anoma Specification"
 

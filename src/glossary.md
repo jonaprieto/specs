@@ -26,7 +26,18 @@ consists of a set of agents interacting with each other.
 
 Read more about the world in the [conceptual context](../architecture/conceptual-context.md).
 
+
+# State
+
+A *state* may refer to the state of an agent, the state of the world, or the state of the system.
+
+- The *state of an agent* is the set of all data stored by the agent.
+
+- The *state of the world* is ... (not clear yet)
+
+- The *state of the system* is a function of the decisions taken by agents
+over (partially ordered) time.
+
 # System
 
 A *system* is ..
-

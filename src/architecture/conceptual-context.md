@@ -1,6 +1,19 @@
 # Conceptual context
 
-The Anoma architecture operates on the basis of _agents_ in a _world_. _Agents_ are assumed to have the ability to generate local randomness, locally store and retrieve data, perform arbitrary classical (Turing-equivalent) compute, and send and receive messages over an arbitrary, asynchronous physical network. Agents _may_ have local (e.g. human user) input. Agents operate in a _world_, which consists of other agents of the same (abstract) capacities, with whom they may be able to communicate. The _world_ is open, in that agents can join and leave at any time -- from the architectural perspective, we can only speak of and reason about the perspective of a particular agent, i.e. which messages they have sent and received, and in what (local) order.
+The Anoma architecture operates on the basis of *[agents](../glossary.md#agents) in a [world](../glossary.md#world)*. 
+
+0. An Agent is ...
+
+1. _Agents_ are assumed to have the ability to:
+   - generate local randomness, 
+   - locally store and retrieve data, 
+   - perform arbitrary classical (Turing-equivalent) computations, and
+   - send and receive messages over an arbitrary, asynchronous physical network.
+
+2. Agents _may_ have local input (e.g. human user input) and/or local randomness (e.g. from a hardware random number generator).
+
+<!-- TODO: who is we exactly, the user, the system  -->
+The _world_ is open, in that agents can join and leave at any time -- from the architectural perspective, we can only speak of and reason about the perspective of a particular agent, i.e. which messages they have sent and received, and in what (local) order.
 
 The architecture does not presume any sort of global view or global time. It also does not presume any particular _motivations_ of agents, but rather describes the state of the system as a function of the decisions taken by agents over (partially ordered) time. Knowledge of all decisions taken by agents in a subset of history determines the state of that subset of the system at the point of conclusion of that history.
 

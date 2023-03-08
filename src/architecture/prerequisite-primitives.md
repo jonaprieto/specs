@@ -2,19 +2,19 @@
 
 ## Canonical compute representation
 
-The protocol requires a [canonical serialisation](../glossary.md#canonical-serialization) of [Turing-equivalent](../glossary.md#turing-complete) functions and data.
+The protocol requires a [*canonical* serialisation](../glossary.md#canonical-serialization) of [Turing-equivalent](../glossary.md#turing-complete) functions and data.
 
-```haskell
-serialise :: a -> ByteString
-deserialise :: ByteString -> (Maybe a)
-```
+A *serialisation* can be any function which maps data to a series of bytes. The inverse function which maps a series of bytes to data is referred to as a *deserialisation*.
 
-<!-- 
-"by all agents using the protocol" 
+Being *canonical* for a serialisation $s$ means that there exists a function $d$
+such that, for any function or data $x$, all the agents using the protocol agree that
+
+$$s(\mathsf{eval}(d(x))) = x.$
 
 
+<!--  This is rather important I'd say.
+What if it's mention earlier.
  -->
-_Canonical_ here means that this serialisation must be agreed to by all agents using the protocol, such that those agents agree on the results of computing `serialise (eval (deserialise f))` for an arbitrary `f`. 
 
 Internal representations of compute may vary as long as this external equivalence holds. Certain additional correspondences of internal representations may be required for particular verifiable computation schemes (see below).
 

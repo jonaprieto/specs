@@ -3,14 +3,14 @@
 <!-- What if the title goes to the point directly, "Agents in a world" -->
 
 The Anoma architecture operates on the basis of
-*[agents](../glossary.md#agents)*. The architecture does not presume any sort of
-global view or global time. It also does not presume any particular
-_motivations_ of agents, but rather describes the state of the
+*[agents](../glossary.md#agents)* in the real world. The architecture does not
+presume any sort of global view or global time. It also does not presume any
+particular _motivations_ of agents, but rather describes the state of the
 [system](../glossary.md#system) as a function of the decisions taken by agents
 over (partially ordered) time. 
 
 1. *Agent* is a primary notion in the Anoma protocol that aims to extend/replace
-   the notion of _process_ in the distributed systems.
+   the notion of _process_ in the Distributed Systems literature.
 
 2. _Agents_ are assumed to have the ability to:
    - generate local randomness, 

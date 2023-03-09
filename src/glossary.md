@@ -54,7 +54,7 @@ A *state* may refer to the state of an agent, the state of the world, or the sta
 over (partially ordered) time.
 
 - The *state of the world* is the set of 
-data related to the "real world" that is stored by the agents.
+data related to the "real world" that is observed by and of interest to the agents.
 
 # System
 

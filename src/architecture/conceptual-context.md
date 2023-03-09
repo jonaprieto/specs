@@ -26,7 +26,7 @@ over (partially ordered) time.
 
 4. All *actions* committed by agents are recorded in the *history*. To commit an action is to send a message.
    The *state* of the system at any point in time is a function of the history
-    of actions committed by agents up to that point in time.
+    of messages sent by agents up to that point in time.
 
 <!-- 
 We can use Juvix syntax instead of Haskell syntax for the following snippets. I'm commenting

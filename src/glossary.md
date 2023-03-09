@@ -25,7 +25,7 @@ The concept of _agent_ is similar to that of _process_ as used in the distribute
 The latter is especially important as *causal accounting* requires correspondence between the state of the system and state of the world, a correspondence which can only be maintained as a product of individual data inputs by agents which themselves correspond in local ways, as the protocol itself has no knowledge of the state of the world.
 -->
 
-Read more about agents in the [conceptual context](../architecture/conceptual-context.md).
+Read more about agents in the [conceptual context](architecture/conceptual-context.md).
 
 
 # Canonical serialization
@@ -33,7 +33,7 @@ Read more about agents in the [conceptual context](../architecture/conceptual-co
 A *canonical serialization* refers to a standardized way of representing data or
 functions as a series of bytes that can be transmitted across a network.
 
-Cannonical serialization are fully discussed in [Prerequisite Primitives](../src/architecture/prerequisite-primitives.md).
+Canonical serialization are fully discussed in [Prerequisites Primitives](#canonical-serialization)
 
 # Turing-equivalent
 
@@ -61,4 +61,4 @@ data related to the "real world" that is observed by and of interest to the agen
 A *system* is a virtual environment which
 consists of a set of agents interacting with each other.
 
-Read more about the world in the [conceptual context](../architecture/conceptual-context.md).
+Read more about the world in the [conceptual context](architecture/conceptual-context.md).

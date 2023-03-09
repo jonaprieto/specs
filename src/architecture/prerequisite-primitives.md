@@ -14,8 +14,6 @@ $$s(\mathsf{eval}(d(x))) = x.$
 
 In what follows, we assume any serialisation is canonical, unless otherwise specified. Internal representations of compute may vary as long as this external equivalence holds. Certain additional correspondences of internal representations may be required for particular verifiable computation schemes (see below).
 
-<!-- TODO: continue from this point -->
-
 For the remainder of this specification, this canonical representation is taken as implicit, and may be assumed where appropriate (e.g. `serialise` is called before sending a function over the network).
 
 ## Cryptographic components

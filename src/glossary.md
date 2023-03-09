@@ -42,7 +42,7 @@ computed by a Turing machine, a well-known theoretical model of computation.
 
 # Message
 
-A *message* is any data sent between agents.
+A *message* is any datum sent between agents.
 
 # State
 

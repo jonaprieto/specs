@@ -2,7 +2,7 @@
 
 # Anoma protocol
 
-The Anoma protocol is the logic framework which [agents](#agents) use to read,
+The Anoma protocol is the logical framework which [agents](#agents) use to read,
 create, and process [messages](#message).
 
 # Agent

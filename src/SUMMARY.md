@@ -47,4 +47,5 @@
   - [Randomness beacon](./anomanomics/randomness-beacon.md)
   - [Liquid RPGF](./anomanomics/liquid-rpgf.md)
   - [Schelling-human PPGF](./anomanomics/schelling-ppgf.md)
+- [Glossary](./glossary.md)
 - [Acknowledgements](./acknowledgements.md)

@@ -8,7 +8,7 @@ _motivations_ of agents, but rather describes the state of the
 over (partially ordered) time. 
 
 1. *Agent* is a primary notion in the Anoma protocol that aims to extend/replace
-   the notion of _process_ in the Distributed Systems literature.
+   the notion of _process_ in the distributed systems literature.
 
 2. _Agents_ are assumed to have the ability to:
    - generate local randomness, 

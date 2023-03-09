@@ -33,7 +33,7 @@ Read more about agents in the [conceptual context](../architecture/conceptual-co
 A *canonical serialization* refers to a standardized way of representing data or
 functions as a series of bytes that can be transmitted across a network.
 
-Cannonical serialization are fully discussed in [Prerequisites Primitives](../src/architecture/prerequisite-primitives.md).
+Cannonical serialization are fully discussed in [Prerequisite Primitives](../src/architecture/prerequisite-primitives.md).
 
 # Turing-equivalent
 

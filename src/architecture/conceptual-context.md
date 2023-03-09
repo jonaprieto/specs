@@ -24,7 +24,7 @@ over (partially ordered) time.
 3. Agents can _join_ and _leave_ the [system](./../glossary.md#system) at any
    time.
 
-4. Knowledge of all *actions* committed by agents are recorded in the *history.
+4. All *actions* committed by agents are recorded in the *history*. To commit an action is to send a message.
    The *state* of the system at any point in time is a function of the history
     of actions committed by agents up to that point in time.
 

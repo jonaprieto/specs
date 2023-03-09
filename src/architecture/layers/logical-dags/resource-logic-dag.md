@@ -32,10 +32,10 @@ A `Resource` is a unique datum controlled by a particular resource logic. Resour
 ```haskell=
 data Resource = Resource {
   logic :: Hash,
-  controllers :: [ExternalIdentity],
-  suffix :: ByteString,
-  data :: ByteString,
-  value :: Natural
+  controllers :: Hash, -- [ExternalIdentity]
+  suffix :: Hash, -- ByteString
+  data :: Hash, -- ByteString
+  value :: Hash -- Natural
 }
 
 type Key = ByteString

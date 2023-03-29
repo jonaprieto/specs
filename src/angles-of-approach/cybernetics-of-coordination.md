@@ -1,6 +1,12 @@
-> TODO: Write this section. Readers, skip for now.
-
 # Cybernetics of coordination
 
 - Cybernetic systems architecture
 - That paper by Aurora Apolito
+
+Anoma is a cybernetic consensus system for causal accounting. Using Anoma, agents can create, merge, and verify cryptographically content-addressed histories in a manner which enforces arbitrary logical relations, including directed and undirected identity relationships and a distributed linear resource logic. These logics are used as the substrate for a cryptographic accounting system which provides a quantifiable view of _entanglement_, a pairwise measure of the degree of a particular kind of relationship between two identities. Different measures of entanglement can be fed back into the system to inform local choices which require trust, such as delegation of data storage and consensus provisioning, allowing for automatic reduction of computational resource expenditure in high-entanglement interactions. These measures can also be input into and output from the system in order to track relations of interdependence in the external world.
+
+Consensus over history in conjunction with user data input allows for the provisioning of _causal accounting_, in that the system can combine local information about local causal dependence and local agent preferences into a gestalt system model of causal and preference relations, and provide pairwise and relative measures of preference satisfaction as outputs which can be used for resource provisioning decisions in the future. 
+
+Anoma's architecture is _scale-free_, in that the system's fundamental unit of cryptographic identity is closed under composition, so the system can model relational topologies spanning arbitrary levels of individuality. Under the assumption of an inverse-power law with regards to economic distance, the network of real relations viewed from outside will take the form of a fractal, i.e. recurrence of form independent of scale.
+ 
+Anoma provides _computational integrity_ (correctness) and _informational locality_ (privacy) on the basis of cryptographic assumptions. The protocol architecture abstracts cryptographic primitives by their information-theoretic properties, so implementations of particular primitives can be chosen and updated for availability, maturity, and performance over time.

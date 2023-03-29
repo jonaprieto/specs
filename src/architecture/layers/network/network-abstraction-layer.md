@@ -55,4 +55,4 @@ onRecv :: (PhysicalAddress -> ByteString -> IO ()) -> IO ()
 
 Physical routing also requires an underlying state, but as existing stacks can handle this perfectly well we keep all physical routing state and algorithms out of scope of the Anoma protocols.
 
-&nbsp;
+&nbsp; 72

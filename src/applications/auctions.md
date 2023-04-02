@@ -1,1 +1,3 @@
 # Auctions
+
+Programmable threshold decryption.

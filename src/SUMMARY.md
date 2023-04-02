@@ -3,6 +3,9 @@
 - [Abstract](./abstract.md)
 - [Angles of approach](./angles-of-approach.md)
     - [Distributed ledger architecture](./angles-of-approach/distributed-ledger-architecture.md)
+      - [Anoma vis-a-vis Zcash](./angles-of-approach/distributed-ledger-architecture/anoma-vis-a-vis-zcash.md)
+      - [Anoma vis-a-vis Cosmos](./angles-of-approach/distributed-ledger-architecture/anoma-vis-a-vis-cosmos.md)
+      - [Anoma vis-a-vis Ethereum](./angles-of-approach/distributed-ledger-architecture/anoma-vis-a-vis-ethereum.md)
     - [Cybernetics of coordination](./angles-of-approach/cybernetics-of-coordination.md)
     - [Anthropology of money](./angles-of-approach/anthropology-of-money.md)
     - [Web-of-trust history](./angles-of-approach/web-of-trust-history.md)
@@ -58,7 +61,7 @@
     - [Consensus](./components/typhon/heterogeneous_paxos.md)
     - [Execution](./components/typhon/execution.md)
     - [Ferveo](./components/typhon/ferveo.md)
-  - [Taiga](./components/taiga.md)
+  - [Taiga](./components/taiga.md)2
   - [Proof-of-stake](./components/proof-of-stake.md)
   - [Compiler stack](./components/compiler-stack.md)
 - [Acknowledgements](./acknowledgements.md)

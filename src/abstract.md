@@ -8,9 +8,10 @@ Anoma is free, in both the senses of "free speech" and "free beer". The source f
 
 > **NOTE:** For clarity, the word "Anoma" is used to refer to three separate but related entities:
 > - The Anoma _protocol_, which is defined in this specification.
-> - The Anoma _network_, which is the network of nodes which use the Anoma protocol.
+> - The Anoma _network_, which is the network of nodes using the Anoma protocol.
 > - The Anoma _Foundation_, which is a Swiss foundation (Stiftung) chartered with support & coordination of the Anoma ecosystem.
-> <br /><br />In this document, "Anoma" alone refers to the Anoma protocol.
+> <br /><br />These documents describe the protocol only, not the network or the foundation. To learn more about the foundation, go [here](https://anoma.foundation).
+> <br /><br />In these documents, the word "Anoma" alone refers to the Anoma protocol.
 
 > **NOTE:** These documents are not yet complete. If you're reading this page right now, there's a high chance you might be interested in [Namada](https://namada.net).
 

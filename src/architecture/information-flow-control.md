@@ -1,4 +1,6 @@
-# Privacy
+# Information flow control
+
+- Information flow control _between identities_, and _over time_ (possibly subject to assumptions)
 
 - In general, privacy can be provided for any kind of verification of part of the logical DAG if the verifiable computation scheme in use is zero-knowledge.
 - Consensus providers can use distributed key generation, where the shared key becomes part of their `encrypt` function, alongside internal programmable threshold decryption in order to provide transaction submission privacy, batch fairness (when used along with guarantees about how they internally process transactions). 

@@ -17,6 +17,7 @@
         - [Network abstraction layer](./architecture/layers/network/network-abstraction-layer.md)
         - [Distributed content-addressed storage](./architecture/layers/network/distributed-content-addressed-storage.md)
         - [Distributed content-addressed compute](./architecture/layers/network/distributed-content-addressed-compute.md)
+      - [Resource Management](./architecture/layers/resources.md)
       - [Physical DAG](./architecture/layers/physical-dag.md)
       - [Logical DAGs](./architecture/layers/logical-dags.md)
         - [Numerical aggregation DAG](./architecture/layers/logical-dags/numerical-aggregation-dag.md)

@@ -29,9 +29,9 @@ The Resource Logic is tied to a specific Proof System, since it influences fungi
 ### Partial Transaction (ptx)
 A shielded ptx (currently) has two input and two output notes. Shielded ptxs can be cascaded, if larger input and output sets are needed.
 
-A transparent ptx can have arbitrary size input and output sets, but for computation of proofs, nullifiers, etc. it must be decomposed into compatible cascaded shielded ptxs.
+A transparent ptx can have arbitrary size input and output sets, but for some use-cases where proofs and nullifiers are needed it might need to be decomposed into compatible cascaded shielded ptxs.
 
-A similar approach can be used to compute a set of shielded ptxs simultaneously, for some efficiency gain.
+A similar approach can be used to compute a set of shielded ptxs simultaneously, for some potential efficiency gain.
 
 #### Differences between Shielded and Transparent Partial Transactions
 Transparent `ptx`s are shielded `ptx`s for which we preserve the plaintext input and output Resources (or pointers to it). This way, validation of Predicates can happen at any time against the plaintext Resources.

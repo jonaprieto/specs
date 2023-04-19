@@ -40,17 +40,27 @@ jobs:
           curl https://i.jpillora.com/${{ matrix.mdbook_mermaid }}! | bash
           curl https://i.jpillora.com/${{ matrix.mdbook_linkcheck }}! | bash
           curl https://i.jpillora.com/${{ matrix.mdbook_katex }}! | bash
+    - name: Install texlive
+      uses: ConorMacBride/install-package@v1
+      with:
+        apt: texlive texlive-latex-extra texlive-fonts-extra texlive-science texlive-xetex librsvg2-bin
+    - name: Install pandoc
+      uses: pandoc/actions/setup@v1
+    - name: Install pandoc-include
+      run: pip install --user pandoc-include
     - name: Generate website
       run: make build
+    - name: Generate PDF
+      run: make pdf
     - name: Archive rendered site
       uses: actions/upload-artifact@v3
       with:
         name: rendered-site
-        path: book/html/
+        path: book/
         retention-days: 5
     - name: Create docs folder
       if: github.ref == 'refs/heads/main'
-      run: mkdir -p docs/main && mv book/html/* docs/main
+      run: mkdir -p docs/main && mv book/html/* book/*.pdf docs/main
     - name: Deploy
       if: github.ref == 'refs/heads/main'
       uses: JamesIves/github-pages-deploy-action@v4.2.3

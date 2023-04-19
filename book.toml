@@ -4,7 +4,7 @@ language = "en"
 multilingual = false
 site-url = "https://specs.anoma.net"
 src = "src"
-title = "Anoma Specification"
+title = "Anoma Specifications"
 
 [output.html]
 edit-url-template = "https://github.com/anoma/specs/edit/main/{path}"

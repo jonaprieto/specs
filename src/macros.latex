@@ -1,8 +1,31 @@
-% \require{color}
-% \definecolor{DarkGreen}{rgb}{0,0.5,0}
-% \definecolor{LightBlue}{rgb}{0.9,0.9,1.0}
+%%% COLORS %%%
+\usepackage[dvipsnames,x11names]{xcolor}
+\definecolor{DarkGreen}{rgb}{0,0.5,0}
+\definecolor{LightBlue}{rgb}{0.9,0.9,1.0}
+
+\newcommand*\red{\color{red}}
+\newcommand*\green{\color{green}}
+\newcommand*\blue{\color{blue}}
+\newcommand*\cyan{\color{cyan}}
+\newcommand*\magenta{\color{magenta}}
+\newcommand*\yellow{\color{yellow}}
+\newcommand*\black{\color{black}}
+\newcommand*\gray{\color{gray}}
+\newcommand*\white{\color{white}}
+\newcommand*\darkgray{\color{darkgray}}
+\newcommand*\lightgray{\color{lightgray}}
+\newcommand*\brown{\color{brown}}
+\newcommand*\lime{\color{lime}}
+\newcommand*\olive{\color{olive}}
+\newcommand*\orange{\color{orange}}
+\newcommand*\pink{\color{pink}}
+\newcommand*\purple{\color{purple}}
+\newcommand*\teal{\color{teal}}
+\newcommand*\violet{\color{violet}}
+
+%%% MATH %%%
+
 \newcommand{\xspace}[0]{{\ }}
-\newcommand{\ensuremath}[1]{{#1}}
 \newcommand{\p}[1]{{\ensuremath{\left({{#1}}\right)}}}
 \newcommand{\cb}[1]{{\left\{{{#1}}\right\}}}
 \newcommand{\sqb}[1]{{\left[{{#1}}\right]}}
@@ -45,7 +68,7 @@
 \newcommand{\va}[1]{{\ensuremath{\textrm{V}\p{{#1}}}}}
 \newcommand{\vb}[2]{{\ensuremath{\textrm{V}_{{#1}}\p{{#2}}}}}
 \newcommand{\decision}[2]{{\ensuremath{\textrm{Decision}_{{#1}}\p{{#2}}}}}
-% \DeclareMathOperator*{\argmax}{argmax}
+\DeclareMathOperator*{\argmax}{argmax}
 % convenient for expressing multi-line math
 \newcommand{\andlinesTwo}[2]{{  \ensuremath{\begin{array}{r l} & {{#1}} \\ \land & {{#2}} \end{array}}}}
 \newcommand{\andlinesThree}[3]{{\ensuremath{\begin{array}{r l} & {{#1}} \\ \land & {{#2}} \\ \land & {{#3}} \end{array}}}}

@@ -12,7 +12,7 @@
 \usepackage{fixltx2e} % provides \textsubscript
 % use upquote if available, for straight quotes in verbatim environments
 
-% lncs 
+% lncs
 \usepackage{makeidx}
 $if(institute)$
 \institute{$institute$, \\ \texttt{$email$}}
@@ -30,11 +30,22 @@ $endif$
 \providecommand{\tightlist}{%
   \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
 
-\usepackage[utf8]{inputenc}
-\usepackage{unicode-math}
-\defaultfontfeatures{Mapping=tex-text,Scale=MatchLowercase}
-
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+\ifnum 0\ifxetex 1\fi\ifluatex 1\fi=0 % if pdftex
+  \usepackage[utf8]{inputenc}
+$if(euro)$
+  \usepackage{eurosym}
+$endif$
+\else % if luatex or xelatex
+  \ifxetex
+    \usepackage{mathspec}
+    \usepackage{xltxtra,xunicode}
+  \else
+    \usepackage{fontspec}
+  \fi
+  \defaultfontfeatures{Mapping=tex-text,Scale=MatchLowercase}
   \newcommand{\euro}{€}
+%\usepackage{unicode-math}
 $if(mainfont)$
     \setmainfont{$mainfont$}
 $endif$
@@ -47,6 +58,7 @@ $endif$
 $if(mathfont)$
     \setmathfont(Digits,Latin,Greek){$mathfont$}
 $endif$
+\fi
 % use microtype if available
 \IfFileExists{microtype.sty}{\usepackage{microtype}}{}
 $if(geometry)$
@@ -75,7 +87,7 @@ $if(verbatim-in-note)$
 \usepackage{fancyvrb}
 $endif$
 $if(tables)$
-\usepackage{longtable,booktabs}
+\usepackage{longtable,booktabs,array,calc}
 $endif$
 $if(graphics)$
 \usepackage{graphicx}
@@ -137,8 +149,8 @@ $if(verbatim-in-note)$
 $endif$
 $if(lang)$
 \ifxetex
-  \usepackage{polyglossia}
-  \setmainlanguage{$mainlang$}
+%  \usepackage{polyglossia}
+%  \setmainlanguage{$mainlang$}
 \else
   \usepackage[$lang$]{babel}
 \fi
@@ -164,7 +176,7 @@ $if(abstract)$
 \begin{abstract}
 $abstract$
 
-% lncs keyword extension 
+% lncs keyword extension
 $if(keywords)$
 \keywords{$keywords$}
 $endif$

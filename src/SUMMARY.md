@@ -69,4 +69,5 @@
   - [Taiga](./components/taiga.md)
   - [Proof-of-stake](./components/proof-of-stake.md)
   - [Compiler stack](./components/compiler-stack.md)
+- [Glossary](./glossary.md)
 - [Acknowledgements](./acknowledgements.md)

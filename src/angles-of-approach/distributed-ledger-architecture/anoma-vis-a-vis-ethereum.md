@@ -4,14 +4,14 @@ Ethereum originally aimed to provide a "world computer", a goal which is perhaps
 
 ### Base layer
 
-Ethereum base layer = minimalist settlement. 
-
-Could be a settlement option for Anoma
+The Ethereum base layer now aims to provide minimalist settlement, and push responsibility for ordering, execution, privacy-preserving capabilities, counterparty discovery, etc. to layers on top (variously referred to as rollups, L2s, etc.). In this capacity, Anoma and Ethereum are addressing different design problems, as Anoma aims to cover both counterparty discovery and settlement (everything from user intention to user state read), while Ethereum aims only to provide a trust anchor. Understood in this fashion, the Ethereum base layer is an excellent settlement option for Anoma from an architectural perspective, where only resolution of specific engineering questions (e.g. supporting modern curves as precompiles) and a small EVM wrapper would be required for compatibility.
 
 ### Ecosystem
 
-- Rollups/layer 2s
-- MEV
-- Mesh security 
-- fractal scaling - implementation of all n layers
-- mesh security - scale-free implementation architecture
+As Ethereum has pushed the concerns of counterparty discovery, privacy-preserving execution, initial ordering, etc. to higher layers, the Ethereum ecosystem as a whole can be considered to be addressing a similar scope of design problem to Anoma, with two major differences in implementation:
+- The Ethereum ecosystem has very heterogeneous protocol layers addressing different parts of these concerns (e.g. different rollups, SUAVE, etc.), which often introduce additional operators or security assumptions. Anoma standardises all of these layers as part of a unified/homogeneous protocol stack and parameterises out all security choices so that they can be made by the user. This greatly reduces overall complexity, but may come at some cost if there is a benefit in having heterogeneous protocols for different kinds of applications.
+- The Ethereum ecosystem designs typically presume an implicit hierarchy of trust (e.g. L2, L3 etc. with reference to a base L1), while Anoma designs the layering to allow for mesh security & global double-spend detection by default, where trust models can be chosen differently by different users. To put it differently, Anoma is designed to act as "layer N" for any N, where the use of fully compositional abstractions removes the need for protocols to be aware of which layer they are acting as in a particular interaction.
+
+Anoma is compatible with the Ethereum ecosystem in different ways depending on user preference - for example, using the Ethereum base layer for settlement, Anoma can be seen as an "ecosystem of interoperable privacy-preserving rollups", where protocol standardisation allows for easy portability of application logic and state. Anoma is explicitly designed not to lock users into any particular choice of settlement layer, however, so applications constructed for Anoma could be moved to a different settlement layer even if they're settled on Ethereum initially (or vice-versa if they're settled elsewhere initially). Ethereum rollups are typically not designed to switch settlement layers easily (or allow applications on top of them to do so). Anoma could also use a particular rollup (or many) for settlement, or provide specific faculties (e.g. the counterparty discovery gossip network) to rollups for independent use.
+
+In general, the Ethereum ecosystem is optimised for users who want to use the Ethereum base layer as their root-of-trust, and Anoma is optimised for the more general case (but consequently less efficient for the Ethereum-specific case, at least in the near term).

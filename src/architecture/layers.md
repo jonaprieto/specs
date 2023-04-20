@@ -14,6 +14,7 @@ Parameters are external input to the system, or derived from the combination of 
 
 - [Identity](./layers/identity.md)
 - [Network](./layers/network.md)
+- [Resource Management](./layers/resources.md)
 - [Physical DAG](./layers/physical-dag.md)
 - [Logical DAGs](./layers/logical-dags.md)
 - [Entanglement](./layers/entanglement.md)

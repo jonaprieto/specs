@@ -7,8 +7,14 @@ serve:
 build:
 	mdbook build
 
-pdf:
-	$(pandoc) --pdf-engine=xelatex --template=assets/llncs -o build/paper.pdf --number-sections src/paper.md
+src/specs.md:
+	(echo '!include-header paper.yaml'; grep '\.md' src/SUMMARY.md | sed 's/^- .*(\(.*.md\))/\n!include`incrementSection=0` \1/; s/^  - .*(\(.*.md\))/\n!include`incrementSection=1` \1/; s/^    - .*(\(.*.md\))/\n!include`incrementSection=2` \1/; s/^      - .*(\(.*.md\))/\n!include`incrementSection=3` \1/; s/^        - .*(\(.*.md\))/\n!include`incrementSection=4` \1/; s/^          - .*(\(.*.md\))/\n!include`incrementSection=5` \1/; s/^            - .*(\(.*.md\))/\n!include`incrementSection=6` \1/') > $@
+
+tex: src/specs.md
+	$(pandoc) --pdf-engine=xelatex --template=assets/llncs --defaults=defaults.yaml --resource-path=.:src -o book/anoma-specs.tex src/specs.md
+
+pdf: src/specs.md
+	$(pandoc) --pdf-engine=xelatex --template=assets/llncs --defaults=defaults.yaml --resource-path=.:src -o book/anoma-specs.pdf src/specs.md
 
 dev-deps:
 	$(cargo) install mdbook

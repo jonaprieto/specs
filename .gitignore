@@ -1,3 +1,6 @@
+*~
+.*
+\#*
+
 book/
-.obsidian/
-.DS_Store
+src/specs.md

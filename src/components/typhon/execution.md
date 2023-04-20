@@ -30,15 +30,14 @@ Keys that have never had a Value written to them are mapped to an empty value.
 For each Learner, all processes can map Transactions to a set of Shards whose state they read, and a set of shards whose state they write.
 This makes Re-Sharding challenging. 
 
-$$
+```
 read(L : Learner, T : Transaction) : Set[Shard]
-$$
-$$
+
 write(L : Learner, T : Transaction) : Set[Shard]
-$$
+```
 
 One way to implement this is to *partition* the space of Keys across Shards, and *Label* each Transaction with a *Sub-Space* of keys it touches. 
-One possible Key-space would be to arrange *Keys* in some kind of a tree configuration.
+One possible Key-space would be to arrange *Keys* in some kind of tree configuration.
 
 ## Mempool Interface
 We assume, for each Learner, that each transaction has a unique Executor:

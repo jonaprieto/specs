@@ -15,10 +15,10 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest]
-        mdbook_version: [rust-lang/mdbook@v0.4.21]
-        mdbook_mermaid: [badboy/mdbook-mermaid@v0.11.2]
-        mdbook_linkcheck: [Michael-F-Bryan/mdbook-linkcheck@v0.7.6]
-        mdbook_katex: [heliaxdev/mdbook-katex@v0.3.0]
+        mdbook_version: [rust-lang/mdbook@v0.4.28]
+        mdbook_mermaid: [badboy/mdbook-mermaid@v0.12.6]
+        mdbook_linkcheck: [Michael-F-Bryan/mdbook-linkcheck@v0.7.7]
+        mdbook_katex: [lzanini/mdbook-katex@v0.3.15]
 
     steps:
     - name: Checkout code

@@ -24,24 +24,36 @@ The Resource Logic is tied to a specific Proof System for shielded `ptx`s, since
 **Note:** The only semantic differentiation between Predicates relevant to Applications is between ones that are static and influence fungibility and ones that are dynamic and don't influence fungibility.
 
 ### Partial Transaction (ptx)
-A shielded `ptx` has _k_ (currently _k_ = 2) input and _k_ output resources. Shielded ptxs can be cascaded, if larger input and output sets are needed.
+A shielded `ptx` has _k_ (currently _k_ = 2) input and _k_ output resources. Shielded `ptx`s can be cascaded, if larger input and output sets are needed.
 
-A transparent ptx can have arbitrary size input and output sets, but for some use-cases where proofs and nullifiers are needed it might need to be decomposed into compatible cascaded shielded ptxs.
+A transparent ptx can have arbitrary size input and output sets, but for some use-cases where proofs and nullifiers are needed it might need to be decomposed into compatible cascaded shielded `ptx`s.
 
-A similar approach can be used to compute a set of shielded ptxs simultaneously, for some potential efficiency gain.
+A similar approach can be used to compute a set of shielded `ptx`s simultaneously, for some potential efficiency gain.
 
 #### Differences between Shielded and Transparent Partial Transactions
 Transparent `ptx`s are shielded `ptx`s for which we preserve the plaintext input and output Resources (or pointers to it). This way, validation of Predicates can happen at any time against the plaintext Resources.
 
 They can still be encrypted for specific recipients.
 
-We still compute commitments, proofs and nullifiers, to preserve composability of Transparent and Shielded Partial Transactionds downstream.
+We still compute commitments, proofs and nullifiers, to preserve composability of Transparent and Shielded Partial Transactions downstream.
 
 ### Transaction (tx)
 Transactions provide the notion of balance for a set of `ptx`s, as well as validity for all their Predicates.
 
 ### Proof System
 The Proof System of a resource is defined via the proof and functional commitment schemes used. It is encoded (amongst other things relevant to the resource logic, e.g. public keys etc.) statically in `resource_data_static` to increase legibility for differences between Resource Logics, by separating Predicate from Proof System differences.
+
+### Controllers
+Controllers are the Identities (e.g. Consensus Providers or the Resource Originator) that determine the order of (p)txs including the given Resource.
+By signing a message, a Controller promises to not sign another message implementing an equivocation of the signed message. 
+It is recommended to assume finality only after checking Controller Signatures on (p)txs.
+
+Precedence of Controller signatures is ordered by their position in the list, i.e. a signature from the first Controller can override signatures of all downstream Controllers.
+Because of this, the list positions should correspond to Trust, from most trusted in the front, to least trusted at the end.
+
+This way we gain the following options by using signatures of upstream Controllers:
+- Resolving conflicts created by defecting Controllers.
+- Updating the Controller list, when the most downstream Controller is offline or defected.
 
 ### Transaction Execution Logic
 The TEL contains the machinery to compute candidate (partial) transactions which are then checked against the constraints encoded in the Predicates. It is up to the computing parties whether they use the `Executables` from the TEL, unless required by the Predicates, or choose other ways of coming up with transactions.
@@ -59,29 +71,77 @@ If we want to upgrade the proof system used for a Resource type (determined by i
 
 TODO: How to order proof systems, to prevent downgrades?
 
-## Data Fields
+## Data Structures
 
+TODO: Explain that usually, we want to send around Headers containing only ContentHash in place for all data fields, and Bodies which contain the explicit Data.
+
+```haskell=
+data Resource = Resource {
+  resource_logic :: ResourceLogic,
+  prefix :: ContentHash,
+  suffix :: [ContentHash],
+  resource_data_static :: ResourceDataStatic,
+  resource_data_dynamic :: ResourceDataDynamic,
+}
+```
+    
 ### resource_logic
 This field contains all Predicate components that are relevant to the fungibility of a Resource it encodes. It can optionally call external predicates which are stored in `resource_data_dynamic` or other `Resource`s.
 
+```haskell=
+data ResourceLogic = ResourceLogic {
+  creationPredicate :: TxData -> Bool,
+  consumptionPredicate :: TxData -> Bool,
+}
+```
+
 ### resource_data_static
-This field contains everything that is relevant to fungibility of the _Resource_, which is not a Predicate, such as:
+This struct contains everything that is relevant to fungibility of the _Resource_, which is not a Predicate, such as.
+
+Everything relevant to fungibility and Transaction balance needs to be in specific, named fields. Everything else is only relevant to Predicate validity and can be stored in a ContentHash indexed map of ByteStrings. The same is true for resource_data_dynamic.
+
+Mandatory fields:
 - The resource `Prefix`, encoded as a List of ContentHashes.
 - Any information about the proof- and commitment system that is relevant for fungibility of the _Resource_.
+
+Examples of optional data:
 - Any additional static data that is required, e.g. External Identities.
 
-### quantity
-An integer valued quantity, to determine balance in `tx`s using fungible `Resources`. **Note: We might want to move this into resource_data_dynamic.**
+```haskell=
+data ResourceDataStatic = ResourceDataStatic {
+  prefix :: [ContentHash],
+  proof_system :: ByteString, TODO: Taiga: Is this a good name and datatype? 
+  controllers :: [ExternalIdentity],
+  extra_data :: Map ContentHash ByteString,
+}
+```
 
 ### resource_data_dynamic
-This field contains everything which _is not_ relevant to the fungibility of the _Resource_, including Predicates:
-- The `Value` of the encoded `Resource` represented by a bytestring (i.e. the current content of the Memory behind the address).
+This struct contains everything which _is not_ relevant to the fungibility of the _Resource_, including Predicates.
+
+Mandatory fields:
 - The dynamic `Suffix` identifying the version of the `Value` of the Resource.
+- The list of `Controllers`for the Resource.
+- The `Value` of the encoded `Resource` represented by a ByteString (i.e. the current content of the Memory behind the address).
+- An integer valued quantity, to determine balance in `tx`s using fungible `Resources`.
+
+Examples of optional data:
 - Dynamic (components of) Predicates, such as:
     - Optional Predicates to determine ownership of the resource being encoded.
     - Predicates derived from user Intents, used as side constraints for solvers or the Execution Engine.
     - **Note: Do we want to move these to a separate field, e.g. dynamic_predicate(s)?**
 - All dynamic information relevant to Taiga verification. TODO: Add example for that.
+- The Transaction Execution Logic (TODO: Are there cases where we might want this in resource_data_static?)
+
+```haskell=
+data ResourceDataDynamic = ResourceDataDynamic {
+  suffix :: [ContentHash],
+  controllers :: [ExternalIdentity],
+  value :: ByteString,
+  quantity :: Natural,
+  extra_data :: Map ContentHash ByteString,
+}
+```
 
 ## Intent
 Intent is encoded in two ways:
@@ -93,7 +153,7 @@ Both of these should be derived from a user facing Intent frontend, s.t. the use
 The above two approaches to encode unbalanced `ptx`s, as well as side constraints, can also be used to implement other concepts beyond intent.
 
 ## Ownership
-Knowledge of the nullifier key of a Resource (i.e. owning the Resource) is neccessary, but not necessarily sufficient to own a resource. Ownership might further be constrained via the Predicate which can call on Predicates in `resource_dynamic_data` or external resources.
+Knowledge of the nullifier key of a Resource (i.e. owning the Resource) is necessary, but not necessarily sufficient to own a resource. Ownership might further be constrained via the Predicate which can call on Predicates in `resource_dynamic_data` or external resources.
 
 ## Lifecycle of a Transaction
 

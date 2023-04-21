@@ -14,7 +14,6 @@ Non-Linear Resources are ordering invariant and can be reused, for Linear Resour
 #### Resource Name
 The Name of a Resource is the concatenation of Prefix and Suffix.
 
-
 ### Predicates
 A Predicate encodes constraints for `Transactions` . We differentiate between Predicates that encode `Resource Logic`s, and all other predicates, which we call `dynamic Predicates`. They only differ in the semantics we ascribe to them: `Resource Logic`s describe constraints that are static across transactions for the `Resources` that carry them, `dynamic Predicates` can do that as well, but it is not required. The interfaces to them, and constraints they can describe should be equivalent.
 
@@ -39,8 +38,7 @@ They can still be encrypted for specific recipients.
 We still compute commitments, proofs and nullifiers, to preserve composability of Transparent and Shielded Partial Transactionds downstream.
 
 ### Transaction (tx)
-Transactions only provide the notion of balance for non-ephemeral resources.
-
+Transactions provide the notion of balance for a set of `ptx`s, as well as validity for all their Predicates.
 
 ### Proof System
 The Proof System of a resource is defined via the proof and functional commitment schemes used. It is encoded (amongst other things relevant to the resource logic, e.g. public keys etc.) statically in `resource_data_static` to increase legibility for differences between Resource Logics, by separating Predicate from Proof System differences.
@@ -55,7 +53,6 @@ A TEL can contain multiple `Executables`, e.g. for Wallets (shielded and transpa
 
 There is a conceptual 1:1 correspondence between a Resource and a Note. 
 TODO: These names/objects should be unified and we need to do a thorough examination of what is left to do to move it into practice.
-
 
 ### Resource Upgrades
 If we want to upgrade the proof system used for a Resource type (determined by it's Resource Logic), we instantiate a new Resource Logic that is backwards compatible by supporting `ptx`s which take old Resources as inputs. Upgraded Resources should not be allowed to be moved back to the old proof system, once upgraded.

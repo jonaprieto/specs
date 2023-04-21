@@ -44,8 +44,8 @@ Transactions provide the notion of balance for a set of `ptx`s, as well as valid
 The Proof System of a resource is defined via the proof and functional commitment schemes used. It is encoded (amongst other things relevant to the resource logic, e.g. public keys etc.) statically in `resource_data_static` to increase legibility for differences between Resource Logics, by separating Predicate from Proof System differences.
 
 ### Controllers
-Controllers are the Identities (e.g. Consensus Providers or the Resource Originator) that determine the order of (p)txs including the given Resource.
-By signing a message, a Controller promises to not sign another message implementing an equivocation of the signed message. 
+Controllers are the Identities (e.g. consensus providers) that determine the order of (p)txs including the given Resource. The first controller in the list is known as the resource originator.
+By signing a message, a Controller promises to not sign another message committing to an equivocation of the signed message. 
 It is recommended to assume finality only after checking Controller Signatures on (p)txs.
 
 Precedence of Controller signatures is ordered by their position in the list, i.e. a signature from the first Controller can override signatures of all downstream Controllers.
@@ -55,6 +55,7 @@ This way we gain the following options by using signatures of upstream Controlle
 - Resolving conflicts created by defecting Controllers.
 - Updating the Controller list, when the most downstream Controller is offline or defected.
 
+> TODO: Revise and concretise this section.
 ### Transaction Execution Logic
 The TEL contains the machinery to compute candidate (partial) transactions which are then checked against the constraints encoded in the Predicates. It is up to the computing parties whether they use the `Executables` from the TEL, unless required by the Predicates, or choose other ways of coming up with transactions.
 Application Developers are encouraged to Provide a TEL, but it is optional in principle.
@@ -90,13 +91,12 @@ This field contains all Predicate components that are relevant to the fungibilit
 
 ```haskell=
 data ResourceLogic = ResourceLogic {
-  creationPredicate :: TxData -> Bool,
-  consumptionPredicate :: TxData -> Bool,
+   predicate :: TxData -> Bool,
 }
 ```
 
 ### resource_data_static
-This struct contains everything that is relevant to fungibility of the _Resource_, which is not a Predicate, such as.
+This struct contains everything that is relevant to fungibility of the _Resource_, which is not a Predicate.
 
 Everything relevant to fungibility and Transaction balance needs to be in specific, named fields. Everything else is only relevant to Predicate validity and can be stored in a ContentHash indexed map of ByteStrings. The same is true for resource_data_dynamic.
 
@@ -123,7 +123,7 @@ Mandatory fields:
 - The dynamic `Suffix` identifying the version of the `Value` of the Resource.
 - The list of `Controllers`for the Resource.
 - The `Value` of the encoded `Resource` represented by a ByteString (i.e. the current content of the Memory behind the address).
-- An integer valued quantity, to determine balance in `tx`s using fungible `Resources`.
+- An integer valued `Quantity`, to determine balance in `tx`s using fungible `Resources`.
 
 Examples of optional data:
 - Dynamic (components of) Predicates, such as:

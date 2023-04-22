@@ -27,7 +27,7 @@ expand = true
 [preprocessor]
 
 [preprocessor.katex]
-macros = "src/macros.latex"
+macros = "src/macros.txt"
 
 [preprocessor.mermaid]
 command = "mdbook-mermaid"

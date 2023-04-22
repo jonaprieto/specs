@@ -1,27 +1,32 @@
+%%% NOTES %%%
+%
+% From these definitions a macros.txt file is generated automatically for mdbook-katex, with the following restrictions:
+% - only single-line \newcommand definitions are supported
+
 %%% COLORS %%%
 \usepackage[dvipsnames,x11names]{xcolor}
 \definecolor{DarkGreen}{rgb}{0,0.5,0}
 \definecolor{LightBlue}{rgb}{0.9,0.9,1.0}
 
-\newcommand*\red{\color{red}}
-\newcommand*\green{\color{green}}
-\newcommand*\blue{\color{blue}}
-\newcommand*\cyan{\color{cyan}}
-\newcommand*\magenta{\color{magenta}}
-\newcommand*\yellow{\color{yellow}}
-\newcommand*\black{\color{black}}
-\newcommand*\gray{\color{gray}}
-\newcommand*\white{\color{white}}
-\newcommand*\darkgray{\color{darkgray}}
-\newcommand*\lightgray{\color{lightgray}}
-\newcommand*\brown{\color{brown}}
-\newcommand*\lime{\color{lime}}
-\newcommand*\olive{\color{olive}}
-\newcommand*\orange{\color{orange}}
-\newcommand*\pink{\color{pink}}
-\newcommand*\purple{\color{purple}}
-\newcommand*\teal{\color{teal}}
-\newcommand*\violet{\color{violet}}
+\newcommand{\red}[1]{\color{red}#1}
+\newcommand{\green}[1]{\color{green}#1}
+\newcommand{\blue}[1]{\color{blue}#1}
+\newcommand{\cyan}[1]{\color{cyan}#1}
+\newcommand{\magenta}[1]{\color{magenta}#1}
+\newcommand{\yellow}[1]{\color{yellow}#1}
+\newcommand{\black}[1]{\color{black}#1}
+\newcommand{\gray}[1]{\color{gray}#1}
+\newcommand{\white}[1]{\color{white}#1}
+\newcommand{\darkgray}[1]{\color{darkgray}#1}
+\newcommand{\lightgray}[1]{\color{lightgray}#1}
+\newcommand{\brown}[1]{\color{brown}#1}
+\newcommand{\lime}[1]{\color{lime}#1}
+\newcommand{\olive}[1]{\color{olive}#1}
+\newcommand{\orange}[1]{\color{orange}#1}
+\newcommand{\pink}[1]{\color{pink}#1}
+\newcommand{\purple}[1]{\color{purple}#1}
+\newcommand{\teal}[1]{\color{teal}#1}
+\newcommand{\violet}[1]{\color{violet}#1}
 
 %%% MATH %%%
 
@@ -39,9 +44,8 @@
 \newcommand{\join}{{\ensuremath{\sqcup}}}
 \newcommand{\meet}{{\ensuremath{\sqcap}}}
 \newcommand{\addsunion}{\ensuremath{\uplus}}
-\newcommand{\addsintersection}{\ensuremath{%
-                \mathrel{\raisebox{.1em}{%
-                \reflectbox{\rotatebox[origin=c]{180}{\addsunion}}}}}}
+\newcommand{\addsintersection}{\ensuremath{\mathrel{\raisebox{.1em}{\reflectbox{\rotatebox[origin=c]{180}{\addsunion}}}}}}
+
 % used in hetcons formalisms
 \newcommand{\clg}[0]{{\textrm{CLG}}\xspace}
 \newcommand{\edge}[2]{{{{#1}}\!\!-\!\!{{#2}}}}
@@ -69,6 +73,7 @@
 \newcommand{\vb}[2]{{\ensuremath{\textrm{V}_{{#1}}\p{{#2}}}}}
 \newcommand{\decision}[2]{{\ensuremath{\textrm{Decision}_{{#1}}\p{{#2}}}}}
 \DeclareMathOperator*{\argmax}{argmax}
+
 % convenient for expressing multi-line math
 \newcommand{\andlinesTwo}[2]{{  \ensuremath{\begin{array}{r l} & {{#1}} \\ \land & {{#2}} \end{array}}}}
 \newcommand{\andlinesThree}[3]{{\ensuremath{\begin{array}{r l} & {{#1}} \\ \land & {{#2}} \\ \land & {{#3}} \end{array}}}}
@@ -79,7 +84,5 @@
 \newcommand{\orlinesThree}[3]{{\ensuremath{\begin{array}{r l} & {{#1}} \\ \lor & {{#2}} \\ \lor & {{#3}} \end{array}}}}
 \newcommand{\orlinesFour}[4]{{ \ensuremath{\begin{array}{r l} & {{#1}} \\ \lor & {{#2}} \\ \lor & {{#3}} \\ \lor & {{#4}} \end{array}}}}
 \newcommand{\orlinesFive}[5]{{ \ensuremath{\begin{array}{r l} & {{#1}} \\ \lor & {{#2}} \\ \lor & {{#3}} \\ \lor & {{#4}} \\ \lor & {{#5}} \end{array}}}}
-\newcommand{\hetdifftext}[1]{
-  \colorbox{LightBlue}{#1}%
-}
+\newcommand{\hetdifftext}[1]{\colorbox{LightBlue}{#1}}
 \newcommand{\hetdiff}[1]{\hetdifftext{$\displaystyle#1$}}

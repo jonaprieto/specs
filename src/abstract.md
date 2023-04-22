@@ -25,4 +25,6 @@ Anoma is free, in both the senses of "free speech" and "free beer". The source f
 
 > **NOTE:** These documents are not yet complete. If you're reading this page right now, there's a high chance you might be interested in [Namada](https://namada.net).
 
+> **NOTE:** A [PDF version](https://specs.anoma.net/main/anoma-specs.pdf) of this document is also available.
+
 Happy reading!

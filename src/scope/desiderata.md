@@ -1,4 +1,3 @@
-> Readers: please ignore this section, it needs to be rewritten. Move on to [Layers](./layers.md).
 
 - talk about sub-network part
 - scaling

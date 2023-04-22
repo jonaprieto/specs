@@ -1,6 +1,6 @@
 > TODO: Write this section in a clearer way.
 
-# Principle of locality
+# Principle of relativity
 
 The central principle in the design of Anoma's protocol architecture is that of _locality_. For now the term itself will be left without explicit definition, but the sense is closest to that in which physics uses it, except that we are concerned principally with proximity in informational space instead of physical space (where the sense used by physics concerns the relation between the two). Locality takes several forms:
 

@@ -1,50 +1,95 @@
 # Network abstraction layer
 
-The network abstraction layer is responsible for mapping topical and logical sends (to topics and external identities, respectively) to physical sends to physical addresses (e.g. IPs). This requires three main layers: topical publish & subscribe, logical send, and physical send, which are explained here in turn. The network abstraction layer is responsible for keeping relevant routing tables (about who is interested in what topic and who has what physical address) up to date, for periodically testing latency to other known external identities and providing this as a measure of physical locality which can be used by higher protocol layers, and for routing messages to and from other agents, including those _not_ destined for this agent, keeping track of routing exchange in a low-overhead fashion which can mitigate denial-of-service.
+The network abstraction layer is responsible for mapping logical sends (to a topic and external identity) to physical sends (to physical addresses, e.g. IPs). Higher protocol layers can send to and receive from external identities and topics, subscribe to topics of interest, and unsubscribe from topics no longer of interest. The network abstraction layer is responsible for keeping relevant state, including who is interested in what topic, who is reachable at what physical address, route information, latency information, and so forth. Internally, the network abstraction layer handles peer discovery, sampling, relaying, and routing, such that higher layers need only concern themselves with messages destined for this agent. The network abstraction layer collects and outputs latency information and relay accounting data which can be used to inform higher-level decisions and tracking.
 
-## Automatic routing
+The network abstraction layer produces a logical pub/sub interface and consumes a set of physical send/recv interfaces (e.g. UDP/IP, TCP/IP, etc.). The central part we refer to as the _P2P intelligence engine_ (PIE), as it is expected to run in parallel to higher layers and make decisions about discovery, routing, etc. internally.
 
-The automatic routing system is responsible for routing messages addressed to an identity other than the agent in question, and/or concerning a topic which the agent in question is not interested in, to other known agents who might be able to contact the destination agent and/or might be interested in the specified topic. The automated routing system is also responsible for tracking routing performed on behalf of other agents, such that accounts can be kept and dishonest behaviour possibly identified.
+## Logical pub/sub interface
 
-> TODO: More details here.
+The logical pub/sub interface allows higher layers to send to and receive from external identities and topics. All sends and receives reference an external identity and a topic. In order to send a message to everyone, the "all" identity can be used, and in order to send a message regardless of what topics have been subscribed to, the sentinel empty string topic can be used (in other words, all nodes are automatically subscribed to the default topic).
 
-## Topical publish & subscribe
+Topics are self-authenticating, in that only messages which satisfy the topic predicate can be sent on the topic. Where we need to track strings for routing tables, the content address of the function can be used. If nodes publish invalid messages on the topic (which do not satisfy the predicates), other nodes should refuse to relay those messages and ban the peers.
 
-The topical publish & subscribe system is responsible for routing messages associated with a particular topic (an opaque bytestring) to other nodes who have expressed interest in the topic. Note that an identity is still provided, as the agent may have privacy preferences - in the case of total broadcast to any agent who has expressed interest in the topic, this may be the "all" identity, but it may also be a smaller, specific set (perhaps nodes above a certain level of entanglement, for example).
+> Note: The difference between topics and external identities is that topics cannot be encrypted to. In the future (with witness encryption or similar) it may be possible to unify these concepts.
 
-```haskell
-type Topic = ByteString
+> TODO: Give examples for usecases at different points in the spectrum of Identity/Topic combinations.
 
-topicalSend :: ExternalIdentity -> Topic -> Message -> IO ()
-topicalOnRecv :: (ExternalIdentity -> Topic -> Message -> IO ()) -> IO ()
-```
-
-The topical routing system must keep a state containing information about which other known nodes have expressed interest in a particular topic. This state is used to inform topical routing, which maps topical sends to (possibly multiple) logical sends. This state is constructed from topical interest announcement messages sent (and signed) by particular external identities. The topical routing algorithm can also consult local agent preferences as to how much bandwidth and compute they're willing to spend on routing, and how (for a particular message) to trade between reliability, minimal bandwidth usage, privacy, etc.
+> TODO: Simple local filtering on topics (i.e. subtopics) and potentially optimisations by broadcasting local filters.
 
 ```haskell
-type TopicalRoutingState
+type Topic = Message -> Bool
+
+logicalSend :: ExternalIdentity -> Topic -> Message -> IO ()
+logicalOnRecv :: (ExternalIdentity -> Topic -> Message -> IO ()) -> IO () -- note: clarify notation for callback functions
+logicalSub :: Topic -> IO ()
+logicalUnsub :: Topic -> IO ()
 ```
 
-## Logical send
+## P2P intelligence engine (PIE 🥧)
 
-The logical sending layer exposes an interface with which messages can be sent to or received from external identities, which act as a kind of logical address. 
+The P2P intelligence engine (PIE) is where all of the magic happens. The PIE takes information from higher protocol layers, including entanglement and bandwidth usage / routing preferences, and collects measurements internally (latency, available routes) which are both used to inform decision-making, allowing fine-grained tradeoffs between various constraints.
 
-```haskell
-logicalSend :: ExternalIdentity -> Message -> IO ()
-logicalOnRecv :: (ExternalIdentity -> Message -> IO ()) -> IO ()
-```
+### Information from above
 
-The logical sending layer must keep a state containing information about known mappings from external identities to physical addresses at which they can be contacted. This state is used to inform logical routing, which maps logical sends to (possibly multiple) physical sends. Logical routing can also take into account compositionality of identities - e.g., if routes to Alice, Bob, and Charlie are known, but a route to (Alice && Bob && Charlie) is not, individual routes can be automatically tried. This state is constructed from physical address announcement messages sent (and signed) by particular external identities. The logical routing algorithm can also consult local agent preferences as to how much bandwidth and compute they're willing to spend, and how (for a particular message) to trade between reliability, minimal bandwidth usage, privacy, etc.
+From above, PIE receives:
+- Trust/entanglement information. For now this is assumed to be of the form of a scalar from 0 to 1 describing the entanglement between two external identities, such that 0 is unknown, 1 is completely trusted, and everything in between can be roughly understood as an interpolation. 
+- Routing preferences
+    - Bandwidth usage preferences. For now this is just 1-bit of information, either "use any amount of bandwidth" or "minimise bandwidth".
+    - Latency preferences. For now this is just 1-bit of information, either "minimize latency" or "don't care".
+    - Cost preferences, with heterogenous denominations
+    - Trust/entanglement preferences for (intermediate) nodes
+        - "avoid nodes with entanglement scores lower than X", for example
+    - (eventually this can just be a function which selects between possible routes and PIE calls when it needs to decide) 
 
-```haskell
-type LogicalRoutingState
-```
+### Information internally / from below
 
-## Physical send
+From below / internally, PIE collects:
+- Relay accounting data (which other identities I have relayed how many / what size / bandwidth of messages for)
+    - can start out very coarse (# of messages) and become more granular later if necessary
+- Routing information (discovered from other nodes)
+    - (external identity, physical address | external identity, latency) tuples
+    - (external identity, {topics of interest}) tuples
+    - includes latency information measured with local clock
+    - can have multiple routes to the same destination w/different addresses, latency, etc.
+    - nodes could express a priority list of their physical addresses
+
+This information can be made available to higher protocol layers as desired.
+
+### Decision-making
+
+PIE makes decisions about how to route messages (from this agent to another external identity and topic), and about when/how to relay messages destined for another external identity and/or topic but sent initially to this agent. 
+
+### Sub-protocols
+
+PIE includes sub-protocols for peer discovery, DHT (fallback routing option in case local routing fails), trust-aware random peer sampling, trust-aware relay/routing table synchronisation, NAT traversal/hole-punching, and possibly collaborative filtering (in the future).
+
+Sub-protocols:
+- Peer discovery (e.g. via gossip/rps or DHT),
+- DHT (SovKad)
+- (Trust Aware) Random Peer Sampling
+- (Trust Aware) Relaying Protocol
+    - Nodes can request to not have their physical addresses forwarded, but instead relay packets via other nodes.
+- (Trust Aware) Routing Table Sync
+  - 1 bit of info instructing other node whether to share your (pubkey, IP) pair or share their IP in response to queries
+  - Include latency data
+ - NAT traversal / Hole Punching 
+ - Privacy-preserving interest discovery / collaborative filtering (incl. interesting bloom filter stuff)
+
+### Routing notes
+
+Logical routing should take into account compositionality of identities - e.g., if routes to Alice, Bob, and Charlie are known, but a route to (Alice && Bob && Charlie) is not, individual routes can be automatically tried. This state is constructed from physical address announcement messages sent (and signed) by particular external identities. 
+
+> TODO: Figure out details around implicit vs explicit domains and expected topologies under some reasonable assumptions.
+
+> TODO: Figure out details around privacy-preservation in internal messages. Maybe the higher-layer should provide a default routing preference function which applies also to internal messages and can implement something like implicit domains (e.g. to restrict data leakage to a set of known nodes).
+
+---
+
+## Physical send/recv
 
 Underlying physical networking layers are expected to expose an opaque type `PhysicalAddress`, to which messages can be sent and from which they might be receieved. Physical networking could be instantiated by a base physical protocol such as TCP/IP or UDP/IP, or a more complex layered one such as Tor or a mixnet. The physical layer need provide only two functions, `send` and `onRecv`, which act as one would expect. Messages are assumed to be delivered either completely or not at all, but the physical layer is not expected to provide any form of authentication, ordering, or reliable delivery - those concerns are handled by higher layers.
 
-> TODO: Work remains to be done to integrate the privacy properties which might be provided by Tor or a mixnet into the privacy preferences and trust graph which the higher-level logical layers might be able to reason about.
+> TODO: Work remains to be done to integrate the privacy properties which might be provided by Tor or a mixnet into the privacy preferences and  trust graph, which the higher-level logical layers might be able to reason about. This will likely need to be an abstract model of their properties, to be used by the information flow control system. 
 
 ```haskell
 type PhysicalAddress
@@ -53,6 +98,4 @@ send :: PhysicalAddress -> ByteString -> IO ()
 onRecv :: (PhysicalAddress -> ByteString -> IO ()) -> IO ()
 ```
 
-Physical routing also requires an underlying state, but as existing stacks can handle this perfectly well we keep all physical routing state and algorithms out of scope of the Anoma protocols.
-
-&nbsp; 72
+Physical routing also requires an underlying state, but as existing stacks can handle this perfectly well, so we keep all physical routing state and algorithms out of scope of the Anoma protocols.

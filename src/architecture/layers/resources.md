@@ -14,6 +14,9 @@ Non-Linear Resources are ordering invariant and can be reused, for Linear Resour
 #### Resource Name
 The Name of a Resource is the concatenation of Prefix and Suffix.
 
+#### Resource Key
+The `key` of a resource is computed via `hash(resource)`.
+
 ### Predicates
 A Predicate encodes constraints for `Transactions` . We differentiate between Predicates that encode `Resource Logic`s, and all other predicates, which we call `dynamic Predicates`. They only differ in the semantics we ascribe to them: `Resource Logic`s describe constraints that are static across transactions for the `Resources` that carry them, `dynamic Predicates` can do that as well, but it is not required. The interfaces to them, and constraints they can describe should be equivalent.
 
@@ -21,14 +24,35 @@ A Predicate encodes constraints for `Transactions` . We differentiate between Pr
 The Resource Logic of a Resource is defined via a static Predicate. Its address is computed via `hash(Predicate)`.
 The Resource Logic is tied to a specific Proof System for shielded `ptx`s, since it influences fungibility of the Resources. Evaluating plaintext circuits for Transparent `ptx`s should always be possible.
 
+The Resource Logic specifies under what conditions `Resources` of that type can be created and consumed. For a fungible token, for example, new tokens may be created with a valid signature from the issuing identity and they may be spent/consumed with a valid signature from the identity which currently owns them.
+
 **Note:** The only semantic differentiation between Predicates relevant to Applications is between ones that are static and influence fungibility and ones that are dynamic and don't influence fungibility.
 
 ### Partial Transaction (ptx)
 A shielded `ptx` has _k_ (currently _k_ = 2) input and _k_ output resources. Shielded `ptx`s can be cascaded, if larger input and output sets are needed.
 
-A transparent ptx can have arbitrary size input and output sets, but for some use-cases where proofs and nullifiers are needed it might need to be decomposed into compatible cascaded shielded `ptx`s.
+A transparent `ptx` can have arbitrary size input and output sets, but for some use-cases where proofs and nullifiers are needed it might need to be decomposed into compatible cascaded shielded `ptx`s.
 
 A similar approach can be used to compute a set of shielded `ptx`s simultaneously, for some potential efficiency gain.
+
+A `ptx` is also the scope for a `Predicate`. 
+
+A partial transaction is _valid_ if and only if the predicates of all the resources consumed and created are valid.
+
+```haskell=
+data PartialTx = PartialTx {
+  input_resources :: [Resource],
+  output_resources :: [Resource],
+  executable :: Executable,
+}
+```
+
+```haskell=
+valid_ptx :: PartialTx -> Boolean
+valid_ptx (PartialTx inr outr) = all (map (\r -> logic r inr outr) (inr <> outr))
+```
+
+> TODO: Write out details about commitment and nullifier handling in the shielded case. 
 
 #### Differences between Shielded and Transparent Partial Transactions
 Transparent `ptx`s are shielded `ptx`s for which we preserve the plaintext input and output Resources (or pointers to it). This way, validation of Predicates can happen at any time against the plaintext Resources.
@@ -37,8 +61,35 @@ They can still be encrypted for specific recipients.
 
 We still compute commitments, proofs and nullifiers, to preserve composability of Transparent and Shielded Partial Transactions downstream.
 
-### Transaction (tx)
+### Transactions (tx)
 Transactions provide the notion of balance for a set of `ptx`s, as well as validity for all their Predicates.
+
+A transaction is _balanced_ if and only if the input and output sets of each Resource Type are of the same size.
+
+A transaction is _valid_ if and only if the `ptx`s it contains are valid and it is balanced.
+
+```haskell=
+data Tx = Tx {
+  partial_txs :: [PartialTx],
+  executable :: Executable,
+}
+```
+
+```haskell=
+denomination :: Resource -> ByteString
+denomination r = serialize (logic r) <> static_data r
+
+balance :: Resource -> Balance
+balance r = Balance [(denomination r, quantity r)]
+
+balance_delta :: PartialTx -> Balance
+balance_delta (PartialTx inr outr) = sum (map balance inr) - sum (map balance outr)
+
+check_transaction :: Set PartialTx -> Boolean
+check_transaction ptxs = all (map valid_ptx ptxs) && sum (map balance_delta ptxs) == 0
+```
+
+> TODO: Write out details about commitment and nullifier handling in the shielded case. 
 
 ### Proof System
 The Proof System of a resource is defined via the proof and functional commitment schemes used. It is encoded (amongst other things relevant to the resource logic, e.g. public keys etc.) statically in `resource_data_static` to increase legibility for differences between Resource Logics, by separating Predicate from Proof System differences.
@@ -56,11 +107,15 @@ This way we gain the following options by using signatures of upstream Controlle
 - Updating the Controller list, when the most downstream Controller is offline or defected.
 
 > TODO: Revise and concretise this section.
+
 ### Transaction Execution Logic
 The TEL contains the machinery to compute candidate (partial) transactions which are then checked against the constraints encoded in the Predicates. It is up to the computing parties whether they use the `Executables` from the TEL, unless required by the Predicates, or choose other ways of coming up with transactions.
 Application Developers are encouraged to Provide a TEL, but it is optional in principle.
 
 A TEL can contain multiple `Executables`, e.g. for Wallets (shielded and transparent `(p)tx`s), Solvers (shielded and transparent `(p)tx`s) or Execution Engines (transparent `(p)tx`s only), or just a single one.
+
+> TODO: Specify what exactly no-op's should look like for Wallets, Solvers and EE. 
+> TODO: Do we want to pass around the whole TEL through ptxs over txs, or have explicit interfaces to supply single executables? If so, where should they get called from?
 
 ## Relationship between Notes and Resources
 
@@ -79,8 +134,6 @@ TODO: Explain that usually, we want to send around Headers containing only Conte
 ```haskell=
 data Resource = Resource {
   resource_logic :: ResourceLogic,
-  prefix :: ContentHash,
-  suffix :: [ContentHash],
   resource_data_static :: ResourceDataStatic,
   resource_data_dynamic :: ResourceDataDynamic,
 }
@@ -110,17 +163,17 @@ Examples of optional data:
 ```haskell=
 data ResourceDataStatic = ResourceDataStatic {
   prefix :: [ContentHash],
-  proof_system :: ByteString, TODO: Taiga: Is this a good name and datatype? 
-  controllers :: [ExternalIdentity],
+  proof_system :: ByteString,  
   extra_data :: Map ContentHash ByteString,
 }
 ```
+> TODO: Taiga: Is this a good name and datatype for proof_system?
 
 ### resource_data_dynamic
 This struct contains everything which _is not_ relevant to the fungibility of the _Resource_, including Predicates.
 
 Mandatory fields:
-- The dynamic `Suffix` identifying the version of the `Value` of the Resource.
+- The dynamic `Suffix` identifying the version of the `Value` of the Resource. Should always be a nonce.
 - The list of `Controllers`for the Resource.
 - The `Value` of the encoded `Resource` represented by a ByteString (i.e. the current content of the Memory behind the address).
 - An integer valued `Quantity`, to determine balance in `tx`s using fungible `Resources`.
@@ -135,13 +188,15 @@ Examples of optional data:
 
 ```haskell=
 data ResourceDataDynamic = ResourceDataDynamic {
-  suffix :: [ContentHash],
+  suffix :: ContentHash,
   controllers :: [ExternalIdentity],
   value :: ByteString,
   quantity :: Natural,
   extra_data :: Map ContentHash ByteString,
 }
 ```
+
+// TODO: What exactly should the suffix be? Should it always be a the output of a hash function, or just a bytestring of equivalent size? Should it be only one Hash size wide, or potentially a list as well?
 
 ## Intent
 Intent is encoded in two ways:

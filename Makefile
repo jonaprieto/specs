@@ -1,5 +1,6 @@
 cargo = $(env) cargo
 pandoc = $(env) pandoc
+pip = $(env) pip
 
 serve: src/macros.txt
 	mdbook serve --open
@@ -23,6 +24,7 @@ dev-deps:
 	$(cargo) install mdbook
 	$(cargo) install mdbook-mermaid
 	$(cargo) install mdbook-linkcheck
-	$(cargo) install --git https://github.com/heliaxdev/mdbook-katex.git
+	$(cargo) install mdbook-katex
+	$(pip) install --user pandoc-include
 
 .PHONY: build serve dev-deps

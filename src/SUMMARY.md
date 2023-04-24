@@ -11,7 +11,6 @@
     - [Web-of-trust history](./angles-of-approach/web-of-trust-history.md)
 - [Scope](./scope.md)
   - [Conceptual context](./scope/conceptual-context.md)
-  - [Principle of relativity](./scope/principle-of-relativity.md)
   - [Desiderata](./scope/desiderata.md)
     - [Consistency](./scope/desiderata/consistency.md)
     - [Information flow control](./scope/desiderata/information-flow-control.md)

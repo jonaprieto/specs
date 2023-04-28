@@ -31,7 +31,7 @@ A transparent ptx can have arbitrary size input and output sets, but for some us
 A similar approach can be used to compute a set of shielded `ptx`s simultaneously, for some potential efficiency gain.
 
 #### Differences between Shielded and Transparent Partial Transactions
-Transparent `ptx`s are shielded `ptx`s for which we preserve the plaintext input and output Resources (or pointers to it). This way, validation of Predicates can happen at any time against the plaintext Resources.
+Transparent `ptx`s are shielded `ptx`s for which we verifiably preserve the plaintext input and output Resources (or pointers to it). This way, validation of Predicates can happen at any time against the plaintext Resources.
 
 They can still be encrypted for specific recipients.
 
@@ -107,6 +107,7 @@ Mandatory fields:
 Examples of optional data:
 - Any additional static data that is required, e.g. External Identities.
 
+
 ```haskell=
 data ResourceDataStatic = ResourceDataStatic {
   prefix :: [ContentHash],
@@ -144,9 +145,14 @@ data ResourceDataDynamic = ResourceDataDynamic {
 ```
 
 ## Intent
-Intent is encoded in two ways:
-1. In an unbalanced `ptx`, it is expressed as am (Ephemeral) Resource Logic of an Ephemeral Resource.
-2. As side information e.g. for a solver. In this case it should reside as a Predicate in `resource_data_dynamic`.
+
+Intent Resources are a kind of Resource that encodes an intent. Intent Resources are not a special type of Resource, but can be written as any other stateful or ephemeral Resource.
+
+An example (Ephemeral) Intent Resource can consist of two parts:
+1. In an unbalanced `ptx`, the intent is expressed as an (Ephemeral) Resource Logic and `resource_data_static` of an Ephemeral Resource.
+2. As side information e.g. for a solver, communicated either as asociated encrypted data of the Intent resource, or otherwise out-of-band.
+
+A solver or other agent may use the provided side information to fulfill the Intent Resource Logic, which is satisfied if and only if a partial transaction satisfies the intent.
 
 Both of these should be derived from a user facing Intent frontend, s.t. the user only needs to specify a Predicate for the `tx`s they want to perform.
 
@@ -154,6 +160,14 @@ The above two approaches to encode unbalanced `ptx`s, as well as side constraint
 
 ## Ownership
 Knowledge of the nullifier key of a Resource (i.e. owning the Resource) is necessary, but not necessarily sufficient to own a resource. Ownership might further be constrained via the Predicate which can call on Predicates in `resource_dynamic_data` or external resources.
+
+## Visibility
+
+Shielded resources have an associated encrypted data field which may be decrypted using certain *viewing keys*. Viewing keys may be *incoming viewing keys* or *full viewing keys*, where *incoming viewing keys* can decrypt the associated data from the transaction where the resource is created, while a *full viewing key* can decrypt the associated data from a transaction where the resource is either created or consumed.
+
+In general use, this associated encrypted data may serve as an in-band communications channel for the contents of a resource. Since shielded resources are stored as *hiding commitments*, knowledge of information such as the random trapdoor is necessary to view or transact on a resource.
+
+A resource logic may verify that the encrypted data field contains a valid encryption of the correct resource data to the correct public key. This verifiable encryption is necessary to ensure that agents do not have a free option to create resources that are inaccessible to their owners.
 
 ## Lifecycle of a Transaction
 
@@ -163,7 +177,11 @@ Knowledge of the nullifier key of a Resource (i.e. owning the Resource) is neces
 A candidate partial transaction is created, optionally using an Executable from the TEL. It is unbalanced.
 
 ### *Solving* (optionally using Executable from TEL)
-It gets balanced either by a solver node, or directly in the user wallet, optionally using an executable from the TEL.
+It gets balanced either by a solver node, or directly in the user wallet, optionally using an executable from the TEL. 
+
+A solver node may or may not need knowledge of the viewing keys or nullifier keys of the involved resources; however, these may be necessary if a solver must prove certain predicates.
+
+Solver nodes or other agents may also *partially* balance a transaction, which needs to be fully balanced by another agent before becoming a Candidate Transaction.
 
 ### Candidate Transaction
 Once a set of partial candidate transactions are balanced, it becomes a Candidate Transaction.

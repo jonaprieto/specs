@@ -2,33 +2,49 @@
 
 This section specifies the building blocks of the Resource Management System that constitutes the contents of Messages and the substrate on which higher layers (e.g. logical DAGs representing some kind of State) are built.
 
-## Components
 
-### Resource Types
-The Type of a Resource and its fungibility, is determined by the Resource Logic, Static Resource Data and its Prefix.
 
-### Resources
+
+## Resources
 Resources are the atomic units of the system. Each one carries a unique Suffix, providing a partially ordered history of the immutable Resources that inhabited a type can be derived this way.
 Non-Linear Resources are ordering invariant and can be reused, for Linear Resources, only the last version of an inhabitant is valid and they can not be reused.
+
+
+### Resource Logic
+The Resource Logic of a Resource is defined via a Predicate. Its address is computed via `hash(Predicate)`.
+The Resource Logic is tied to a specific Proof System for shielded `ptx`s, since it influences fungibility of the Resources. Evaluating plaintext circuits for Transparent `ptx`s should always be possible.
+
+The Resource Logic specifies under which conditions `Resources` that carry it can be created and consumed. For a fungible token, for example, new tokens may be created with a valid signature from the issuing identity and they may be spent/consumed with a valid signature from the identity which currently owns them.
+
+**Note:** The only semantic differentiation between Predicates relevant to Applications is between ones that are static and influence fungibility and ones that are dynamic and don't influence fungibility.
+
+
+
+### Static Resource Data
+
+#### Prefix
+
+
+### Dynamic Resource Data
+
+#### Suffix
+
+### Resource Types
+The Type of a Resource and its fungibility, is determined by the Resource Logic and Static Resource Data.
 
 #### Resource Name
 The Name of a Resource is the concatenation of Prefix and Suffix.
 
-#### Resource Key
-The `key` of a resource is computed via `hash(resource)`.
+#### Resource Address
+The `Address` of a Resource is computed via `hash(resource)`.
 
-### Predicates
-A Predicate encodes constraints for `Transactions` . We differentiate between Predicates that encode `Resource Logic`s, and all other predicates, which we call `dynamic Predicates`. They only differ in the semantics we ascribe to them: `Resource Logic`s describe constraints that are static across transactions for the `Resources` that carry them, `dynamic Predicates` can do that as well, but it is not required. The interfaces to them, and constraints they can describe should be equivalent.
 
-#### Resource Logic
-The Resource Logic of a Resource is defined via a static Predicate. Its address is computed via `hash(Predicate)`.
-The Resource Logic is tied to a specific Proof System for shielded `ptx`s, since it influences fungibility of the Resources. Evaluating plaintext circuits for Transparent `ptx`s should always be possible.
+## Predicates
+A Predicate encodes constraints for how `Resources` can be used in a `partial transaction`. 
 
-The Resource Logic specifies under what conditions `Resources` of that type can be created and consumed. For a fungible token, for example, new tokens may be created with a valid signature from the issuing identity and they may be spent/consumed with a valid signature from the identity which currently owns them.
+The only classes of `Predicates`, relevant to the Resource Management System are `Resource Logics`s which influence fungibility of tokens, and `Dynamic Predicates`, which do not. The latter are called `Dynamic` because they can differ within a `Resource Type`.
 
-**Note:** The only semantic differentiation between Predicates relevant to Applications is between ones that are static and influence fungibility and ones that are dynamic and don't influence fungibility.
-
-### Partial Transaction (ptx)
+## Partial Transaction (ptx)
 A shielded `ptx` has _k_ (currently _k_ = 2) input and _k_ output resources. Shielded `ptx`s can be cascaded, if larger input and output sets are needed.
 
 A transparent `ptx` can have arbitrary size input and output sets, but for some use-cases where proofs and nullifiers are needed it might need to be decomposed into compatible cascaded shielded `ptx`s.
@@ -133,7 +149,7 @@ TODO: Explain that usually, we want to send around Headers containing only Conte
 
 ```haskell=
 data Resource = Resource {
-  resource_logic :: ResourceLogic,
+  resource_logic :: ContentHash,
   resource_data_static :: ResourceDataStatic,
   resource_data_dynamic :: ResourceDataDynamic,
 }
@@ -175,14 +191,13 @@ This struct contains everything which _is not_ relevant to the fungibility of th
 Mandatory fields:
 - The dynamic `Suffix` identifying the version of the `Value` of the Resource. Should always be a nonce.
 - The list of `Controllers`for the Resource.
-- The `Value` of the encoded `Resource` represented by a ByteString (i.e. the current content of the Memory behind the address).
+- The `Value` of the `Resource` represented by a ByteString (i.e. the current content of the "Memory Cell" at the Resource Address).
 - An integer valued `Quantity`, to determine balance in `tx`s using fungible `Resources`.
 
 Examples of optional data:
-- Dynamic (components of) Predicates, such as:
+- Dynamic (components of) Predicates, such as: **TODO: Give examples**
     - Optional Predicates to determine ownership of the resource being encoded.
     - Predicates derived from user Intents, used as side constraints for solvers or the Execution Engine.
-    - **Note: Do we want to move these to a separate field, e.g. dynamic_predicate(s)?**
 - All dynamic information relevant to Taiga verification. TODO: Add example for that.
 - The Transaction Execution Logic (TODO: Are there cases where we might want this in resource_data_static?)
 

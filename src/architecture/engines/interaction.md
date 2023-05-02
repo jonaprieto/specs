@@ -4,3 +4,12 @@ Inputs: User instructions (trusted) incl. intents (abstract?), queries, sub/unsu
 Outputs: query results, intent execution results, relevant state changes, 
 Preferences: 
 Accounting: 
+
+
+~
+
+interaction engine is responsible for interfacing with physical local system
+local randomness, local input
+even local storage?
+only part that does I/O
+

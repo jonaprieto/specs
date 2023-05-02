@@ -1,3 +1,18 @@
+Without loss of generality,
+
+- Agents run Turing machines
+- Conditional commitments to information flows
+
+```haskell
+type Intent = (History -> Action -> Bool)
+```
+
+(action could also be broadcast another intent)
+
+```haskell
+type Intent = 
+```
+
 Anoma aims to allow _agents_ to:
 
 - Create, validate, and merge cryptographically content-addressed histories.

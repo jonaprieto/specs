@@ -9,3 +9,5 @@ examples:
 - automatically grant kudos for trade between compute, storage, network resources
 - automatically rebalance kudo portfolio 
 - decide whether to use locally controlled liquidity for solving
+
+trust preferences

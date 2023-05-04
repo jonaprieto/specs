@@ -29,19 +29,17 @@ In the case of two _conflicting_ transactions, where the rightmost controller(s)
 
 Agents, then, have _safe finality_ under the assumption of correct behavior of the leftmost controller from whom they have obtained a signature.
 
-## State Frontier
+## Resource Frontier
 
-From the Resource Logic DAG, we can also derive the state frontier of the whole graph or subgraphs, which consists of all resources which have been created but not consumed at that point in logical time.
+For Linear Resources, we can also derive the Resource frontier of the whole graph or subgraph(s), which consists of all resources which have been created but not consumed at that point in logical time. 
+
+For Non-Linear Resources, the Frontier contains all Resources ever created.
 
 ## Resource Reference 
 
-A `Resource Reference` is defined by the `hash(resource_logic, resource_data_static, prefix)` of a resource. 
+A `Resource Reference` is defined as the Resource Frontier of the Resources inhabiting a specific Resource Type.
 
-It can be seen as the subgraph containing the mutable (append only) history of resources which are fungible with each other, including the current state frontier. For linear Resources, this frontier should be a single element, for every period in which it is considered to be final and consistent.
-
-## Referred State
-
-The State Frontier of a Resource Reference is called `Referred State`. 
+More specific references can be defined at higher layers, using entries in static or dynamic `extra_data` fields.
 
 ## Delayed execution transactions
 

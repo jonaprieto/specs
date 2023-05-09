@@ -122,7 +122,7 @@ A transparent `ptx` can have arbitrary size input and output sets, but for some 
 
 A similar approach can be used to compute a set of shielded `ptx`s simultaneously, for some potential efficiency gain.
 
-A `ptx` is also the scope for a `Predicate`.
+A `ptx` is the scope for `Resource Logic`s and `Dynamic Predicates`, the validity Proof of the `ptx` is computed by Taiga and stored in the `proof` field.
 
 A partial transaction is _valid_ if and only if the predicates of all the resources consumed and created are valid.
 
@@ -130,9 +130,11 @@ A partial transaction is _valid_ if and only if the predicates of all the resour
 data PartialTx = PartialTx {
   input_resources :: [Resource],
   output_resources :: [Resource],
+  proof :: ByteString,
 }
 ```
 
+> TODO: Do we want extra_data for `ptx`s as well?
 > TODO: Do we want Executable for `ptx`s? How would they look like?
 
 ```haskell=
@@ -248,7 +250,7 @@ Optional Step: The Executables from the TEL for the Execution Engine are run. E.
 Once Validation and Optional Execution are done, the last remaining step is to:
 
 ### *Apply Transaction*
-The Transaction gets applied by Typhon: Resources and Nullifiers are added to their respective trees.
+The Transaction gets applied by Typhon: Commitments and Nullifiers are added to their respective trees.
 
 ### Executed/Applied Transaction
 The Transaction has been applied.

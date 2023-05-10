@@ -1,1 +1,0 @@
-# Blockchain systems architecture

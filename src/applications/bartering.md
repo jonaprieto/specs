@@ -1,0 +1,3 @@
+# Bartering
+
+General case.

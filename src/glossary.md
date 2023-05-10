@@ -1,11 +1,11 @@
 # Glossary
 
-# Anoma protocol
+## Anoma protocol
 
 The Anoma protocol is the logical framework which [agents](#agents) use to read,
 create, and process [messages](#message).
 
-# Agent
+## Agent
 
 An *agent* is a non-deterministic, stateful entity which can send and receive
 messages.
@@ -25,26 +25,26 @@ The concept of _agent_ is similar to that of _process_ as used in the distribute
 The latter is especially important as *causal accounting* requires correspondence between the state of the system and state of the world, a correspondence which can only be maintained as a product of individual data inputs by agents which themselves correspond in local ways, as the protocol itself has no knowledge of the state of the world.
 -->
 
-Read more about agents in the [conceptual context](architecture/conceptual-context.md).
+Read more about agents in the [conceptual context](scope/conceptual-context.md).
 
 
-# Canonical serialization
+## Canonical serialization
 
 A *canonical serialization* refers to a standardized way of representing data or
 functions as a series of bytes that can be transmitted across a network.
 
 Canonical serialization are fully discussed in [Prerequisites Primitives](#canonical-serialization)
 
-# Turing-equivalent
+## Turing-equivalent
 
 "Turing-equivalent" means that the functions and data being transmitted can be
 computed by a Turing machine, a well-known theoretical model of computation.
 
-# Message
+## Message
 
 A *message* is any datum sent between agents.
 
-# State
+## State
 
 A *state* may refer to the state of an agent, the state of the world, or the state of the system.
 
@@ -53,12 +53,12 @@ A *state* may refer to the state of an agent, the state of the world, or the sta
 - The *state of the system* is a function of the decisions taken by agents
 over (partially ordered) time.
 
-- The *state of the world* is the set of 
+- The *state of the world* is the set of
 data related to the "real world" that is observed by and of interest to the agents.
 
-# System
+## System
 
 A *system* is a virtual environment which
 consists of a set of agents interacting with each other.
 
-Read more about the world in the [conceptual context](architecture/conceptual-context.md).
+Read more about the world in the [conceptual context](scope/conceptual-context.md).

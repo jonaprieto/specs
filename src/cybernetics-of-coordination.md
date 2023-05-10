@@ -1,1 +1,0 @@
-# Cybernetics of coordination

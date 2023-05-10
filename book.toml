@@ -15,7 +15,7 @@ additional-js = ["assets/mermaid.min.js", "assets/mermaid-init.js"]
 
 [output.html.fold]
 enable = true
-level = 1
+level = 0
 
 [output.html.search]
 expand = true

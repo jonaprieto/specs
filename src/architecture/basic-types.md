@@ -12,9 +12,8 @@ Parameters are external input to the system, or derived from the combination of 
 
 > Note: Although this document does not use the language or process and cannot claim a similar depth of expertise, we have taken some inspiration from Conal Elliot's [denotational design](https://www.typetheoryforall.com/2022/08/04/21-Conal-Eliott-2.html).
 
-- [Identity](./layers/identity.md)
-- [Network](./layers/network.md)
-- [Resource Management](./layers/resources.md)
-- [Physical DAG](./layers/physical-dag.md)
-- [Logical DAGs](./layers/logical-dags.md)
-- [Entanglement](./layers/entanglement.md)
+- [Identity](./basic-types/identity.md)
+- [Resource Management](./basic-types/resource.md)
+- [Physical DAG](./basic-types/physical-dag.md)
+- [Logical DAG](./basic-types/logical-dag.md)
+- [Entanglement](./basic-types/entanglement.md)

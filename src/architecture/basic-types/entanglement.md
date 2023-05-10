@@ -8,7 +8,7 @@ _Entanglement_ is a relation that maps a pair of identities to a scalar. Differe
   - _Mutual liquidity_ is a measure of degree of interconvertability of two cryptographic kudo denominations.
   - _Mutual volume_ is a measure of degree of exchange of two cryptographic kudo denominations.
   - _Mutual price_ is a measure of degree of asymmetry of two cryptographic kudo denominsations.
-- _Physical latency entanglement_, which can be sampled (purely locally) from the [physical network abstraction layer](./network/network-abstraction-layer.md), is a measure of physical distance (latency).
+- _Physical latency entanglement_, which can be sampled (purely locally) from the physical network abstraction layer, is a measure of physical distance (latency).
 
 As an external output of the system, entanglement measures can be used to inform ranking and choice in the external world. For example, directed follower entanglement or friendship entanglement might be used to select and order information displayed on a user interface, while mutual liquidity might be used to make a decision about trustworthiness or resource access control. Different measures of entanglement are suited for different purposes, and non-fungibility of entanglement measures is essential, as this allows the system to model a higher-dimensionality identity relationship space. Entanglement can usually be proved from the logical DAG (local physical latency is an exception here) to a third party without revealing any other information (possibly with a ZKP).
 

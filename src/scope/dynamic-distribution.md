@@ -21,10 +21,10 @@ class Monad m => AgentContext m where
 A `Message` is the lowest layer type, sent around between agents over the network using `send` and received with `onRecv`. A message consists of a set of payloads, which are self-describing in the sense that the receiver can recognize payloads which they care about upon receipt of the message. The set of payloads is strictly a set (there is no information implied about ordering). A message may include any number of payloads with the same type, and payloads of any combination of types. In general, receiving one message with multiple payloads `{p1, p2, p3...}` is equivalent to receiving many individual messages with payloads `{p1}`, `{p2}`, `{p3}`, etc.; i.e., including multiple payloads is simply a convenient batching technique.
 
 Payload types include, but are not limited to:
-- `Network` P2P metadata requests and responses for [physical network abstraction](./network/network-abstraction-layer.md)
-- `Storage` read/write requests and responses for the [distributed content-addressed data storage layer](./network/distributed-content-addressed-storage.md)
-- `Compute` requests and responses for the [distributed content-addressed compute cache layer](./network/distributed-content-addressed-compute.md)
-- `Observation`s, which capture partial ordering information used to craft the [physical DAG](./physical-dag.md)
+- `Network` P2P metadata requests and responses for [physical network abstraction](./dynamic-distribution/distributed-routing.md)
+- `Storage` read/write requests and responses for the [distributed content-addressed data storage layer](./dynamic-distribution/distributed-storage.md)
+- `Compute` requests and responses for the [distributed content-addressed compute cache layer](./dynamic-distribution/distributed-compute.md)
+- `Observation`s, which capture partial ordering information used to craft the physical DAG.
 
 Messages may also include an optional external identity and signature, both referenced by hash, where the signature is over the Merkle root of all the payloads. 
 

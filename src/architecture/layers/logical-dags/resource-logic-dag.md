@@ -27,7 +27,7 @@ A transaction is _final_ w.r.t. a physical DAG `D` if and only if:
 In the case of two _conflicting_ transactions, where the rightmost controller(s) `c` did not totally order them, resolution is defined as:
 - the transaction ordered first by the rightmost controller after dropping the last element of the list, or in case of another conflict (by them), drop the last element of the list and repeat. if the end of the list is reached, both transactions are valid (this may violate linearity guarantees), and we rely on some sort of out-of-band fault resolution
 
-Agents, then, have _safe finality_ under the assumption of correct behavior of the leftmost controller from whom they have obtained a signature.
+Agents, then, have _safe finality_ under the assumption of correct behavior of the earliest controller in the list from whom they have obtained a signature.
 
 ## Resource Frontier
 
@@ -37,7 +37,7 @@ For Non-Linear Resources, the Frontier contains all Resources ever created.
 
 ## Resource Reference 
 
-A `Resource Reference` is defined as the Resource Frontier of the Resources inhabiting a specific Resource Type.
+A `Resource Reference` is defined as the Resource Frontier of the Resources inhabiting a specific Resource Type. Typically these will be used for Types with only one inhabitant at each time in history.
 
 More specific references can be defined at higher layers, using entries in static or dynamic `extra_data` fields.
 

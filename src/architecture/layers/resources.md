@@ -3,45 +3,57 @@
 This section specifies the building blocks of the Resource Management System that constitutes the contents of Messages and the substrate on which higher layers (e.g. logical DAGs representing some kind of State) are built.
 
 ## Addresses
-Addresses of Resources and other objects, e.g. Resource Logics/Predicates, are computed via `hash(object)`. They are also used for Content Addressed Storage.
-
+Addresses of Resources and other objects, e.g. Resource Logics/Predicates, are computed via `hash(object)`. They are also used for Content Addressed Storage. Each field of an object should be individually hashed to provide content addressing for all elements of all layers.
 ## Resources
 Resources are the atomic units of the system.
 
 ```haskell=
-data Resource = ResourceHeader {
-  resource_logic :: ContentHash,
-  resource_data_static :: ContentHash,
-  resource_data_dynamic :: ContentHash,
+data Resource = Resource {
+  header :: ResourceHeader,
+  body :: ResourceBody,
 }
 
-data Resource = ResourceBody {
-  resource_logic :: Predicate,
-  resource_data_static :: ResourceDataStatic,
-  resource_data_dynamic :: ResourceDataDynamic,
+data ResourceHeader = ResourceHeader {
+  resource_logic :: ContentHash,
+  prefix :: ContentHash,
+  suffix :: ContentHash,
+  quantity :: ContentHash,
+  value :: ContentHash,
+}
+
+data ResourceBody = ResourceBody {
+  resource_logic :: ResourceLogic,
+  prefix :: [ContentHash],
+  suffix :: Nonce,
+  quantity :: Natural,
+  value :: ByteString,
 }
 ```
 
-Each one carries a unique Suffix, providing a partially ordered history of the immutable Resources that inhabited a type can be derived this way.
+The dynamic resource data includes a unique Suffix, providing a partially ordered history of the immutable Resources that inhabited a type can be derived this way.
 
 ### Resource Types and Fungibility
-The Type of a Resource, is determined by the Resource Logic and Static Resource Data. Resources of the same type are fungible (i.e. interchangeable) when determining balance at the scope of a Transaction.
+The Type of a Resource, is determined by its Resource Logic and Prefix. Resources of the same type are fungible (i.e. interchangeable) when determining balance at the scope of a Transaction.
 
+
+### Resource Logic (RL)
+The Logic of a Resource is defined via a Predicate and its Arguments. It specifies under which conditions `Resources` that carry it can be created and consumed. 
 ```haskell=
 data ResourceLogic = ResourceLogic {
-   predicate :: ptxData -> Bool,
-}
-
-data ResourceDataStatic = ResourceDataStatic {
-  prefix :: [ContentHash],
-  proof_system :: ByteString,
-  extra_data :: Map ContentHash ByteString,
+  predicate :: ptxData -> Bool,
+  arguments :: ByteString,
 }
 ```
 
+Predicate Arguments must contain information about the Proof System and Controllers and can contain information about Identities and anything else is supposed to influence fungibility.
 
-#### Resource Logic (RL)
-The Logic of a Resource is defined via a Predicate. It specifies under which conditions `Resources` that carry it can be created and consumed. The scope of an RL is a Partial Transaction and contains all Data carried by the resources which are consumed and created in it.
+The scope of a Resource Logic is a Partial Transaction and contains all Data carried by the resources which are consumed and created in it.
+
+```haskell=
+data ptxData = ptxData {
+  resources :: [Resource],
+}
+```
 
 Creation of new Resources happens via Ephemeral Resources inside a partial transaction. Ephemeral meaning that they count towards balance, but are not stored long term, though the proof for their validity is. TODO Taiga: Is this correct?
 
@@ -54,40 +66,24 @@ The proof system and functional commitment scheme determine the type of privacy 
 
 TODO: How do we carry proofs and commitments through the transaction lifecycle? Do we store them with the ptx's which created them?
 
-#### Extra Data
-This can contain information about External Identities or other things relevant to the validation of the RL.
-
-#### Prefix
+### Prefix
 The Prefix encodes information that not affect the behavior of the Resources inhabiting it, but determines a unique subtype with the same behaviors. It can for example be a set of Random Hashes or contain the Addresses of parties relevant to higher layers, e.g. Originator and Intended users of a Resource Type.
-
-### Dynamic Data
-Any data that is relevant to the system, but not supposed to influence fungibility of a Resource goes here.
-
-```haskell=
-data ResourceDataDynamic = ResourceDataDynamic {
-  suffix :: ContentHash,
-  controllers :: [ExternalIdentity],
-  value :: ByteString,
-  quantity :: Natural,
-  extra_data :: Map ContentHash ByteString,
-}
-```
 
 ### Suffix
 The Suffix must be a nonce within the scope determined by a Prefix, to uniquely identify each resource.
 
 // TODO: What exactly should the suffix be? Should it always be a the output of a hash function, or just a bytestring of equivalent size? Should it be only one Hash size wide, or potentially a list as well?
 
-#### Value
-The `Value` of the `Resource` is represented by a ByteString (i.e. the current content of the "Memory Cell" at the Resource Address) to be parsed at the application level.
-
-#### Quantity
+### Quantity
 Resources carry an integer Quantity. Resources with quantity > 1 can be split into an arbitrary amount of Resources of the same Type with Quantity of at least = 1. The splitting of Resources happens via `ptx`s using Ephemeral Resources as a dummy input.
+
+
+### Value
+The `Value` of the `Resource` is represented by a ByteString (i.e. the current content of the "Memory Cell" at the Resource Address) to be parsed at the application level.
+It can contain information about the current owner as well as additional dynamic predicates, or Identies.
 
 #### Owner
 The current owner of a Resource. The Resource Logic can require a Signature of the owner for e.g. consumption of the Resource.
-TODO: Does this go into extra_data?
-TODO: Single owner or List
 
 #### Controllers
 Controllers are the Identities (e.g. consensus providers) that determine the order of (p)txs including the given Resource. The first controller in the list is known as the resource originator.
@@ -132,8 +128,11 @@ data PartialTx = PartialTx {
   output_resources :: [Resource],
   nullifiers :: Set Nullifier,
   proof :: ByteString,
+  extra_data :: Map ContentHash ByteString,
 }
 ```
+
+Extra data can contain e.g. additional signatures and messages.
 
 > TODO: Do we want extra_data for `ptx`s as well?
 > TODO: Do we want Executable for `ptx`s? How would they look like?
@@ -159,7 +158,7 @@ Nullifiers can always be derived from the plaintext body of a resource and need 
 ## Transactions (tx)
 Transactions provide the notion of balance for a set of `ptx`s, as well as validity for all their Predicates.
 
-A transaction is _balanced_ if and only if the input and output sets of each Resource Type are of the same size.
+A transaction is _balanced_ if and only if the input and output sets of each Resource Type are of the same size, taking quantities into account.
 
 A transaction is _valid_ if and only if the `ptx`s it contains are valid and it is balanced.
 

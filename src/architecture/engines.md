@@ -19,3 +19,15 @@ Structuring the implementation as a composition of engines has many benefits:
 
 Important notes:
 - Engines are _logical_ processes, not physical ones. Any mapping of logical to physical processes is possible as long as the logical properties are adhered to.
+
+Engines:
+- [P2P](./engines/p2p.md)
+- [Mempool](./engines/mempool.md)
+- [Consensus](./engines/consensus.md)
+- [Execution](./engines/execution.md)
+- [Storage](./engines/storage.md)
+- [Compute](./engines/compute.md)
+- [Solver](./engines/solver.md)
+- [Identity](./engines/identity.md)
+- [Strategy synthesis](./engines/strategy-synthesis.md)
+- [Interaction](./engines/interaction.md)

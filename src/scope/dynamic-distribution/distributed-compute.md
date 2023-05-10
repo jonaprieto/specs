@@ -1,4 +1,4 @@
-# Distributed content-addressed compute
+# Distributed compute
 
 The distributed content-addressed compute layer is responsible for providing a simple interface for delegating computation: agents, voluntarily, elect to perform computations for other agents, content-addressed by a hash of the data being computed over and a predicate relation which must be satisfied over the data and computational result.
 

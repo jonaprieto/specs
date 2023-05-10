@@ -13,3 +13,9 @@ local randomness, local input
 even local storage?
 only part that does I/O
 
+
+
+- randomness
+    - should come from interaction engine only
+    - whole system should be deterministic otherwise
+    - time should also come from interaction engine

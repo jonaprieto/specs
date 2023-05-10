@@ -1,4 +1,4 @@
-# Solving
+# Solver
 
 Inputs: intents
 Outputs: partially/fully matched intents

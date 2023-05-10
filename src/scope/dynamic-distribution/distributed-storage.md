@@ -1,4 +1,4 @@
-# Distributed content-addressed storage
+# Distributed storage
 
 The distributed content-addressed data storage layer is responsible for providing a very simple read/write storage interface: agents, voluntarily, elect to store data blobs, content-addressed by hash. Agents can ask other agents to retrieve data with a `StorageRead` call, providing the hash, and agents can ask other agents to store data with a `StorageWrite` call, providing the data as a binary blob, where the address at which to store the data is calculated with the standard `hash`. Upon retrieving data with a `StorageRead` call, agents can check that they received the correct data by checking that `hash(data)` is equal to the address they requested data for.
 

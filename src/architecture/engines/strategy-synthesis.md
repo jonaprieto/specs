@@ -1,4 +1,4 @@
-# Preference
+# Strategy synthesis
 
 Inputs: user instructions
 Outputs: intents, decisions

@@ -1,3 +1,5 @@
+# Dynamic distribution
+
 # Network
 
 Agents can send messages to each other by `send(identity, msg)` where `identity` is an external identity, and they can handle received messages with some `onRecv(msg)` (to which messages addressed to them will be sent). We assume an asynchronous physical network in the general case, where liveness with regard to some message set and some agents will require eventual receipt of all messages in the set by the agents in question.

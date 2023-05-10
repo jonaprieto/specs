@@ -43,7 +43,7 @@ jobs:
     - name: Install texlive
       uses: ConorMacBride/install-package@v1
       with:
-        apt: texlive texlive-latex-extra texlive-fonts-extra texlive-science texlive-xetex librsvg2-bin
+        apt: texlive texlive-latex-extra texlive-fonts-extra texlive-science texlive-xetex tex-gyre librsvg2-bin
     - name: Install pandoc
       uses: pandoc/actions/setup@v1
     - name: Install pandoc-include

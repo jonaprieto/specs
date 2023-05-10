@@ -10,7 +10,7 @@ metadata:
   toc-title: Table of Contents
 
 #  documentclass: llncs
-#  mainfont: DejaVuSerifCondensed
+  mainfont: TeX Gyre Pagella
 
   tables: true
   include-entry: src

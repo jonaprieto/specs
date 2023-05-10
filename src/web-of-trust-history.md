@@ -1,1 +1,0 @@
-# Web-of-trust history

@@ -130,6 +130,7 @@ A partial transaction is _valid_ if and only if the predicates of all the resour
 data PartialTx = PartialTx {
   input_resources :: [Resource],
   output_resources :: [Resource],
+  nullifiers :: Set Nullifier,
   proof :: ByteString,
 }
 ```
@@ -149,7 +150,11 @@ Transparent `ptx`s are shielded `ptx`s for which we preserve the plaintext input
 
 They can still be encrypted for specific recipients.
 
-We still compute commitments, proofs and nullifiers, to preserve composability of Transparent and Shielded Partial Transactions downstream.
+## Commitments and Nullifiers
+When a shielded transaction gets executed, the commitments of the resources (equivalent to the Resource Address) created by it are recorded by the consensus provider.
+A verifiable encryption scheme should be used to prove to the consensus provider correspondence between the commitment submitted and an encrypted resource with the new owner as recepient. This encrypted resource can be stored by the consensus provider to guarantee that the recepient can fetch it. 
+
+Nullifiers can always be derived from the plaintext body of a resource and need to be included in the `ptx` consuming them.
 
 ## Transactions (tx)
 Transactions provide the notion of balance for a set of `ptx`s, as well as validity for all their Predicates.

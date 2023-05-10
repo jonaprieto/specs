@@ -1,6 +1,6 @@
 # Resource logic DAGs
 
-> Note: For details about the implementation of `Resources`see [Resource Management](../resources.md).
+> Note: For details about the implementation of `Resources`see [Resource Management](../resource.md).
 
 The resource logic DAG provides an abstraction of a _linear resource logic_ with which distributed applications can model finite objects. This logic is based on a concept of a _resource_, which is a unique datum created at a particular point in logical time and possibly consumed later in logical time. Each resource is an instance of a particular _resource logic_, which specifies how (under what conditions) resources of that type can be created and consumed. The resource logic DAG tracks when resources are created and when they are consumed. Resources are only allowed to be consumed after they have been created.  At any point in logical time, the resource logic DAG has a state consisting of all resources which have been created but not consumed. 
 
@@ -13,7 +13,7 @@ A _transaction_ in a resource logic DAG consists of a balanced set of partial tr
 
 > TODO: Describe the structural correspondence of `ptx`s to partially applied functions.
 
-> Note: For validation criteria of Transactions, see [here](../resources.md#Transactions (tx)).
+> Note: For validation criteria of Transactions, see [here](../resource.md#Transactions (tx)).
 
 A transaction is _consistent_ w.r.t. a physical DAG `D` if and only if:
 - All consumed resources were previously created by a transaction in the history, which was itself (recursively) consistent and final

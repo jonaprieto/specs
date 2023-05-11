@@ -1,144 +1,245 @@
 # Execution
 
-Input: execution instructions
-Output: execution results
+Inputs:
+- transactions (from [Mempool](mempool.md))
+- partial transaction ordering information (from [Mempool](mempool.md))
+- total transaction ordering information (from [Consensus](consensus.md))
+
+Outputs:
+- execution results, including state reads (for clients)
+- garbage collection information (for [Mempool](mempool.md))
+
 Preferences: ?
+
 Accounting: executions actually performed, parallelization (perhaps)
 
 ---
 
 # Execution Engine
 ## Summary
-Given a total order (from the [consensus](consensus.md)) of transactions (from the [mempool](mempool.md)), the execution engine updates and stores the "current" state of the virtual machine, using as much concurrency as possible. 
-Proofs from the execution engine allow light clients to read the current state.
+Given a total order (from the [consensus](consensus.md)) of transactions (from the [mempool](mempool.md)), the execution engine updates and stores the "current" state of the [replicated state machine](https://en.wikipedia.org/wiki/State_machine_replication), using as much concurrency as possible. 
+Outputs from the execution engine allow light clients to read the current state.
 When the execution engine has finished with a transaction, it communicates to the [mempool](mempool.md) that the transaction can be garbage-collected from storage. 
 
-
-## Vocabulary
-- *Shards* are processes that store and update state.
-  - Different shards may be on different machines. Redistributing state between shards is called *Re-Sharding*.
-  - Each Shard is specific to 1 learner.
-    However, as an optimization, an implementation could conceivably use 1 process to do the work of 2 shards with different learners so long as those shards are identical, and fork that process if / when the learners diverge. 
-
-- *Executors* are processes that actually run the VM and compute updates. Executors should probably be co-located with shards. 
-
-Either:
-- We assume the [Mempool](mempool.md) is using the Heterogeneous Narwhal setup?
-  - In which case *Consensus* picks leaders in the DAG
-- [Mempool](mempool.md) is treated as some kind of black-box set of processes that can each transmit transactions to Shards. 
-  - In which case *Consensus* produces more detailed ordering information
-Perhaps we should have some general notion of *Timestamp* on transactions?
-
-The *VM* is largely a black box: we assume we can give it a set of input key-value pairs and a transaction, and get output key-value pairs. 
-
 ## State
-State is stored as mutable *Values* (unlimited size blobs of binary), each of which is identified with an immutable *Key*.
-If you want to mutate a Key associated with a specific Value, that's equivalent to deleting the Value associated with the old Key, and writing it to the new Key. 
-Keys that have never had a Value written to them are mapped to an empty value. 
+State is stored as mutable *Data* (unlimited size blobs of binary), each of which is identified with an immutable *Key*.
+If you want to mutate a Key associated with specific Data, that's equivalent to deleting the Data associated with the old Key, and writing it to the new Key. 
+Keys that have never had Data written to them are mapped to an empty value. 
 
-For each Learner, all processes can map Transactions to a set of Shards whose state they read, and a set of shards whose state they write.
+
+
+Keys can have structure.
+For example, we can arrange them in a forest, to allow us to easily express sub-trees using prefixes. 
+This would allow labels to express potentially infinite sets of keys in a compact way. 
 This makes Re-Sharding challenging. 
 
-```
-read(L : Learner, T : Transaction) : Set[Shard]
+## State Machine API
+<p><img src="state_machine_API_web.svg" width=750 /></p>
 
-write(L : Learner, T : Transaction) : Set[Shard]
-```
+### Transaction Labels 
 
-One way to implement this is to *partition* the space of Keys across Shards, and *Label* each Transaction with a *Sub-Space* of keys it touches. 
-One possible Key-space would be to arrange *Keys* in some kind of tree configuration.
+For each Learner, transactions are *labeled* with a set of keys they can read, and a set of keys they can write. 
 
-## Mempool Interface
-We assume, for each Learner, that each transaction has a unique Executor:
-$$
-executor(L : Learner, T : Transaction) : Executor
-$$
-It would be more efficient if $executor(L, T)$ is co-located with a shard in $write(L, T)$ or $read(L, T)$.
-As an optimization, we can have one process do the work of multiple learners' executors, so long as those learners are identical. 
+\\(read : \left\langle Learner, Transaction \right\rangle \rightarrow \left\\{Key\right\\}\\)
 
-We assume that each transaction carries a timestamp:
-$$
-timestamp(T : Transaction) : Timestamp
-$$
-We assume that these timestamps have an *unknown* total order, and that Consensus and the Mempool can update Shards' knowledge of this total order. 
-In particular, we assume that Consensus informs shards of an ever-growing prefix of this total order. 
-- One way to accomplish this is simply to have each timestamp be the hash of the transaction, and have consensus stream a totally ordered list of all hashes included in the chain to all Shards. This may not be very efficient. 
-- We could instead consider one timestamp to be definitely *after* another if it is a descendent in the Narwhal DAG. Narwhal workers could transmit DAG information to Shards, and shards would learn some partial ordering information before hearing from Consensus. Consensus could then transmit only the Narwhal blocks it decides on, and shards could determine a total ordering from there. 
+\\(write : \left\langle Learner, Transaction \right\rangle \rightarrow \left\\{Key\right\\}\\)
 
-The Mempool transmits each transaction to its executor as soon as possible, using network primitives. 
-The for each transaction $T$ that reads or writes state on shard $S$, the Mempool *also* transmits to shard $S$:
-$$
-shardSummary(T) := \left\langle
-\begin{array}{l}
- \textrm{the Hash of }T
-\\ timestamp(T)
-\\ \textrm{the sub-space of keys on }S\textrm{ that }T\textrm{ reads}
-\\ \textrm{the sub-space of keys on }S\textrm{ that }T\textrm{ writes}
-\end{array}
-\right\rangle
-$$
+### Executor Function 
+
+In order to define a state machine for use with Typhon, we require an *Executor Function*:
+
+\\(executor\\_function : \left\langle\left(Key \rightarrow Data\right), Transaction\right\rangle \rightarrow \left( \left\\{\left\langle Key , Data \right\rangle\right\\}, IO \right)\\)
+
+Inputs:
+- the previous state, represented as a function from Keys to Data
+- the Transaction text itself
+
+Outputs:
+- the new \\(\left\langle Key, Data\right\rangle\\) pairs to be written to state.
+  - Naively, these must include all the Keys in \\(write(L,T)\\), but perhaps we can make a special optimization for "don't actually update this Key," even if we can only do it for keys in \\(read(L,T)\cap write(L,T)\\).
+  - This new state must be a deterministic result of the inputs
+- Some IO side-effects, including sending messages to clients or whatever.
+
+## Execution Engine Architecture
+Our architecture is heavily inspired by [Calvin: Fast Distributed Transactions for Partitioned Database Systems](http://cs.yale.edu/homes/thomson/publications/calvin-sigmod12.pdf).
+It facilitates concurrency while maintaining [serializability](https://en.wikipedia.org/wiki/Serializability) using the [mempool](mempool.md) and [consensus](consensus.md) components as a sequencer. 
 
 
-We assume that each Shard maintains Timestamps bound below which it will no longer receive new transactions.
-Specifically, a timestamp below which it will no longer receive new transactions that read from its state, and a timestamp below which it will no longer receive new transactions that write to its state. 
-$$
-heardAllRead(S : Shard) : Timestamp
-$$
-$$
-heardAllWrite(S : Shard) : Timestamp
-$$
-Generally, we expect that $heardAllWrite(S) > heardAllRead(S)$, but I don't know that we require this to be true. 
-It should update this bound based on information from the Mempool. 
-For example, it could maintain partial bounds from each mempool worker (updated whenever that mempool worker sends the Shard a message), and implement $heardAllRead$ and $heardAllWrite$ as the greatest lower bound of all the partial bounds. 
+### Timestamps
+Each Transaction has a *Timestamp* which conveys ordering information relative to other transactions. 
+Timestamps, and thus transactions, are partially ordered.
+As shards learn more information from [consensus](consensus.md) or the [mempool](mempool.md), they are able to refine this partial order until it is a total order. 
+For [Heterogeneous Narwhal](mempool.md), these timestamps may be tuples of \\(\left\langle validator\\_id, block\\_header\\_height, transaction\\_hash\right\rangle\\)
+
+### Shards
+*Shards* are processes that store and update state.
+Different shards may be on different machines. Redistributing state between shards is called *Re-Sharding*.
+Each Shard is specific to 1 learner.
+However, as an optimization, an implementation could conceivably use 1 process to do the work of multiple shards with different learners so long as those shards are identical, and fork that process if / when the learners diverge. 
+
+For each Key, each Shard maintains a (partially-ordered) timeline of Timestamps of Transactions that read or write to that Key.
+Shards also store the data written by each transaction that writes to that Key. 
+This is [multi-version concurrent storage](https://en.wikipedia.org/wiki/Multiversion_concurrency_control). 
+
+### Executor Processes
+*Executor Processes* are processes that actually run the Executor Function and compute updates.
+Executor Processes can be co-located with shards. 
+The Execution Engine might keep a pool of Executor Processes, or spin a new one up with each transaction. 
+
+### Life of a Transaction
+<p><img width=750 src="execution_architecture_web.svg" /></p>
+
+- When the [mempool](mempool.md) stores a transaction, the execution engine assigns an executor process, using that transaction's text. 
+- Once the [mempool](mempool.md) has assigned a timestamp to a transaction, it communicates that timestamp to each of the shards in the transaction's label, and establishes communication channels between the shards and teh transaction's executor process. 
+Each shard then stores that timestamp in its timeline.
+- For each key read, when the relevant Shard learns the precise data to be read at that time (identifies a unique previous transaction and learns the data written by that transaction), it communicates that data to the Executor process. 
+  - As an optimization, we may want to allow "lazy" reads
+- When it receives all the data it needs to read, the executor process runs the executor function in order to learn the values written. 
+  It then communicates these values to the relevant shards. 
+  - As an optimization, we may allow executor processes to start computing before all reads are available, if possible. 
+  - As an optimization, we may consider special writes such as "don't change this data," (which would only work for keys the transaction both reads and writes)
+- For each key written, the shard waits to receive data written from the executor process, and stores it. 
+
+## Serializable Transaction Execution
+We want to *execute* each transaction (evaluate the executor function in order to compute the data written) while preserving [serializability](https://en.wikipedia.org/wiki/Serializability): each transaction's reads and writes should be *as if* the transactions were executed in the order determined by [consensus](consensus.md). 
+We can imagine the simplest system as executing each transaction, after they're ordered by [consensus](consensus.md), sequentially, using the executor function. 
+However, we want to compute concurrently as possible, for minimum latency. 
+We do this using a set of optimizaitons.
+
+### Optimization: Per-Key Ordering
+
+<p>
+  <table>
+    <tr>
+      <td>
+        <img src="key.svg" width=250  />
+      </td>
+      <td>
+        <object width=500 data="keys_animated.svg" type="image/svg+xml">
+        </object>
+      </td>
+    </tr>
+  </table>
+</p>
+
+[Mempool](mempool.md) and [consensus](consensus.md) provide ordering information for the timestamps, so within each key, transactions can be totally ordered by a "Happens Before" relationship. 
+With a total ordering of transactions, keys can send read information to executors as soon as the previous transaction is complete. 
+However, transactions that don't touch the same keys can be run simultaneously. 
+In the diagram above, for example, transactions `c` and `d` can run concurrently, as can transactions `e` and `f`, and transactions `h` and `j`. 
+
+### Optimization: Order With Respect To Writes
+<p>
+  <table>
+    <tr>
+      <td>
+        <img src="key.svg" width=250  />
+      </td>
+      <td>
+        <object width=500 data="only_order_wrt_writes_animated.svg" type="image/svg+xml">
+        </object>
+      </td>
+    </tr>
+  </table>
+</p>
+In fact, shards can send read information to an executor process as soon as the previous write has completed. 
+All shards really need to keep track of is a total order of writes, and how each read is ordered with respect to writes (which write it happens before and which write happens before it). 
+As soon as the preceding write is complete, the reads that depend on it can run concurrently. 
+There are no "read/read" conflicts. 
+In the diagram above, for example, transactions `a` and `b` can run concurrently. 
+
+### Optimization: Only Wait to Read
+<p>
+  <table>
+    <tr>
+      <td>
+        <img src="key.svg" width=250  />
+      </td>
+      <td>
+        <object width=500 data="only_wait_to_read_animated.svg" type="image/svg+xml">
+        </object>
+      </td>
+    </tr>
+  </table>
+</p>
+Because we store each version written ([multi-version concurrent storage]), we do not have to execute writes in order. 
+A shard does not have to wait to write a later data version to a key just because previous reads have not finished executing yet. 
+In the diagram above, for example, only green "Happens Before" arrows require waiting. 
+Transactions `a`, `b`, `c`, and `j` can all be executed concurrently, as can transactions `d`, `e`, and `i`. 
 
 
-## Consensus Interface
-Consensus needs to update each Shard's knowledge of the total order of timestamps. 
-In particular, we assume that Consensus informs shards of an ever-growing prefix of this total order. 
-- One way to accomplish this is simply to have each timestamp be the hash of the transaction, and have consensus stream a totally ordered list of all hashes included in the chain to all Shards. This may not be very efficient. 
-- We could instead consider one timestamp to be definitely *after* another if it is a descendent in the Narwhal DAG. Narwhal workers could transmit DAG information to Shards, and shards would learn some partial ordering information before hearing from Consensus. Consensus could then transmit only the Narwhal blocks it decides on, and shards could determine a total ordering from there. 
+### Optimization: Execute With Partial Order
+Some [mempools, including Narwhal](mempool.md) can provide partial order information on transactions even before consensus has determined a total order. 
+This allows Typhon to execute some transactions before a total ordering is known. 
+In general, for a given key, a shard can send read information to an executor when it knows precisely which write happens most recently before the read, and that write has executed. 
 
-## Execution
-For each learner $L$, for each Transaction $T$, executors wait to receive values for all keys in $read(L, T)$, then compute the transaction, and transmit to each shard $S$ any value stored on $S$ in $write(L, T)$.
+#### heardAllWrites
 
-Generally, transactions do not have side effects outside of state writes. However, we could in principle encode client reads as read-only transactions whose side-effect is sending a message, or allow for VMs with other side effects. 
+In order to known which write happens most recently before a given read, Typhon must know that no further writes will be added to the timeline before the read. 
+[Mempool](mempool.md) and [consensus](consensus.md) should communicate a lower bound timestamp to the execution engine, called \\(heardAllWrites\\), before which no more transactions containing any write operations will be sent to the execution engine. 
+This can be on a per-key basis or simply a global lower bound. 
+Occasionally, \\(heardAllWrites\\) should be updated with later timestamps. 
+Each round of consensus should produce a lower bound for \\(heardAllWrites\\), but the [mempool](mempool.md) may already have sent better bounds. 
+Each Shard must keep track of \\(heardAllWrites\\) on each key's multi-version timeline.
 
-Executors can save themselves some communication if they're co-located with Shards. 
-As an optimization, we can save on communication by combining messages for multiple learners if their content is identical and their shards are co-located. 
-Likewise, we can save on computation by using one process to execute for multiple learners so long as they are identical. 
+Transactions (like transaction `j` in the diagram below) containing only write operations can execute with a timestamp after \\(heardAllWrites\\), but this simply means calculating the data they will write. 
+Since that doesn't depend on state, this can of course be done at any time. 
 
-## State Updates
-For each key in its state, each shard $S$ needs to establish a total order of all writes between $heardAllRead(S)$ and $heardAllWrite(S)$. 
-Reads to each key need to be ordered with respect to writes to that key. 
+#### heardAllReads
 
-To accomplish this, each Shard $S$ maintains a *Dependency Multi-Graph* of all Shard Summaries they have received, where Summary $T_1$ *depends on* Summary $T_2$ if the Shard doesn't know that $timestamp(T_1) < timestamp(T_2)$, and $T_1$ can read from a key to which $T_2$ can write. 
-Specifically, if the Shard doesn't know that $timestamp(T_1) < timestamp(T_2)$, then for each key $K$ that $T_2$ can write to and $T_1$ can read or write, create an edge labeled with $\langle T_2, K \rangle$.
-There can be cycles in the dependency multi-graph, but these will resolve as the Shard learns more about the total order from consensus. 
+We want to allow Typhon to eventually garbage-collect old state. 
+[Mempool](mempool.md) and [consensus](consensus.md) should communicate a lower bound timestamp to the execution engine, called \\(heardAllReads\\), before which there will be no more read transactions send to the execution engine. 
+Occasionally, \\(heardAllReads\\) should be updated with later timestamps. 
+Each Shard must keep track of \\(heardAllReads\\) on each key's multi-version timeline, so it can garbage collect old values.
 
-Concurrently, for any Summary $T$ that no longer depends on any other Summary, if $timestamp(T) < heardAllWrite(S)$:
-- transmit the values written most recently before $timestamp(T)$ for any key on $S$ in $read(learner(S), T)$ to $executor(learner(S), T)$
-- upon receiving the values for any key $K$ on $S$ in $write(learner(S), T)$ from $executor(learner(S), T)$:
-  - record that that value is written to key $K$ at $timestamp(T)$.
-  - delete edges labeled $\langle T, K\rangle$ from the dependency graph.
-  - As an optimization, we may want a compact "don't change this value" message. 
-- When every value in $write(learner(S), T)$ has been updated, delete $T$ from the dependency graph. 
 
-Note that read-only transactions can arrive with timestamps before $heardAllWrite(S)$. 
-These need to be added to the dependency graph and processed just like all other transactions. 
+<p>
+  <table>
+    <tr>
+      <td>
+        <img src="key_may_happen_before.svg" width=250  />
+      </td>
+      <td>
+        <object width=500 data="execute_before_consensus_animated.svg" type="image/svg+xml">
+        </object>
+      </td>
+    </tr>
+  </table>
+</p>
 
-## Garbage Collection
-Each Shard can delete all but the most recent value written to each key before $heardAllRead(S)$. 
+In the example above, our "Happens Before" arrows have been replaced with "May Happen Before" arrows, representing partial ordering information from the [mempool](mempool.md).
+Note that not all transactions can be executed with this partial order information. 
 
-Once all of a transaction's Executors (for all learners) have executed the transaction, we can garbage collect it. 
-We no longer need to store that transaction anywhere. 
+#### Conflicts
+There are 3 types of conflicts that can prevent a transaction from being executable without more ordering information. 
+- *Write/Write Conflicts* occur when a shard cannot identify the most recent write before a given read.
+  In the diagram above, transaction `e` cannot execute because it's not clear whether transaction `b` or transaction `c` wrote most recently to the yellow key. 
+- *Read/Write Conflicts* occur when  shard cannot identify whether a read operation occurs before or after a write, so it's not clear if it should read the value from that write or from a previous write. 
+  In the diagram above, transaction `g` cannot execute because it's not clear whether it would read the data written to the blue key by transaction `d` or transaction `i`. 
+- *Transitive Conflicts* occur when a shard cannot get the data for a read because the relevant write is conflicted. 
+  In the diagram above, transaction `h` cannot execute because it cannot read the data written to the yellow key by transaction `g`, since transaction `g` is conflicted. 
+As the [mempool](mempool.md) and [consensus](consensus.md) provide the execution engine with more and more ordering information, and the partial order of timestamps is refined, all conflicts eventually resolve. 
+In the diagram above, suppose consensus orders transaction `g` before transaction `i`.
+The Read/Write conflict is resolved: transaction `g` reads the data transaction `d` writes to the blue key. 
+Then the transitive conflict is also resolved: transaction `h` will be able to execute. 
 
-## Client Reads
-Read-only transactions can, in principle, bypass Mempool and Consensus altogether: they only need to arrive at each of the relevant shards $S$, and have a timestamp greater than $heardAllRead(S)$. 
-They could also be executed with a side effect, like sending a message to a client. 
+### Optimization: Client Reads as Read-Only Transactions
+<p>
+  <table>
+    <tr>
+      <td>
+        <img src="key_may_happen_before.svg" width=250  />
+      </td>
+      <td>
+        <object width=500 data="read_only_animted.svg" type="image/svg+xml">
+        </object>
+      </td>
+    </tr>
+  </table>
+</p>
+With the above optimizations, transactions containing only read operations do not affect other transactions (or scheduling) at all.
+Therefore, they can bypass [mempool](mempool.md) and [consensus](consensus.md) altogether.
+Clients can simply send read-only transactions directly to the execution engine (with a label and a timestamp), and if the timestamp is after \\(heardAllReads\\), the execution engine can simply place the transaction in the timeline of the relevant shards and execute it when possible. 
+In the diagram above, transaction `f` is read-only.
 
-We can use these read-only transactions to construct checkpoints: Merkle roots of portions of state, building up to a Merkle root of the entire state. 
 
-Light client reads only need some kind of signed message produced by an executor from each of a weak quorum of validators. 
-They do not, technically, need a Merkle root of the entire state at all.
-However, it may be more efficient to get a single signed message with a Merkle root of state, and then only one Validator needs to do the read-only transaction. 
-To support this kind of thing, we may want $heardAllRead$ to lag well behind $heardAllWrite$, so we can do reads on recent checkpoints. 
+If client reads produce signed responses, then signed responses from a weak quorum of validators would form a *light client proof*. 

@@ -16,12 +16,15 @@ Accounting: executions actually performed, parallelization (perhaps)
 ---
 
 # Execution Engine
+
 ## Summary
+
 Given a total order (from the [consensus](consensus.md)) of transactions (from the [mempool](mempool.md)), the execution engine updates and stores the "current" state of the [replicated state machine](https://en.wikipedia.org/wiki/State_machine_replication), using as much concurrency as possible.
 Outputs from the execution engine allow light clients to read the current state.
 When the execution engine has finished with a transaction, it communicates to the [mempool](mempool.md) that the transaction can be garbage-collected from storage.
 
 ## State
+
 State is stored as mutable *Data* (unlimited size blobs of binary), each of which is identified with an immutable *Key*.
 If you want to mutate a Key associated with specific Data, that's equivalent to deleting the Data associated with the old Key, and writing it to the new Key.
 Keys that have never had Data written to them are mapped to an empty value.
@@ -63,14 +66,15 @@ Outputs:
 Our architecture is heavily inspired by [Calvin: Fast Distributed Transactions for Partitioned Database Systems](http://cs.yale.edu/homes/thomson/publications/calvin-sigmod12.pdf).
 It facilitates concurrency while maintaining [serializability](https://en.wikipedia.org/wiki/Serializability) using the [mempool](mempool.md) and [consensus](consensus.md) components as a sequencer.
 
-
 ### Timestamps
+
 Each Transaction has a *Timestamp* which conveys ordering information relative to other transactions.
 Timestamps, and thus transactions, are partially ordered.
 As shards learn more information from [consensus](consensus.md) or the [mempool](mempool.md), they are able to refine this partial order until it is a total order.
 For [Heterogeneous Narwhal](mempool.md), these timestamps may be tuples of $\left\langle validator\_id, block\_header\_height, transaction\_hash\right\rangle$
 
 ### Shards
+
 *Shards* are processes that store and update state.
 Different shards may be on different machines. Redistributing state between shards is called *Re-Sharding*.
 Each Shard is specific to 1 learner.
@@ -81,6 +85,7 @@ Shards also store the data written by each transaction that writes to that Key.
 This is [multi-version concurrent storage](https://en.wikipedia.org/wiki/Multiversion_concurrency_control).
 
 ### Executor Processes
+
 *Executor Processes* are processes that actually run the Executor Function and compute updates.
 Executor Processes can be co-located with shards.
 The Execution Engine might keep a pool of Executor Processes, or spin a new one up with each transaction.
@@ -108,19 +113,7 @@ We do this using a set of optimizaitons.
 
 ### Optimization: Per-Key Ordering
 
-<p>
-  <table>
-    <tr>
-      <td>
-        <img src="key.svg" width=250  />
-      </td>
-      <td>
-        <object width=500 data="keys_animated.svg" type="image/svg+xml">
-        </object>
-      </td>
-    </tr>
-  </table>
-</p>
+![Per-key ordering](keys_animated.svg)
 
 [Mempool](mempool.md) and [consensus](consensus.md) provide ordering information for the timestamps, so within each key, transactions can be totally ordered by a "Happens Before" relationship.
 With a total ordering of transactions, keys can send read information to executors as soon as the previous transaction is complete.
@@ -128,19 +121,9 @@ However, transactions that don't touch the same keys can be run simultaneously.
 In the diagram above, for example, transactions `c` and `d` can run concurrently, as can transactions `e` and `f`, and transactions `h` and `j`.
 
 ### Optimization: Order With Respect To Writes
-<p>
-  <table>
-    <tr>
-      <td>
-        <img src="key.svg" width=250  />
-      </td>
-      <td>
-        <object width=500 data="only_order_wrt_writes_animated.svg" type="image/svg+xml">
-        </object>
-      </td>
-    </tr>
-  </table>
-</p>
+
+![Order with respect to writes](only_order_wrt_writes_animated.svg)
+
 In fact, shards can send read information to an executor process as soon as the previous write has completed.
 All shards really need to keep track of is a total order of writes, and how each read is ordered with respect to writes (which write it happens before and which write happens before it).
 As soon as the preceding write is complete, the reads that depend on it can run concurrently.
@@ -148,26 +131,16 @@ There are no "read/read" conflicts.
 In the diagram above, for example, transactions `a` and `b` can run concurrently.
 
 ### Optimization: Only Wait to Read
-<p>
-  <table>
-    <tr>
-      <td>
-        <img src="key.svg" width=250  />
-      </td>
-      <td>
-        <object width=500 data="only_wait_to_read_animated.svg" type="image/svg+xml">
-        </object>
-      </td>
-    </tr>
-  </table>
-</p>
-Because we store each version written ([multi-version concurrent storage]), we do not have to execute writes in order.
+
+![Only wait to read](only_wait_to_read_animated.svg)
+
+Because we store each version written ([multi-version concurrent storage](https://en.wikipedia.org/wiki/Multiversion_concurrency_control)), we do not have to execute writes in order.
 A shard does not have to wait to write a later data version to a key just because previous reads have not finished executing yet.
 In the diagram above, for example, only green "Happens Before" arrows require waiting.
 Transactions `a`, `b`, `c`, and `j` can all be executed concurrently, as can transactions `d`, `e`, and `i`.
 
-
 ### Optimization: Execute With Partial Order
+
 Some [mempools, including Narwhal](mempool.md) can provide partial order information on transactions even before consensus has determined a total order.
 This allows Typhon to execute some transactions before a total ordering is known.
 In general, for a given key, a shard can send read information to an executor when it knows precisely which write happens most recently before the read, and that write has executed.
@@ -191,25 +164,13 @@ We want to allow Typhon to eventually garbage-collect old state.
 Occasionally, $heardAllReads$ should be updated with later timestamps.
 Each Shard must keep track of $heardAllReads$ on each key's multi-version timeline, so it can garbage collect old values.
 
-
-<p>
-  <table>
-    <tr>
-      <td>
-        <img src="key_may_happen_before.svg" width=250  />
-      </td>
-      <td>
-        <object width=500 data="execute_before_consensus_animated.svg" type="image/svg+xml">
-        </object>
-      </td>
-    </tr>
-  </table>
-</p>
+![Execute with partial order](execute_before_consensus_animated.svg)
 
 In the example above, our "Happens Before" arrows have been replaced with "May Happen Before" arrows, representing partial ordering information from the [mempool](mempool.md).
 Note that not all transactions can be executed with this partial order information.
 
 #### Conflicts
+
 There are 3 types of conflicts that can prevent a transaction from being executable without more ordering information.
 - *Write/Write Conflicts* occur when a shard cannot identify the most recent write before a given read.
   In the diagram above, transaction `e` cannot execute because it's not clear whether transaction `b` or transaction `c` wrote most recently to the yellow key.
@@ -223,23 +184,12 @@ The Read/Write conflict is resolved: transaction `g` reads the data transaction 
 Then the transitive conflict is also resolved: transaction `h` will be able to execute.
 
 ### Optimization: Client Reads as Read-Only Transactions
-<p>
-  <table>
-    <tr>
-      <td>
-        <img src="key_may_happen_before.svg" width=250  />
-      </td>
-      <td>
-        <object width=500 data="read_only_animted.svg" type="image/svg+xml">
-        </object>
-      </td>
-    </tr>
-  </table>
-</p>
+
+![Client reads as read-only transactions](read_only_animated.svg)
+
 With the above optimizations, transactions containing only read operations do not affect other transactions (or scheduling) at all.
 Therefore, they can bypass [mempool](mempool.md) and [consensus](consensus.md) altogether.
 Clients can simply send read-only transactions directly to the execution engine (with a label and a timestamp), and if the timestamp is after $heardAllReads$, the execution engine can simply place the transaction in the timeline of the relevant shards and execute it when possible.
 In the diagram above, transaction `f` is read-only.
-
 
 If client reads produce signed responses, then signed responses from a weak quorum of validators would form a *light client proof*.

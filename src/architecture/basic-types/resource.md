@@ -4,6 +4,7 @@ This section specifies the building blocks of the Resource Management System tha
 
 ## Addresses
 Addresses of Resources and other objects, e.g. Resource Logics/Predicates, are computed via `hash(object)`. They are also used for Content Addressed Storage. Each field of an object should be individually hashed to provide content addressing for all elements of all layers.
+
 ## Resources
 Resources are the atomic units of the system.
 
@@ -35,7 +36,6 @@ The dynamic resource data includes a unique Suffix, providing a partially ordere
 ### Resource Types and Fungibility
 The Type of a Resource, is determined by its Resource Logic and Prefix. Resources of the same type are fungible (i.e. interchangeable) when determining balance at the scope of a Transaction.
 
-
 ### Resource Logic (RL)
 The Logic of a Resource is defined via a Predicate and its Arguments. It specifies under which conditions `Resources` that carry it can be created and consumed. 
 ```haskell=
@@ -66,25 +66,6 @@ The proof system and functional commitment scheme determine the type of privacy 
 
 TODO: How do we carry proofs and commitments through the transaction lifecycle? Do we store them with the ptx's which created them?
 
-### Prefix
-The Prefix encodes information that not affect the behavior of the Resources inhabiting it, but determines a unique subtype with the same behaviors. It can for example be a set of Random Hashes or contain the Addresses of parties relevant to higher layers, e.g. Originator and Intended users of a Resource Type.
-
-### Suffix
-The Suffix must be a nonce within the scope determined by a Prefix, to uniquely identify each resource.
-
-// TODO: What exactly should the suffix be? Should it always be a the output of a hash function, or just a bytestring of equivalent size? Should it be only one Hash size wide, or potentially a list as well?
-
-### Quantity
-Resources carry an integer Quantity. Resources with quantity > 1 can be split into an arbitrary amount of Resources of the same Type with Quantity of at least = 1. The splitting of Resources happens via `ptx`s using Ephemeral Resources as a dummy input.
-
-
-### Value
-The `Value` of the `Resource` is represented by a ByteString (i.e. the current content of the "Memory Cell" at the Resource Address) to be parsed at the application level.
-It can contain information about the current owner as well as additional dynamic predicates, or Identies.
-
-#### Owner
-The current owner of a Resource. The Resource Logic can require a Signature of the owner for e.g. consumption of the Resource.
-
 #### Controllers
 Controllers are the Identities (e.g. consensus providers) that determine the order of (p)txs including the given Resource. The first controller in the list is known as the resource originator.
 By signing a message, a Controller promises to not sign another message committing to an equivocation of the signed message.
@@ -100,10 +81,28 @@ This way we gain the following options by using signatures of upstream Controlle
 > TODO: Revise and concretise this section.
 > TODO: Should this be a List or a DAG?
 
+### Prefix
+The Prefix encodes information that not affect the behavior of the Resources inhabiting it, but determines a unique subtype with the same behaviors. It can for example be a set of Random Hashes or contain the Addresses of parties relevant to higher layers, e.g. Originator and Intended users of a Resource Type.
+
+### Suffix
+The Suffix must be a nonce within the scope determined by a Prefix, to uniquely identify each resource.
+
+> TODO: What exactly should the suffix be? Should it always be a the output of a cryptographic hash function, or just a bytestring of equivalent size? Should it be only one Hash size wide, or potentially a list as well?
+
+### Quantity
+Resources carry an integer Quantity. Resources with quantity > 1 can be split into an arbitrary amount of Resources of the same Type with Quantity of at least = 1. The splitting of Resources happens via `ptx`s using Ephemeral Resources as a dummy input.
+
+### Value
+The `Value` of the `Resource` is represented by a ByteString (i.e. the current content of the "Memory Cell" at the Resource Address) to be parsed at the application level.
+It can contain information about the current owner as well as additional dynamic predicates, or Identities.
+
+#### Owner
+The current owner of a Resource. The Resource Logic can require a Signature of the owner for e.g. consumption of the Resource.
+
 #### Additional Predicates
 These can be used to, e.g. express intent for Solvers.
 
-### Linear and Non-Linear Resources
+### Linear vs. Non-Linear Resources
 Non-Linear Resources are ordering invariant and can be reused. For Linear Resources, only the unconsumed Resources that inhabit a Type can be consumed.
 
 ## Predicates

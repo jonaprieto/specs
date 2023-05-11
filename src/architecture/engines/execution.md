@@ -113,7 +113,7 @@ We do this using a set of optimizaitons.
 
 ### Optimization: Per-Key Ordering
 
-![Per-key ordering](keys_animated.svg)
+![Per-key ordering (see web version for animation)](keys_animated.svg)
 
 [Mempool](mempool.md) and [consensus](consensus.md) provide ordering information for the timestamps, so within each key, transactions can be totally ordered by a "Happens Before" relationship.
 With a total ordering of transactions, keys can send read information to executors as soon as the previous transaction is complete.
@@ -122,7 +122,7 @@ In the diagram above, for example, transactions `c` and `d` can run concurrently
 
 ### Optimization: Order With Respect To Writes
 
-![Order with respect to writes](only_order_wrt_writes_animated.svg)
+![Order with respect to writes (see web version for animation)](only_order_wrt_writes_animated.svg)
 
 In fact, shards can send read information to an executor process as soon as the previous write has completed.
 All shards really need to keep track of is a total order of writes, and how each read is ordered with respect to writes (which write it happens before and which write happens before it).
@@ -132,7 +132,7 @@ In the diagram above, for example, transactions `a` and `b` can run concurrently
 
 ### Optimization: Only Wait to Read
 
-![Only wait to read](only_wait_to_read_animated.svg)
+![Only wait to read (see web version for animation)](only_wait_to_read_animated.svg)
 
 Because we store each version written ([multi-version concurrent storage](https://en.wikipedia.org/wiki/Multiversion_concurrency_control)), we do not have to execute writes in order.
 A shard does not have to wait to write a later data version to a key just because previous reads have not finished executing yet.
@@ -164,7 +164,7 @@ We want to allow Typhon to eventually garbage-collect old state.
 Occasionally, $heardAllReads$ should be updated with later timestamps.
 Each Shard must keep track of $heardAllReads$ on each key's multi-version timeline, so it can garbage collect old values.
 
-![Execute with partial order](execute_before_consensus_animated.svg)
+![Execute with partial order (see web version for animation)](execute_before_consensus_animated.svg)
 
 In the example above, our "Happens Before" arrows have been replaced with "May Happen Before" arrows, representing partial ordering information from the [mempool](mempool.md).
 Note that not all transactions can be executed with this partial order information.
@@ -185,7 +185,7 @@ Then the transitive conflict is also resolved: transaction `h` will be able to e
 
 ### Optimization: Client Reads as Read-Only Transactions
 
-![Client reads as read-only transactions](read_only_animated.svg)
+![Client reads as read-only transactions (see web version for animation)](read_only_animated.svg)
 
 With the above optimizations, transactions containing only read operations do not affect other transactions (or scheduling) at all.
 Therefore, they can bypass [mempool](mempool.md) and [consensus](consensus.md) altogether.

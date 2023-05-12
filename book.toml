@@ -28,6 +28,3 @@ expand = true
 
 [preprocessor.katex]
 macros = "src/macros.txt"
-
-[preprocessor.mermaid]
-command = "mdbook-mermaid"

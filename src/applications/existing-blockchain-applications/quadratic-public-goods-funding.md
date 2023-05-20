@@ -1,1 +1,0 @@
-# Quadratic public goods funding

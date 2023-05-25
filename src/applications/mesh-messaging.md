@@ -1,3 +1,3 @@
 # Mesh messaging
 
-Use the Anoma P2P layer.
+- Signal, but using the Anoma P2P layer.

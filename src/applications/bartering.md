@@ -1,3 +1,3 @@
 # Bartering
 
-General case.
+- Generalised programmable n-party bartering.

@@ -1,5 +1,36 @@
 # Glossary
 
+## How to use this Glossary
+
+Since this specification is (for now at least) a work in progress, many sections are still in flux.
+To make it easier to understand, as well as preserve flexibility for refactoring, we strive to maintain this glossary as described below:
+
+### Introducing New Terminology
+1. When introduction a new term, we list it here and link to the section of the spec containing its definition.
+2. Once a section has become reasonably stable we add short explanations to the terms used in them.
+
+### Using Existing Terminology
+1. When using a term that has been defined elsewhere, we list it here and link to an external reference, which should captures the sense of our usage.
+2. Once a section has become reasonably stable we add short excerpts to the citations.
+
+An existing term should be included in the following cases (incomplete list):
+- If it is central to the understanding of concepts in the spec.
+- If it is hard to look up, e.g. different subfields have different definitions.
+- If it is likely that the intended audience of the containing sections is unfamiliar with it.
+
+## Collaborative Glossary Maintenance
+
+To get the glossary into shape, its maintenance will have the following phases:
+1. Section authors add terms introduced and used in their sections.
+2. Reviewers point out omissions.
+
+After a first pass of populating the glossary, the two phases will continue to happen in parallel for a while.
+
+Since the decision whether to include an existing term or not will be more of a soft question, 
+reviewer and reader feedback will be especially important.
+
+# Definitions 
+
 ## Anoma protocol
 
 The Anoma protocol is the logical framework which [agents](#agents) use to read,

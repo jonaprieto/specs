@@ -22,7 +22,7 @@ An existing term should be included in the following cases (incomplete list):
 
 To get the glossary into shape, its maintenance will have the following phases:
 1. Section authors add terms introduced and used in their sections.
-2. Reviewers point out omissions.
+2. Reviewers point out omissions (e.g. in the [glossary wishlist](https://github.com/anoma/specs/issues/148)).
 
 After a first pass of populating the glossary, the two phases will continue to happen in parallel for a while.
 

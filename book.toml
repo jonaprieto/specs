@@ -27,4 +27,5 @@ expand = true
 [preprocessor]
 
 [preprocessor.katex]
+after = ["links"]
 macros = "src/macros.txt"

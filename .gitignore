@@ -3,6 +3,7 @@
 \#*
 
 *.dot.svg
+*.html
 
 book/
 src/specs.md

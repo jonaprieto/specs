@@ -35,8 +35,10 @@ tex: src/specs.md dot
 	  $(SED) -i 's/{{#include *\(.*\?\)}}/!include "\1"/' "$$f"; \
 	done; \
 	$(PANDOC) --pdf-engine=xelatex --template=assets/llncs --defaults=defaults.yaml --resource-path=.:src -o book/anoma-specs.tex src/specs.md; \
-	$(GIT) checkout "$$cur_branch"; \
-	$(GIT) branch -D "$$tmp_branch"
+	if [ -n "$$cur_branch" ]; then \
+	  $(GIT) checkout "$$cur_branch"; \
+	  $(GIT) branch -D "$$tmp_branch"; \
+	fi
 
 pdf: src/specs.md dot
 	cur_branch="`git branch --show-current`"; \
@@ -46,8 +48,10 @@ pdf: src/specs.md dot
 	  $(SED) -i 's/{{#include *\(.*\?\)}}/!include "\1"/' "$$f"; \
 	done; \
 	$(PANDOC) --pdf-engine=xelatex --template=assets/llncs --defaults=defaults.yaml --resource-path=.:src -o book/anoma-specs.pdf src/specs.md; \
-	$(GIT) checkout "$$cur_branch"; \
-	$(GIT) branch -D "$$tmp_branch"
+	if [ -n "$$cur_branch" ]; then \
+	  $(GIT) checkout "$$cur_branch"; \
+	  $(GIT) branch -D "$$tmp_branch"; \
+	fi
 
 dot: $(DOT_SVG)
 

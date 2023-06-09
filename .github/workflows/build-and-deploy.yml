@@ -34,13 +34,13 @@ jobs:
         path: |
           ~/.cargo
         key: ${{ hashFiles('Makefile') }}
-    - name: Install cargo tool
+    - name: Install mdbook
       run: |
           curl https://i.jpillora.com/${{ matrix.mdbook_version }}! | bash
           curl https://i.jpillora.com/${{ matrix.mdbook_mermaid }}! | bash
           curl https://i.jpillora.com/${{ matrix.mdbook_linkcheck }}! | bash
           curl https://i.jpillora.com/${{ matrix.mdbook_katex }}! | bash
-    - name: Install texlive
+    - name: Install APT packages
       uses: ConorMacBride/install-package@v1
       with:
         apt: texlive texlive-latex-extra texlive-fonts-extra texlive-science texlive-xetex tex-gyre librsvg2-bin

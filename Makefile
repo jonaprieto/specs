@@ -8,6 +8,7 @@ SED ?= gsed
 else
 SED ?= sed
 endif
+GIT ?= git
 
 DOT := $(shell git ls-files | grep '\.dot$$')
 DOT_SVG := $(patsubst %.dot,%.dot.svg,$(DOT))
@@ -27,10 +28,26 @@ src/macros.txt: src/macros.latex
 	$(GREP) '^\\newcommand' src/macros.latex | $(SED) 's/\\ensuremath//; s/\\newcommand\*\?{\([^}]\+\)}\(\[[0-9]\]\)\?/\1:/' > $@
 
 tex: src/specs.md dot
-	$(PANDOC) --pdf-engine=xelatex --template=assets/llncs --defaults=defaults.yaml --resource-path=.:src -o book/anoma-specs.tex src/specs.md
+	prev_branch="`git branch --show-current`"; \
+	tmp_branch="pdf/`date +%s`"; \
+	$(GIT) checkout -b "$$tmp_branch"; \
+	for f in `$(GIT) ls-files | $(GREP) '\.md$$'`; do \
+	  $(SED) -i 's/{{#include *\(.*\?\)}}/!include "\1"/' "$$f"; \
+	done; \
+	$(PANDOC) --pdf-engine=xelatex --template=assets/llncs --defaults=defaults.yaml --resource-path=.:src -o book/anoma-specs.tex src/specs.md; \
+	$(GIT) checkout "$$prev_branch"; \
+	$(GIT) branch -D "$$tmp_branch"
 
 pdf: src/specs.md dot
-	$(PANDOC) --pdf-engine=xelatex --template=assets/llncs --defaults=defaults.yaml --resource-path=.:src -o book/anoma-specs.pdf src/specs.md
+	prev_branch="`git branch --show-current`"; \
+	tmp_branch="pdf/`date +%s`"; \
+	$(GIT) checkout -b "$$tmp_branch"; \
+	for f in `$(GIT) ls-files | $(GREP) '\.md$$'`; do \
+	  $(SED) -i 's/{{#include *\(.*\?\)}}/!include "\1"/' "$$f"; \
+	done; \
+	$(PANDOC) --pdf-engine=xelatex --template=assets/llncs --defaults=defaults.yaml --resource-path=.:src -o book/anoma-specs.pdf src/specs.md; \
+	$(GIT) checkout "$$prev_branch"; \
+	$(GIT) branch -D "$$tmp_branch"
 
 dot: $(DOT_SVG)
 

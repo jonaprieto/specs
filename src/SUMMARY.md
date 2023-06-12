@@ -39,6 +39,7 @@
     - [Entanglement](./architecture/basic-types/entanglement.md)
   - [Logics](./architecture/logics.md)
     - [Transaction execution logic](./architecture/logics/transaction-execution-logic.md)
+    - [Taiga](./architecture/logics/taiga.md)
   - [Engines](./architecture/engines.md)
     - [P2P](./architecture/engines/p2p.md)
     - [Storage](./architecture/engines/storage.md)

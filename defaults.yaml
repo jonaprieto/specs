@@ -1,10 +1,6 @@
 number-sections: true
 toc: true
 
-variables:
-  header-includes:
-  - \input{src/macros.latex}
-
 metadata:
   lang: en
   toc-title: Table of Contents

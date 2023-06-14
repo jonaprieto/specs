@@ -8,9 +8,11 @@ SED ?= gsed
 else
 SED ?= sed
 endif
-GIT ?= git
+FIND ?= find
 
-DOT := $(shell git ls-files | grep '\.dot$$')
+OUT ?= book
+
+DOT := $(shell find src -name '*.dot')
 DOT_SVG := $(patsubst %.dot,%.dot.svg,$(DOT))
 
 all: build pdf
@@ -22,36 +24,30 @@ build: src/macros.txt dot
 	mdbook build
 
 src/specs.md: src/SUMMARY.md
-	(echo '!include-header paper.yaml'; grep '\.md' src/SUMMARY.md | sed 's/^- .*(\(.*.md\))/\n!include`incrementSection=0` \1/; s/^  - .*(\(.*.md\))/\n!include`incrementSection=1` \1/; s/^    - .*(\(.*.md\))/\n!include`incrementSection=2` \1/; s/^      - .*(\(.*.md\))/\n!include`incrementSection=3` \1/; s/^        - .*(\(.*.md\))/\n!include`incrementSection=4` \1/; s/^          - .*(\(.*.md\))/\n!include`incrementSection=5` \1/; s/^            - .*(\(.*.md\))/\n!include`incrementSection=6` \1/') > $@
+	(echo '!include-header paper.yaml'; grep '\.md' src/SUMMARY.md | sed 's/^- .*(\(.*.md\))/\n!include`format="commonmark_x",incrementSection=0` \1/; s/^  - .*(\(.*.md\))/\n!include`format="commonmark_x",incrementSection=1` \1/; s/^    - .*(\(.*.md\))/\n!include`format="commonmark_x",incrementSection=2` \1/; s/^      - .*(\(.*.md\))/\n!include`format="commonmark_x",incrementSection=3` \1/; s/^        - .*(\(.*.md\))/\n!include`format="commonmark_x",incrementSection=4` \1/; s/^          - .*(\(.*.md\))/\n!include`format="commonmark_x",incrementSection=5` \1/; s/^            - .*(\(.*.md\))/\n!include`format="commonmark_x",incrementSection=6` \1/') > $@
 
-src/macros.txt: src/macros.latex
-	$(GREP) '^\\newcommand' src/macros.latex | $(SED) 's/\\ensuremath//; s/\\newcommand\*\?{\([^}]\+\)}\(\[[0-9]\]\)\?/\1:/' > $@
+src/macros.txt: src/macros.tex
+	$(GREP) '^\\newcommand' src/macros.tex | $(SED) 's/\\ensuremath//; s/\\newcommand\*\?{\([^}]\+\)}\(\[[0-9]\]\)\?/\1:/' > $@
 
 tex: src/specs.md dot
-	cur_branch="`git branch --show-current`"; \
-	tmp_branch="tmp/`date +%s`"; \
-	$(GIT) checkout -b "$$tmp_branch"; \
-	for f in `$(GIT) ls-files | $(GREP) '\.md$$'`; do \
-	  $(SED) -i 's/{{#include *\(.*\?\)}}/!include "\1"/' "$$f"; \
-	done; \
-	$(PANDOC) --pdf-engine=xelatex --template=assets/llncs --defaults=defaults.yaml --resource-path=.:src -o book/anoma-specs.tex src/specs.md; \
-	if [ -n "$$cur_branch" ]; then \
-	  $(GIT) checkout "$$cur_branch"; \
-	  $(GIT) branch -D "$$tmp_branch"; \
-	fi
+	mkdir -p $(OUT); \
+	build="build.`date +%s`"; \
+	mkdir "$$build"; \
+	cp -a src "$$build"; \
+	(cd "$$build"; \
+	 $(SED) -i 's/{{#include *\(.*\?\)}}/!include\`format="commonmark_x"\` "\1"/; s/\[\([^]]\+\)\](\([^)]\+\.md\)#\([^)]\+\))/[\1](#\3)/g' `$(FIND) src -name '*.md'`; \
+	 $(PANDOC) --pdf-engine=xelatex --template=../assets/llncs -H src/header.tex --defaults=../defaults.yaml --resource-path=.:src --from=commonmark_x -o ../$(OUT)/anoma-specs.tex src/specs.md); \
+	if [ "$(KEEP_BUILD)" != 1 ]; then rm -rf "$$build"; fi
 
 pdf: src/specs.md dot
-	cur_branch="`git branch --show-current`"; \
-	tmp_branch="tmp/`date +%s`"; \
-	$(GIT) checkout -b "$$tmp_branch"; \
-	for f in `$(GIT) ls-files | $(GREP) '\.md$$'`; do \
-	  $(SED) -i 's/{{#include *\(.*\?\)}}/!include "\1"/' "$$f"; \
-	done; \
-	$(PANDOC) --pdf-engine=xelatex --template=assets/llncs --defaults=defaults.yaml --resource-path=.:src -o book/anoma-specs.pdf src/specs.md; \
-	if [ -n "$$cur_branch" ]; then \
-	  $(GIT) checkout "$$cur_branch"; \
-	  $(GIT) branch -D "$$tmp_branch"; \
-	fi
+	mkdir -p $(OUT); \
+	build="build.`date +%s`"; \
+	mkdir "$$build"; \
+	cp -a src "$$build"; \
+	(cd "$$build"; \
+	 $(SED) -i 's/{{#include *\(.*\?\)}}/!include\`format="commonmark_x"\` "\1"/; s/\[\([^]]\+\)\](\([^)]\+\.md\)#\([^)]\+\))/[\1](#\3)/g' `$(FIND) src -name '*.md'`; \
+	 $(PANDOC) --pdf-engine=xelatex --template=../assets/llncs -H src/header.tex --defaults=../defaults.yaml --resource-path=.:src --from=commonmark_x -o ../$(OUT)/anoma-specs.pdf src/specs.md); \
+	if [ "$(KEEP_BUILD)" != 1 ]; then rm -rf "$$build"; fi
 
 dot: $(DOT_SVG)
 

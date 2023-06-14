@@ -12,6 +12,8 @@ FIND ?= find
 
 OUT ?= book
 
+FORMAT := commonmark_x
+
 DOT := $(shell find src -name '*.dot')
 DOT_SVG := $(patsubst %.dot,%.dot.svg,$(DOT))
 
@@ -24,7 +26,7 @@ build: src/macros.txt dot
 	mdbook build
 
 src/specs.md: src/SUMMARY.md
-	(echo '!include-header paper.yaml'; grep '\.md' src/SUMMARY.md | sed 's/^- .*(\(.*.md\))/\n!include`format="commonmark_x",incrementSection=0` \1/; s/^  - .*(\(.*.md\))/\n!include`format="commonmark_x",incrementSection=1` \1/; s/^    - .*(\(.*.md\))/\n!include`format="commonmark_x",incrementSection=2` \1/; s/^      - .*(\(.*.md\))/\n!include`format="commonmark_x",incrementSection=3` \1/; s/^        - .*(\(.*.md\))/\n!include`format="commonmark_x",incrementSection=4` \1/; s/^          - .*(\(.*.md\))/\n!include`format="commonmark_x",incrementSection=5` \1/; s/^            - .*(\(.*.md\))/\n!include`format="commonmark_x",incrementSection=6` \1/') > $@
+	(echo '!include-header paper.yaml'; grep '\.md' src/SUMMARY.md | sed 's/^- .*(\(.*.md\))/\n!include`format="$(FORMAT)",incrementSection=0` \1/; s/^  - .*(\(.*.md\))/\n!include`format="$(FORMAT)",incrementSection=1` \1/; s/^    - .*(\(.*.md\))/\n!include`format="$(FORMAT)",incrementSection=2` \1/; s/^      - .*(\(.*.md\))/\n!include`format="$(FORMAT)",incrementSection=3` \1/; s/^        - .*(\(.*.md\))/\n!include`format="$(FORMAT)",incrementSection=4` \1/; s/^          - .*(\(.*.md\))/\n!include`format="$(FORMAT)",incrementSection=5` \1/; s/^            - .*(\(.*.md\))/\n!include`format="$(FORMAT)",incrementSection=6` \1/') > $@
 
 src/macros.txt: src/macros.tex
 	$(GREP) '^\\newcommand' src/macros.tex | $(SED) 's/\\ensuremath//; s/\\newcommand\*\?{\([^}]\+\)}\(\[[0-9]\]\)\?/\1:/' > $@
@@ -35,8 +37,8 @@ tex: src/specs.md dot
 	mkdir "$$build"; \
 	cp -a src "$$build"; \
 	(cd "$$build"; \
-	 $(SED) -i 's/{{#include *\(.*\?\)}}/!include\`format="commonmark_x"\` "\1"/; s/\[\([^]]\+\)\](\([^)]\+\.md\)#\([^)]\+\))/[\1](#\3)/g' `$(FIND) src -name '*.md'`; \
-	 $(PANDOC) --pdf-engine=xelatex --template=../assets/llncs -H src/header.tex --defaults=../defaults.yaml --resource-path=.:src --from=commonmark_x -o ../$(OUT)/anoma-specs.tex src/specs.md); \
+	 $(SED) -i 's/{{#include *\(.*\?\)}}/!include\`format="$(FORMAT)"\` "\1"/; s/\[\([^]]\+\)\](\([^)]\+\.md\)#\([^)]\+\))/[\1](#\3)/g' `$(FIND) src -name '*.md'`; \
+	 $(PANDOC) --pdf-engine=xelatex --template=../assets/llncs -H src/header.tex --defaults=../defaults.yaml --resource-path=.:src --from=$(FORMAT) -o ../$(OUT)/anoma-specs.tex src/specs.md); \
 	if [ "$(KEEP_BUILD)" != 1 ]; then rm -rf "$$build"; fi
 
 pdf: src/specs.md dot
@@ -45,8 +47,8 @@ pdf: src/specs.md dot
 	mkdir "$$build"; \
 	cp -a src "$$build"; \
 	(cd "$$build"; \
-	 $(SED) -i 's/{{#include *\(.*\?\)}}/!include\`format="commonmark_x"\` "\1"/; s/\[\([^]]\+\)\](\([^)]\+\.md\)#\([^)]\+\))/[\1](#\3)/g' `$(FIND) src -name '*.md'`; \
-	 $(PANDOC) --pdf-engine=xelatex --template=../assets/llncs -H src/header.tex --defaults=../defaults.yaml --resource-path=.:src --from=commonmark_x -o ../$(OUT)/anoma-specs.pdf src/specs.md); \
+	 $(SED) -i 's/{{#include *\(.*\?\)}}/!include\`format="$(FORMAT)"\` "\1"/; s/\[\([^]]\+\)\](\([^)]\+\.md\)#\([^)]\+\))/[\1](#\3)/g' `$(FIND) src -name '*.md'`; \
+	 $(PANDOC) --pdf-engine=xelatex --template=../assets/llncs -H src/header.tex --defaults=../defaults.yaml --resource-path=.:src --from=$(FORMAT) -o ../$(OUT)/anoma-specs.pdf src/specs.md); \
 	if [ "$(KEEP_BUILD)" != 1 ]; then rm -rf "$$build"; fi
 
 dot: $(DOT_SVG)

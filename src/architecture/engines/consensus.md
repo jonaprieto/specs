@@ -52,7 +52,7 @@ A learner $l_x$ decides on a block when it receives $2a$ messages with the same 
         - This means some chimera chains offer atomicity with lower (yet well-defined) levels of integrity than their base chains' no-fork guarantees.
 
 
-- A _proposer_ is an acceptor that may propose a new block according to the rules of the blockchain. For Typhon, the "blocks" of the consensus protocol are the headers produced by the [mempool](mempool.md). A potential proposer would need (a) data availability, (b) the ability to sign messages, ( c) something at stake (to prevent spam) and (d) the ability to communicate with the acceptors. Acceptors that are in the overlaps of quorums may especially well suited to be proposers, but other Acceptors (or even other machines) might be proposers as well.
+- A _proposer_ is an acceptor that may propose a new block according to the rules of the blockchain. For Typhon, the "blocks" of the consensus protocol are the headers produced by the [mempool](mempool.md#mempool). A potential proposer would need (a) data availability, (b) the ability to sign messages, ( c) something at stake (to prevent spam) and (d) the ability to communicate with the acceptors. Acceptors that are in the overlaps of quorums may especially well suited to be proposers, but other Acceptors (or even other machines) might be proposers as well.
  The Heterogeneous Paxos technical report effectively uses weighted voting for select proposer, but perhaps there are interesting tricks with VRFs that would improve efficiency. 
  
 

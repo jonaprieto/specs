@@ -2,9 +2,9 @@
 
 ## Summary
 Validators run the mempool protocol. 
-They receive transactions from clients, store them, and make them available for the [execution engine](execution.md) to read. 
-The mempool protocol, which is based on [Narwhal](https://arxiv.org/abs/2105.11827) also produces a [DAG](https://en.wikipedia.org/wiki/Directed_acyclic_graph) of *headers*, which reference batches of transactions (via hash), and prove that those transactions are available for the [execution engine](execution.md). 
-These headers are ultimately what the [consensus](consensus.md) decides on, in order to establish a total order of transactions.
+They receive transactions from clients, store them, and make them available for the [execution engine](execution.md#execution-engine) to read. 
+The mempool protocol, which is based on [Narwhal](https://arxiv.org/abs/2105.11827) also produces a [DAG](https://en.wikipedia.org/wiki/Directed_acyclic_graph) of *headers*, which reference batches of transactions (via hash), and prove that those transactions are available for the [execution engine](execution.md#execution-engine).
+These headers are ultimately what the [consensus](consensus.md#consensus) decides on, in order to establish a total order of transactions.
 
 ## Heterogeneous Narwhal
 The core idea here is that we run an instance of Narwhal for each learner. 
@@ -166,7 +166,7 @@ Given that Learner `B` is entangled with `A`, any `B`-quorum for this round will
 ## Consensus
 ![Leader Path](leader_path_3.svg)
 
-In order to establish a total order of transactions, we use [Heterogeneous Paxos](consensus.md) to decide on an ever-growing path through the DAG (for each Learner). 
+In order to establish a total order of transactions, we use [Heterogeneous Paxos](consensus.md#consensus) to decide on an ever-growing path through the DAG (for each Learner). 
 Heterogeneous Paxos guarantees that, if two Learners are *entangled*, they will decide on the same path. 
 In order to guarantee liveness (and fairness) for each Learner's transactions, we require that:
 

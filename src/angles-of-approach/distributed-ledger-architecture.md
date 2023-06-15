@@ -4,6 +4,6 @@ Anoma started out of the world of distributed ledger ("blockchain") systems desi
 
 > Note: The descriptions here are focused exclusively on a comparison between protocol architectures -- they are intended to illuminate similarities and differences, not to criticize -- indeed, Anoma builds upon and incorporates many ideas from the protocols described here, couldn't have come into existence without them, and aims to interoperate with all of them.
 
-- [Anoma vis-a-vis Zcash](./distributed-ledger-architecture/anoma-vis-a-vis-zcash.md)
-- [Anoma vis-a-vis Cosmos](./distributed-ledger-architecture/anoma-vis-a-vis-cosmos.md)
-- [Anoma vis-a-vis Ethereum](./distributed-ledger-architecture/anoma-vis-a-vis-ethereum.md)
+- [Anoma vis-a-vis Zcash](./distributed-ledger-architecture/anoma-vis-a-vis-zcash.md#anoma-vis-a-vis-zcash)
+- [Anoma vis-a-vis Cosmos](./distributed-ledger-architecture/anoma-vis-a-vis-cosmos.md#anoma-vis-a-vis-cosmos)
+- [Anoma vis-a-vis Ethereum](./distributed-ledger-architecture/anoma-vis-a-vis-ethereum.md#anoma-vis-a-vis-ethereum)

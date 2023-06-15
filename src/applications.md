@@ -8,12 +8,12 @@ In contrast to many blockchain systems which have separate software packages for
 
 The applications section in this specification document describes a set of common primitives and classes of example applications suitable for different kinds of coordination. This section is neither exhaustive nor intended to describe particular applications in exact detail, but rather to provide an overview and guidance for how to think about developing applications on Anoma.
 
-- [Primitives](./applications/primitives.md)
-- [Kudos](./applications/kudos.md)
-- [Proof-of-stake](./applications/proof-of-stake.md)
-- [Bartering](./applications/bartering.md)
-- [Auctions](./applications/auctions.md)
-- [Public goods funding](./applications/public-goods-funding.md)
-- [Schelling tests](./applications/schelling-tests.md)
-- [Mesh messaging](./applications/mesh-messaging.md)
-- [Physical logistics](./applications/physical-logistics.md)
+- [Primitives](./applications/primitives.md#primitives)
+- [Kudos](./applications/kudos.md#kudos)
+- [Proof-of-stake](./applications/proof-of-stake.md#proof-of-stake)
+- [Bartering](./applications/bartering.md#bartering)
+- [Auctions](./applications/auctions.md#auctions)
+- [Public goods funding](./applications/public-goods-funding.md#public-goods-funding)
+- [Schelling tests](./applications/schelling-tests.md#schelling-tests)
+- [Mesh messaging](./applications/mesh-messaging.md#mesh-messaging)
+- [Physical logistics](./applications/physical-logistics.md#physical-logistics)

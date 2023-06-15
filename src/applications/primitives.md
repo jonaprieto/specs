@@ -1,5 +1,5 @@
 # Primitives
 
-- [Tokens](./primitives/tokens.md)
-- [Attestation](./primitives/attestation.md)
-- [Authorization](./primitives/authorization.md)
+- [Tokens](./primitives/tokens.md#tokens)
+- [Attestation](./primitives/attestation.md#attestation)
+- [Authorization](./primitives/authorization.md#authorization)

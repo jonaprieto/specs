@@ -67,6 +67,3 @@ For example, let's take three common instantiations:
 - The _succinct proof-of-knowledge_ scheme is one where the result of computation is attested to with a cryptographic proof (of the sort commonly instantiated by modern-day SNARKs & STARKs). Succint proof-of-knowledge schemes provide succinctness as well as veriability subject to the scheme-specific cryptographic assumptions. They may also possibly be _zero-knowledge_, in which the verifier learns nothing other than `predicate a b = 1` (in this case, and in others, `a` and `b` will often be "hidden" with hash functions, such that the verifier knows only `hash a` and `hash b` but the substance of the relation obtains over the preimages).
 
 Global consensus on the verifiable computation scheme is not required, and there is no canonical one, but agents must agree on a particular scheme to use for a particular case of verifiable computation, and agents must know the `Proof` type and `prove` / `verify` functions for any scheme which they use.
-
-```
-```

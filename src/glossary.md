@@ -33,7 +33,7 @@ reviewer and reader feedback will be especially important.
 
 ## Anoma protocol
 
-The Anoma protocol is the logical framework which [agents](#agents) use to read,
+The Anoma protocol is the logical framework which [agents](#agent) use to read,
 create, and process [messages](#message).
 
 ## Agent
@@ -56,7 +56,7 @@ The concept of _agent_ is similar to that of _process_ as used in the distribute
 The latter is especially important as *causal accounting* requires correspondence between the state of the system and state of the world, a correspondence which can only be maintained as a product of individual data inputs by agents which themselves correspond in local ways, as the protocol itself has no knowledge of the state of the world.
 -->
 
-Read more about agents in the [conceptual context](scope/conceptual-context.md).
+Read more about agents in the [conceptual context](scope/conceptual-context.md#conceptual-context).
 
 
 ## Canonical serialization
@@ -64,7 +64,7 @@ Read more about agents in the [conceptual context](scope/conceptual-context.md).
 A *canonical serialization* refers to a standardized way of representing data or
 functions as a series of bytes that can be transmitted across a network.
 
-Canonical serialization are fully discussed in [Prerequisites Primitives](#canonical-serialization)
+Canonical serialization are fully discussed in [Prerequisites Primitives](architecture/prerequisite-primitives.html#canonical-serialization)
 
 ## Turing-equivalent
 

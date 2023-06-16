@@ -17,12 +17,24 @@ FORMAT := commonmark_x
 DOT := $(shell find src -name '*.dot')
 DOT_SVG := $(patsubst %.dot,%.dot.svg,$(DOT))
 
+KATEX_URL := https://cdn.jsdelivr.net/npm/katex@0.12.0/dist
+
 all: build pdf
 
 serve: src/macros.txt dot
 	mdbook serve --open
 
 build: src/macros.txt dot
+	mdbook build
+
+serve-local: src/macros.txt dot dl-katex
+	MDBOOK_preprocessor__katex__no_css=true \
+	MDBOOK_output__html__additional_css='["assets/custom.css", "assets/katex.min.css"]' \
+	mdbook serve --open
+
+build-local: src/macros.txt dot dl-katex
+	MDBOOK_preprocessor__katex__no_css=true \
+	MDBOOK_output__html__additional_css='["assets/custom.css", "assets/katex.min.css"]' \
 	mdbook build
 
 src/specs.md: src/SUMMARY.md
@@ -64,5 +76,18 @@ dev-deps:
 
 dev-deps-apt:
 	$(APT) install texlive texlive-latex-extra texlive-fonts-extra texlive-science texlive-xetex tex-gyre librsvg2-bin pandoc graphviz
+
+dl-katex: assets/katex.min.css
+
+assets/katex.min.css:
+	cd assets; \
+	echo "katex.min.css"; \
+	curl -sO "$(KATEX_URL)/katex.min.css"; \
+	mkdir -p fonts; \
+	cd fonts; \
+	for path in `grep -o 'fonts/\([^)]\+\)' ../katex.min.css`; do \
+	  echo "$$path"; \
+	  echo curl -sO "$(KATEX_URL)/$$path"; \
+	done
 
 .PHONY: all build serve pdf dev-deps dev-deps-apt

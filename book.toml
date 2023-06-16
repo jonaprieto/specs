@@ -2,7 +2,6 @@
 authors = ["Anoma Contributors"]
 language = "en"
 multilingual = false
-site-url = "https://specs.anoma.net"
 src = "src"
 title = "Anoma Specifications"
 
@@ -11,7 +10,6 @@ edit-url-template = "https://github.com/anoma/specs/edit/main/{path}"
 git-repository-url = "https://github.com/anoma/specs"
 additional-css = ["assets/custom.css"]
 additional-js = ["assets/mermaid.min.js", "assets/mermaid-init.js"]
- mathjax-support = true
 
 [output.html.fold]
 enable = true

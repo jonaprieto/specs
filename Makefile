@@ -49,7 +49,7 @@ tex: src/specs.md dot
 	mkdir "$$build"; \
 	cp -a src "$$build"; \
 	(cd "$$build"; \
-	 $(SED) -i 's/{{#include *\(.*\?\)}}/!include\`format="$(FORMAT)"\` "\1"/; s/\[\([^]]\+\)\](\([^)]\+\.md\)#\([^)]\+\))/[\1](#\3)/g' `$(FIND) src -name '*.md'`; \
+	 $(SED) -i 's/{{#include *\([^}]\+\):\([^}]\+\)}}/!include\`format="$(FORMAT)", snippetStart="<!-- ANCHOR: \2 -->", snippetEnd="<!-- ANCHOR_END: \2 -->"\` "\1"/; s/\[\([^]]\+\)\](\([^)]\+\.md\)#\([^)]\+\))/[\1](#\3)/g; s/{{#include *\([^:}]\+\)}}/!include\`format="$(FORMAT)"\` "\1"/; s/\[\([^]]\+\)\](\([^)]\+\.md\)#\([^)]\+\))/[\1](#\3)/g' `$(FIND) src -name '*.md'`; \
 	 $(PANDOC) --pdf-engine=xelatex --template=../assets/llncs -H src/header.tex --defaults=../defaults.yaml --resource-path=.:src --from=$(FORMAT) -o ../$(OUT)/anoma-specs.tex src/specs.md); \
 	if [ "$(KEEP_BUILD)" != 1 ]; then rm -rf "$$build"; fi
 
@@ -59,7 +59,7 @@ pdf: src/specs.md dot
 	mkdir "$$build"; \
 	cp -a src "$$build"; \
 	(cd "$$build"; \
-	 $(SED) -i 's/{{#include *\(.*\?\)}}/!include\`format="$(FORMAT)"\` "\1"/; s/\[\([^]]\+\)\](\([^)]\+\.md\)#\([^)]\+\))/[\1](#\3)/g' `$(FIND) src -name '*.md'`; \
+	 $(SED) -i 's/{{#include *\([^}]\+\):\([^}]\+\)}}/!include\`format="$(FORMAT)", snippetStart="<!-- ANCHOR: \2 -->", snippetEnd="<!-- ANCHOR_END: \2 -->"\` "\1"/; s/\[\([^]]\+\)\](\([^)]\+\.md\)#\([^)]\+\))/[\1](#\3)/g; s/{{#include *\([^:}]\+\)}}/!include\`format="$(FORMAT)"\` "\1"/; s/\[\([^]]\+\)\](\([^)]\+\.md\)#\([^)]\+\))/[\1](#\3)/g' `$(FIND) src -name '*.md'`; \
 	 $(PANDOC) --pdf-engine=xelatex --template=../assets/llncs -H src/header.tex --defaults=../defaults.yaml --resource-path=.:src --from=$(FORMAT) -o ../$(OUT)/anoma-specs.pdf src/specs.md); \
 	if [ "$(KEEP_BUILD)" != 1 ]; then rm -rf "$$build"; fi
 

@@ -21,6 +21,8 @@
           src = ./.;
 
           nativeBuildInputs = [
+            jq
+
             mdbook
             mdbook-linkcheck
             mdbook-katex

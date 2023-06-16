@@ -75,7 +75,7 @@ dev-deps:
 	$(PIP) install --user pandoc-include
 
 dev-deps-apt:
-	$(APT) install texlive texlive-latex-extra texlive-fonts-extra texlive-science texlive-xetex tex-gyre librsvg2-bin pandoc graphviz
+	$(APT) install curl jq pandoc graphviz texlive texlive-latex-extra texlive-fonts-extra texlive-science texlive-xetex tex-gyre librsvg2-bin
 
 dl-katex: assets/katex.min.css
 

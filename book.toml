@@ -25,3 +25,6 @@ expand = true
 [preprocessor.katex]
 after = ["links"]
 macros = "src/macros.txt"
+
+[preprocessor.anchors]
+command = "sh bin/preprocessor-anchors.sh"

@@ -1,13 +1,18 @@
 # Strategy synthesis
 
-Inputs: user instructions
-Outputs: intents, decisions
-Preferences: user-defined
-Accounting: decisions made, intents created
+- *Inputs*
+    User instructions
+- *Outputs*
+    Intents, decisions
+- *Preferences*
+    User-defined
+- *Accounting*
+    Decisions made, intents created
 
-examples:
-- automatically grant kudos for trade between compute, storage, network resources
-- automatically rebalance kudo portfolio 
-- decide whether to use locally controlled liquidity for solving
+Examples:
+- Automatically grant kudos for trade between compute, storage, network resources
+- Automatically rebalance kudo portfolio 
+- Decide whether to use locally controlled liquidity for solving
+- Create intent to match 1:1 kudo liquidity each day
 
-trust preferences
+Tracks trust preferences.

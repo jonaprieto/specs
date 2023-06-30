@@ -1,8 +1,12 @@
 # Identity
 
-Input: signing & decryption instructions
-Output: signatures, decrypted data
-Preferences: what to sign & decrypt, what to commit to
-Accounting: what was signed, what was decrypted
+- *Inputs*
+    Signing & decryption instructions
+- *Outputs*
+    Signatures, decrypted data
+- *Preferences*
+    What to sign & decrypt, what to commit to
+- *Accounting*
+    What was signed, what was decrypted
 
-commitments
+Internally, the identity engine keeps track of commitments made, and ensures that they are not violated.

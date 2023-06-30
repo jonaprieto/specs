@@ -1,5 +1,15 @@
 # Compute
 
+- *Inputs*
+    - Computational searches to perform
+- *Outputs*
+    - Results of computational searches
+- *Preferences*
+    - Who to delegate computational search to
+- *Accounting*
+    - Computational searches actually performed, time taken
+
+
 The _compute engine_ is responsible for performing expensive computation, i.e. searching for witnesses to predicates which are (in general) in the complexity class NP. Frequently, however, more efficient search algorithms will be known for particular predicates. The compute engine is designed so that local and network-accessible compute resources may be automatically balanced between based on costs and trust assumptions.
 
 ## State

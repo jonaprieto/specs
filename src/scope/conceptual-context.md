@@ -1,5 +1,7 @@
 # Conceptual context
 
+## Agents
+
 The Anoma architecture operates on the basis of
 *[agents](../glossary.md#agents)*. The architecture does not presume any sort of
 global view or global time. It also does not presume any particular
@@ -28,30 +30,28 @@ over (partially ordered) time.
    The *state* of the system at any point in time is a function of the history
     of messages sent by agents up to that point in time.
 
-<!-- 
-We can use Juvix syntax instead of Haskell syntax for the following snippets. I'm commenting
-this out as I don't see they add much clarity to the spec, (at least not now)
+## World
 
-```juvix
+*Agents* are presumed to exist in a *world* which is not directly accessible to the protocol itself but which is of interest to agents.
 
-```haskell
-type Agent
+1. Agents can take *measurements* of data in this world, to which they may attach *semantics* (local names). Measurements can be understood as messages received from the world.
 
-class Monad m => AgentContext m where
-    random :: Finite a => m a
+> For example, a measurement might be: $$("temperature", 25.5)$$
 
-    set :: ByteString -> ByteString -> m ()
-    get :: ByteString -> m (Maybe ByteString)
-```
+2. Agents may take *actions* in this world, to which they may similarly attach semantics. Actions can be understood as messages sent to the world.
 
- -->
+> For example, an action might be: $$("set\_thermostat", 22)$$
 
-The rest of this specification defines the _Anoma protocol_, which is specific logic that agents run to read, create, and process messages. For convenience, the Anoma protocol shall be referred to henceforth as just _the protocol_.
+3. In general, this world which the agents inhabit is assumed to have _causal structure_ which is _unknown_ but _connected_ and _consistent_, in that:
+      - The probability distribution of each agent's future observations, conditioned on another agent's action, is not equal to the probability distribution not so conditioned - in other words, we assume that actions have effects. In a world where this does not hold, coordination would be pointless.
+      - The world _does not discriminate on the basis of agent identity_.
+         - Agents taking measurements in the _same way_ (the definition of this is left a bit vague, but suppose e.g. measuring the temperature at the same time in the same place) will receive the same result, within some error epsilon.
+         - Agents taking action in the _same way_ (the definition of this is left a bit vague, but suppose e.g. setting the same thermostat to the same level) will result in the same effects, within some error epsilon.
 
-<!-- 
+4. Agents may have *preferences* about this world. In general, the preferences of agents range over the configuration space of their future possible observations. Preferences take a partial order. Agents' preferences may range not only over their own future observations but also over future observations of other agents which they know.
 
-```haskell
-type Protocol
-```
+> For example, a preference indicating that an agent prefers a higher temperature might be: $$("temperature", 25) > ("temperature", 24)$$
 
- -->
+5. Anoma does not presume any _a priori_ agreement on semantics, units of measurement, data of interest, means of measurement, capabilities of agents, actions possible to take, knowledge of conditional probability distributions, etc.
+
+In general, Anoma aims to allow these agents to infer the underlying causal structure of this world and coordinate their actions within it to better satisfy their preferences. The rest of this specification defines the _Anoma protocol_, which is specific logic that agents run to read, create, and process messages. For convenience, the Anoma protocol shall be referred to henceforth as just _the protocol_.

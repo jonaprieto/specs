@@ -53,7 +53,7 @@
     - [Commitment](./architecture/engines/commitment.md)
     - [Decryption](./architecture/engines/decryption.md)
     - [Solver](./architecture/engines/solver.md)
-    - [Strategy synthesis](./architecture/engines/strategy-synthesis.md)
+    - [Strategy](./architecture/engines/strategy.md)
     - [Interaction](./architecture/engines/interaction.md)
 - [Applications](./applications.md)
   - [Primitives](./applications/primitives.md)

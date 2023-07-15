@@ -30,7 +30,7 @@ Engines:
 - [Solver](./engines/solver.md#solver)
 - [Commitment](./engines/commitment.md#commitment)
 - [Decryption](./engines/decryption.md#decryption)
-- [Strategy synthesis](./engines/strategy-synthesis.md#strategy-synthesis)
+- [Strategy](./engines/strategy.md#strategy)
 - [Interaction](./engines/interaction.md#interaction)
 
 ---

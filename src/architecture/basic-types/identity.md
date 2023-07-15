@@ -89,4 +89,4 @@ The basic interface of an identity is stateless, but identities may also be _sta
 
 ## Identity Engine
 
-Side information about opaque Identities, as well as routing information, etc. are stored in the [Identity Engine](../engines/identity.md#identity).
+Side information about opaque Identities, as well as routing information, etc. are stored in the [commitment engine](../engines/commitment.md).

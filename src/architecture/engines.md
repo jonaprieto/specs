@@ -28,8 +28,9 @@ Engines:
 - [Storage](./engines/storage.md#storage)
 - [Compute](./engines/compute.md#compute)
 - [Solver](./engines/solver.md#solver)
-- [Identity](./engines/identity.md#identity)
-- [Strategy synthesis](./engines/strategy-synthesis.md#strategy-synthesis)
+- [Commitment](./engines/commitment.md#commitment)
+- [Decryption](./engines/decryption.md#decryption)
+- [Strategy](./engines/strategy.md#strategy)
 - [Interaction](./engines/interaction.md#interaction)
 
 ---

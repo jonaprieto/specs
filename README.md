@@ -3,9 +3,7 @@
 # Anoma Specification
 This repository contains the canonical specification documents for the Anoma protocol stack.
 
-
-
-[﻿Figure 1 and more](https://app.eraser.io/workspace/5dY2OCC7z2mZER16Kway?elements=oEws5s767l-jKLWJF82F0Q) 
+![Figure 2](/.eraser/5dY2OCC7z2mZER16Kway___jd3VGfVCpAX6IC30vOqEx6JEtMZ2___---figure---52gxFPQFjz1qYPG9F-QPp---figure---j4eRhfkk6fpJCYuh9A7FNQ.png "Figure 2")
 
 ## Reading the specification
 If you would like to read the spec, please visit [﻿specs.anoma.net](https://specs.anoma.net/).

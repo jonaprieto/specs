@@ -1,40 +1,33 @@
+<p><a target="_blank" href="https://app.eraser.io/workspace/IM5U3AhpBwFkNTFwliTs" id="edit-in-eraser-github-link"><img alt="Edit in Eraser" src="https://firebasestorage.googleapis.com/v0/b/second-petal-295822.appspot.com/o/images%2Fgithub%2FOpen%20in%20Eraser.svg?alt=media&amp;token=968381c8-a7e7-472a-8ed6-4a6626da5501"></a></p>
+
 # Transparent Transactions
-
 #### Table of Contents
-
-- [Transfer Transactions](#part-1---token-transfer-transactions)
-- [Initialize Account Transactions](#part-2---initialize-account-transaction)
-- [Submitting Transactions](#submitting-transparent-transactions)
-
+- [﻿Transfer Transactions](#part-1---token-transfer-transactions) 
+- [﻿Initialize Account Transactions](#part-2---initialize-account-transaction) 
+- [﻿Submitting Transactions](#submitting-transparent-transactions) 
 ## Constructing Transparent Transactions
-
 The web-wallet will need to support many transactions. As the data that gets submitted to the ledger is most easily constructed from `anoma` types, we perform the assembly of the transaction with in WebAssembly using Rust so that we may natively interact with `anoma`. The role of wasm in this scenario is to provide two pieces of data to the client (which will handle the broadcasting of the transaction), which are:
 
-1. `hash` - the hash of the transaction
-2. `data` - A byte array of the final wrapped and signed transaction
-
+1. `hash`  - the hash of the transaction
+2. `data`  - A byte array of the final wrapped and signed transaction
 The following outlines how we can construct these transactions before returning them to the client.
 
 ## Part 1 - Token Transfer Transactions
-
 There are a few steps involved in creating and signing a transaction:
 
-1. Create an `anoma::proto::Tx struct` and sign it with a keypair
-2. Wrap Tx with a `anoma::types::transaction::WrapperTx` struct which encrypts the transaction
-3. Create a new `anoma::proto::Tx` with the new `WrapperTx` as data, and sign it with a keypair (this will be broadcast to the ledger)
-
+1. Create an `anoma::proto::Tx struct`  and sign it with a keypair
+2. Wrap Tx with a `anoma::types::transaction::WrapperTx`  struct which encrypts the transaction
+3. Create a new `anoma::proto::Tx`  with the new `WrapperTx`  as data, and sign it with a keypair (this will be broadcast to the ledger)
 ### 1.1 - Creating the `anoma::proto::Tx` struct
-
 The requirements for creating this struct are as follow:
 
-- A pre-built wasm in the form of a byte array (this is loaded in the client as a `Uint8Array` type to pass to the wasm)
-- A serialized `anoma::types::token::Transfer` object which contains the following:
-  - `source` - source address derived from keypair
-  - `target` - target address
-  - `token` - token address
-  - `amount` - amount to transfer
-- A UTC timestamp. _NOTE_ this is created when calling `proto::Tx::new()`, however, this is incompatible with the wasm in runtime (`time` is undefined). Therefore, we need to get a valid timestamp from `js_sys`:
-
+- A pre-built wasm in the form of a byte array (this is loaded in the client as a `Uint8Array`  type to pass to the wasm)
+- A serialized `anoma::types::token::Transfer`  object which contains the following:
+    - `source`  - source address derived from keypair
+    - `target`  - target address
+    - `token`  - token address
+    - `amount`  - amount to transfer
+- A UTC timestamp. _NOTE_ this is created when calling `proto::Tx::new()` , however, this is incompatible with the wasm in runtime (`time`  is undefined). Therefore, we need to get a valid timestamp from `js_sys` :
 ```rust
 // anoma-lib/src/util.rs
 
@@ -52,9 +45,7 @@ pub fn get_timestamp() -> DateTimeUtc {
     DateTimeUtc(utc)
 }
 ```
-
 #### Creating the `types::token::Transfer` struct to pass in as data:
-
 _In wasm:_
 
 ```rust
@@ -72,13 +63,10 @@ let data = transfer
     .try_to_vec()
     .expect("Encoding unsigned transfer shouldn't fail");
 ```
-
 _In Anoma CLI:_
-https://github.com/anoma/anoma/blob/f6e78278608aaef253617885bb7ef95a50057268/apps/src/lib/client/tx.rs#L406-L411
-
+[﻿https://github.com/anoma/anoma/blob/f6e78278608aaef253617885bb7ef95a50057268/apps/src/lib/client/tx.rs#L406-L411](https://github.com/anoma/anoma/blob/f6e78278608aaef253617885bb7ef95a50057268/apps/src/lib/client/tx.rs#L406-L411) 
 
 #### Creating and signing the `proto::Tx` struct
-
 _In wasm:_
 
 ```rust
@@ -94,24 +82,20 @@ impl Tx {
     }
 }
 ```
-
 **NOTE** Here we provide a work around to an issue with `proto::Tx::new()` in wasm - instead of calling the method directly on `Tx`, we create a new implementation that returns a `proto::Tx`, with the timestamp being set using `js_sys` in order to make this wasm-compatible.
 
 _In Anoma CLI:_
-https://github.com/anoma/anoma/blob/f6e78278608aaef253617885bb7ef95a50057268/apps/src/lib/client/tx.rs#L417-L419
-
+[﻿https://github.com/anoma/anoma/blob/f6e78278608aaef253617885bb7ef95a50057268/apps/src/lib/client/tx.rs#L417-L419](https://github.com/anoma/anoma/blob/f6e78278608aaef253617885bb7ef95a50057268/apps/src/lib/client/tx.rs#L417-L419) 
 
 ### 1.2 - Creating the `anoma::types::transaction::WrapperTx` struct
-
 The requirements for creating this struct are as follows:
 
-- A `transaction::Fee` type, which contains:
-  - `amount` - the Fee amount
-  - `token` - the address of the token
-- `epoch` - The ID of the epoch from query
-- `gas_limit` - This contains a `u64` value representing the gas limit
-- `tx` - the `proto::Tx` type we created earlier.
-
+- A `transaction::Fee`  type, which contains:
+    - `amount`  - the Fee amount
+    - `token`  - the address of the token
+- `epoch`  - The ID of the epoch from query
+- `gas_limit`  - This contains a `u64`  value representing the gas limit
+- `tx`  - the `proto::Tx`  type we created earlier.
 _In wasm:_
 
 ```rust
@@ -128,14 +112,12 @@ transaction::WrapperTx::new(
     tx,
 )
 ```
-
 **NOTE** Here we can directly invoke `WrapperTx::new`, so we only need to concern ourselves with convering the JavaScript-provided values into the appropriate types.
 
 _In Anoma CLI:_
-https://github.com/anoma/anoma/blob/f6e78278608aaef253617885bb7ef95a50057268/apps/src/lib/client/tx.rs#L687-L696
+[﻿https://github.com/anoma/anoma/blob/f6e78278608aaef253617885bb7ef95a50057268/apps/src/lib/client/tx.rs#L687-L696](https://github.com/anoma/anoma/blob/f6e78278608aaef253617885bb7ef95a50057268/apps/src/lib/client/tx.rs#L687-L696) 
 
 #### 1.3 - Create a new `Tx` with `WrapperTx` and sign it
-
 Here we create a `WrapperTx` type, and with that we create a new `Tx` type (our _wrapped_ `Tx` type) with the `WrapperTx` as the `data`, and empty `vec![]` for `code`, and a new `timestamp`, and then we sign it.
 
 _In wasm:_
@@ -150,7 +132,6 @@ _In wasm:_
         .try_to_vec().expect("Could not serialize WrapperTx")
 )).sign(&keypair)
 ```
-
 We can summarize a high-level overview of the entire process from the `anoma-lib/src/types/transaction.rs` implementation:
 
 ```rust
@@ -183,13 +164,10 @@ Ok(Transaction {
     bytes,
 })
 ```
-
 _In Anoma CLI:_
-https://github.com/anoma/anoma/blob/f6e78278608aaef253617885bb7ef95a50057268/apps/src/lib/client/tx.rs#L810-L814
-
+[﻿https://github.com/anoma/anoma/blob/f6e78278608aaef253617885bb7ef95a50057268/apps/src/lib/client/tx.rs#L810-L814](https://github.com/anoma/anoma/blob/f6e78278608aaef253617885bb7ef95a50057268/apps/src/lib/client/tx.rs#L810-L814) 
 
 ## Part 2 - Initialize Account Transaction
-
 Constructing an Initialize Account transaction follows a similar process to a transfer, however, in addition to providing a `tx_init_account` wasm, we need to provide the `vp_user` wasm as well, as this is required when constructing the transaction:
 
 ```rust
@@ -205,9 +183,10 @@ let data = InitAccount {
     vp_code: vp_code.clone(),
 };
 ```
-
 Following this, we will pass `data` into to our new transaction as before, along with `tx_code` and required values for `WrapperTx`, returning the final result in a `JsValue` containing the transaction hash and returned byte array.
 
 ## Submitting Transparent Transactions
+See [﻿RPC](./rpc.md) for more information on HTTP and WebSocket RPC interaction with ledger.
 
-See [RPC](./rpc.md) for more information on HTTP and WebSocket RPC interaction with ledger.
+
+<!--- Eraser file: https://app.eraser.io/workspace/IM5U3AhpBwFkNTFwliTs --->

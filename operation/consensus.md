@@ -1,5 +1,9 @@
-# Consensus
+<p><a target="_blank" href="https://app.eraser.io/workspace/8xDl2Opi0PblHAkmiW5L" id="edit-in-eraser-github-link"><img alt="Edit in Eraser" src="https://firebasestorage.googleapis.com/v0/b/second-petal-295822.appspot.com/o/images%2Fgithub%2FOpen%20in%20Eraser.svg?alt=media&amp;token=968381c8-a7e7-472a-8ed6-4a6626da5501"></a></p>
 
+# Consensus
 _Consensus_ algorithms are a class of identity compositions of particular interest because they compose identities in a way which provides fault tolerance. In the system, consensus algorithms are modeled as an external identity dependent on a logical DAG. To map this to existing terminology, the logical DAG is the consensus transcript and the external identity is roughly the light client algorithm. Consensus algorithms will often bundle transactions in blocks to save signing rounds, but this is an internal detail - the `verify` function then just contains an additional Merkle proof, for example. Different consensus algorithms can all generally rely on the same observation data and identity infrastructure from the physical DAG, but may include separate internal messages as (possibly encrypted) witnesses which will be read only by other participants in that particular instantiation of the algorithm. In addition to a verification function, consensus algorithms generally provide a role definition which agents can use to determine when they should send particular messages or observations.
 
-Anoma provides the heterogeneous BFT consensus protocol [Typhon](../components/typhon.md).
+Anoma provides the heterogeneous BFT consensus protocol [﻿Typhon](../components/typhon.md).
+
+
+<!--- Eraser file: https://app.eraser.io/workspace/8xDl2Opi0PblHAkmiW5L --->

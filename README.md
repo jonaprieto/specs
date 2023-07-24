@@ -3,13 +3,21 @@
 # Anoma Specification
 This repository contains the canonical specification documents for the Anoma protocol stack.
 
-![Figure 2](/.eraser/5dY2OCC7z2mZER16Kway___jd3VGfVCpAX6IC30vOqEx6JEtMZ2___---figure---52gxFPQFjz1qYPG9F-QPp---figure---j4eRhfkk6fpJCYuh9A7FNQ.png "Figure 2")
+![Flow example 1](undefined "Flow example 1")
 
 ## Reading the specification
 If you would like to read the spec, please visit [﻿specs.anoma.net](https://specs.anoma.net/).
 
 ## Contributing to the specification
 Contributions may be made as PRs to this repository. For now there is no specific process in place - just make a PR!
+
+
+
+![Figure 2](undefined "Figure 2")
+
+
+
+
 
 ## Specification archive
 Older versions of the specs and previous papers can be found in the [﻿archived](./archived) folder. They are kept around for posterity and do not reflect current development.

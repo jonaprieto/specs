@@ -4,7 +4,7 @@
 # Introduction
 Taiga is a component of Anoma that is used to produce valid state transition proposals. Taiga defines what a valid transaction is and provides the means to produce and verify transactions.
 
-![Figure 1](/.eraser/uFIT53BcuyXB9kWWZeWT___jd3VGfVCpAX6IC30vOqEx6JEtMZ2___---figure---ZDJl4MdVa-Nk9NMWlCEng---figure---B-YaNqEtewas1LX6DDkk7g.png "Figure 1")
+![Figure 1](/.eraser/uFIT53BcuyXB9kWWZeWT___jd3VGfVCpAX6IC30vOqEx6JEtMZ2___---figure---DzjNsWHTCJOmiVC811nO9---figure---B-YaNqEtewas1LX6DDkk7g.png "Figure 1")
 
 A valid **transaction** is defined as a _balanced_ set of valid **partial transactions**. A partial transaction is valid when:
 

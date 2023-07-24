@@ -3,7 +3,7 @@
 # Anoma Specification
 This repository contains the canonical specification documents for the Anoma protocol stack.
 
-![Flow example 1](undefined "Flow example 1")
+![Flow example 1](/.eraser/5dY2OCC7z2mZER16Kway___jd3VGfVCpAX6IC30vOqEx6JEtMZ2___---figure---vwRmg84G5QjBLG-v0nIvJ---figure---qSHbafT160uFKu54QLB8Cg.png "Flow example 1")
 
 ## Reading the specification
 If you would like to read the spec, please visit [﻿specs.anoma.net](https://specs.anoma.net/).
@@ -13,7 +13,7 @@ Contributions may be made as PRs to this repository. For now there is no specifi
 
 
 
-![Figure 2](undefined "Figure 2")
+![Figure 2](/.eraser/5dY2OCC7z2mZER16Kway___jd3VGfVCpAX6IC30vOqEx6JEtMZ2___---figure---It40uX0kqrTBgs0leidEq---figure---i_SBeSp2LJNTfEdp1k4FDg.png "Figure 2")
 
 
 

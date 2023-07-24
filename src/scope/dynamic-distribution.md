@@ -1,7 +1,7 @@
 <p><a target="_blank" href="https://app.eraser.io/workspace/QlSNPIywBYVrKCSzw3hL" id="edit-in-eraser-github-link"><img alt="Edit in Eraser" src="https://firebasestorage.googleapis.com/v0/b/second-petal-295822.appspot.com/o/images%2Fgithub%2FOpen%20in%20Eraser.svg?alt=media&amp;token=968381c8-a7e7-472a-8ed6-4a6626da5501"></a></p>
 
 # Dynamic distribution
-
+![Sequence](/.eraser/QlSNPIywBYVrKCSzw3hL___jd3VGfVCpAX6IC30vOqEx6JEtMZ2___---figure---VWahM87QMHtAIWPPoB44s---figure---e5_kiopfWdwuxi0IO_VdfQ.png "Sequence")
 
 # Network
 Agents can send messages to each other by `send(identity, msg)` where `identity` is an external identity, and they can handle received messages with some `onRecv(msg)` (to which messages addressed to them will be sent). We assume an asynchronous physical network in the general case, where liveness with regard to some message set and some agents will require eventual receipt of all messages in the set by the agents in question.

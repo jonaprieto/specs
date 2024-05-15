@@ -1,40 +1,36 @@
+<p><a target="_blank" href="https://app.eraser.io/workspace/QsOw1uObbjmUgmuHDLm2" id="edit-in-eraser-github-link"><img alt="Edit in Eraser" src="https://firebasestorage.googleapis.com/v0/b/second-petal-295822.appspot.com/o/images%2Fgithub%2FOpen%20in%20Eraser.svg?alt=media&amp;token=968381c8-a7e7-472a-8ed6-4a6626da5501"></a></p>
+
 Without loss of generality,
 
 - Agents run Turing machines
 - Conditional commitments to information flows
-
 ```haskell
 type Intent = (History -> Action -> Bool)
 ```
-
 (action could also be broadcast another intent)
 
 ```haskell
-type Intent = 
+type Intent =
 ```
-
 Anoma aims to allow _agents_ to:
 
 - Create, validate, and merge cryptographically content-addressed histories.
-    Cryptographically content-addressed histories are histories issued by an agent with private information, such that only an agent with that private information could create history addressed in that way. Validation covers correct instantiation, correct execution since instantiation (state transition rules), and applicable constraints (e.g. linearity).
+ Cryptographically content-addressed histories are histories issued by an agent with private information, such that only an agent with that private information could create history addressed in that way. Validation covers correct instantiation, correct execution since instantiation (state transition rules), and applicable constraints (e.g. linearity).
 - In any arbitrary sub-network with compatible trust assumptions, come to consensus on mutually preferred state changes without relying on any agent outside the sub-network, in a way which can be proved to a third party.
 - Reason about the information flow which results from sending a particular message subject to trust assumptions that the agent is willing to make.
-
 _Scaling_ 
 
 - Agents should not need compute/storage more than a constant factor w.r.t the transactions they are directly involved with in order to process history with which they want to interact.
+>  Note: What is the minimal set of cryptographic assumptions needed to satisfy these desiderata? Should be just one-way hash functions ~ i.e. P /= NP. 
 
-> Note: What is the minimal set of cryptographic assumptions needed to satisfy these desiderata? Should be just one-way hash functions ~ i.e. P /= NP.
-
-> TODO: Prove that Anoma is unique up to isomorphism in some appropriate class (given these requirements and assumptions).
-
+>  TODO: Prove that Anoma is unique up to isomorphism in some appropriate class (given these requirements and assumptions). 
 
 ---
-
 
 ---
 
 BRAINSTORMING
+
 - compositionality? interactions should compose
 - heterogeneous trust
     - agents trust other agents to enforce predicate P on their executions?
@@ -47,14 +43,11 @@ BRAINSTORMING
 - WHAT ANOMA SHOULD GUARANTEE
     - if IN FACT the trust assumptions are correct, and the commitments are adhered to, the invariants should hold
     - something about observers... if in fact ... then ANY observer will see ... (consensus) ~ a sort of perspective-independence
-
 ---
 
 OLD PART
 
-
 # Desiderata
-
 In this context, with the specified primitives, the protocol should provide to an agent the ability to:
 
 - Create cryptographically-content-addressed history
@@ -68,5 +61,7 @@ In this context, with the specified primitives, the protocol should provide to a
     - Checks that no message was consumed to create different descendents in both histories (and as descendents commit to their ancestors, also checks that no message was consumed alongside different other messages in both histories) 
     - Can create a message which witnesses many prior histories (but does not consume them), and restricts its descendents to never witness conflicting histories from ones already witnessed.
         - e.g. used for block production by consensus providers
-
 These functions are scale-free, in that the compute costs do not depend on the complexity of the particular histories in question. Implementation choices for particular primitives (identity, proof systems) can be made in order to trade between different computational and communication costs and who bears them.
+
+
+<!--- Eraser file: https://app.eraser.io/workspace/QsOw1uObbjmUgmuHDLm2 --->

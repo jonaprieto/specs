@@ -1,5 +1,10 @@
-# Primitives
+<p><a target="_blank" href="https://app.eraser.io/workspace/hYaLcinXO02caOw22MSq" id="edit-in-eraser-github-link"><img alt="Edit in Eraser" src="https://firebasestorage.googleapis.com/v0/b/second-petal-295822.appspot.com/o/images%2Fgithub%2FOpen%20in%20Eraser.svg?alt=media&amp;token=968381c8-a7e7-472a-8ed6-4a6626da5501"></a></p>
 
-- [Tokens](./primitives/tokens.md#tokens)
-- [Attestation](./primitives/attestation.md#attestation)
-- [Authorization](./primitives/authorization.md#authorization)
+# Primitives
+- [﻿Tokens](./primitives/tokens.md#tokens) 
+- [﻿Attestation](./primitives/attestation.md#attestation) 
+- [﻿Authorization](./primitives/authorization.md#authorization) 
+
+
+
+<!--- Eraser file: https://app.eraser.io/workspace/hYaLcinXO02caOw22MSq --->

@@ -1,5 +1,9 @@
-# Anoma vis-a-vis Zcash
+<p><a target="_blank" href="https://app.eraser.io/workspace/Xe61FVZ07pjQSD2aHMBh" id="edit-in-eraser-github-link"><img alt="Edit in Eraser" src="https://firebasestorage.googleapis.com/v0/b/second-petal-295822.appspot.com/o/images%2Fgithub%2FOpen%20in%20Eraser.svg?alt=media&amp;token=968381c8-a7e7-472a-8ed6-4a6626da5501"></a></p>
 
+# Anoma vis-a-vis Zcash
 Anoma and Zcash share the aim of providing privacy and freedom to users and communities. Compared to the Zcash political philosophy (or at least what seems to be understood in the popular consciousness), Anoma decouples assets from the protocol - Anoma takes preservation of privacy as a feature of counterparty discovery and settlement rails, not as a property of any particular asset. Compared to the Zcash protocol, Anoma tackles a larger scope - Zcash is focused purely on settlement, while Anoma aims to provide both counterparty discovery and settlement in a heterogeneous trust, privacy-preserving way. As a point of specific interest, Anoma unifies the privacy-preserving double-spend prevention technique of Zerocash/Zcash/Zexe - nullifiers, uniquely binding to note commitments, unlinkable and calculable with secret information - with the double-spend prevention required of distributed database systems / blockchains (preventing multiple valid conflicting descendents of the same block), recasting the mechanism as a distributed enforcement system for a linear resource logic.
 
 Anoma is fully compatible with the Zcash asset (bridged in some fashion) and would in principle be able to use the Zcash blockchain as a settlement layer if it adds more programmability (or through advanced techniques such as witness encryption).
+
+
+<!--- Eraser file: https://app.eraser.io/workspace/Xe61FVZ07pjQSD2aHMBh --->

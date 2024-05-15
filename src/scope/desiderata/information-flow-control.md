@@ -1,14 +1,18 @@
+<p><a target="_blank" href="https://app.eraser.io/workspace/sfFtGJEXcyACA99bhQVx" id="edit-in-eraser-github-link"><img alt="Edit in Eraser" src="https://firebasestorage.googleapis.com/v0/b/second-petal-295822.appspot.com/o/images%2Fgithub%2FOpen%20in%20Eraser.svg?alt=media&amp;token=968381c8-a7e7-472a-8ed6-4a6626da5501"></a></p>
+
 # Information flow control
-
 - Information flow control _between identities_, and _over time_ (possibly subject to assumptions)
-
 - In general, privacy can be provided for any kind of verification of part of the logical DAG if the verifiable computation scheme in use is zero-knowledge.
-- Consensus providers can use distributed key generation, where the shared key becomes part of their `encrypt` function, alongside internal programmable threshold decryption in order to provide transaction submission privacy, batch fairness (when used along with guarantees about how they internally process transactions). 
+- Consensus providers can use distributed key generation, where the shared key becomes part of their `encrypt`  function, alongside internal programmable threshold decryption in order to provide transaction submission privacy, batch fairness (when used along with guarantees about how they internally process transactions). 
 - Fully homomorphically encrypted state does not require any special treatment from the architectural perspective (since state lives in only one location), just predicates which encode the FHE evaluation functions. FHE can also be combined with distributed key generation and threshold decryption for threshold FHE.
 - It should be possible to select the cryptographic technique required on the basis of (a) acceptable assumptions (are BFT assumptions OK for privacy?) and (b) shared ordering requirements (if no shared ordering requirement, ZKPs will suffice, if yes, FHE or threshold FHE is required).
+>  TODO: Spell out these combinations in more detail. 
 
-> TODO: Spell out these combinations in more detail.
+>  TODO: For dynamic provisioning, it seems like we'd need a sort of "Ferveo on-demand" where everyone generates key shares, but those are combined into public keys on-demand (compositionally) instead of as part of the DKG protocol. Is this feasible? 
 
-> TODO: For dynamic provisioning, it seems like we'd need a sort of "Ferveo on-demand" where everyone generates key shares, but those are combined into public keys on-demand (compositionally) instead of as part of the DKG protocol. Is this feasible?
+>  TODO: Clearly describe how commitments & nullifiers can work in the linear resource logic DAG. 
 
-> TODO: Clearly describe how commitments & nullifiers can work in the linear resource logic DAG.
+
+
+
+<!--- Eraser file: https://app.eraser.io/workspace/sfFtGJEXcyACA99bhQVx --->
